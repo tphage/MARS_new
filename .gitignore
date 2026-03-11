@@ -1,0 +1,10 @@
+__pycache__/
+*.pyc
+*.pyo
+*.pkl
+*.graphml
+pipeline_logs/
+chroma/
+.env
+*.ipynb_checkpoints
+.DS_Store

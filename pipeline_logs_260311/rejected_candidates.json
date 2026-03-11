@@ -1,0 +1,27 @@
+{
+  "rejected_candidates": [
+    {
+      "candidate": "Kebapeak PEEK XS1300/PTFE Composite",
+      "constraints": [
+        "Cannot propose PFAS (per- and polyfluoroalkyl substances) materials - materials containing carbon-fluorine bonds are not allowed"
+      ],
+      "reason": "PFAS material detected - contains carbon-fluorine bonds",
+      "timestamp": "2026-03-11T10:34:15.463788Z"
+    },
+    {
+      "candidate": "AKROPEEK\u2011GF/POE Seal",
+      "constraints": [],
+      "reason": "",
+      "timestamp": "2026-03-11T10:40:17.037379Z"
+    },
+    {
+      "candidate": "AKROPEK\u00ae PEEK 8 natural (7343) (Dry",
+      "constraints": [
+        "Ensure future candidates include detailed precursor sourcing information or confirm that all necessary monomers are commercially available for lab\u2011scale synthesis."
+      ],
+      "reason": "Ensure future candidates include detailed precursor sourcing information or confirm that all necessary monomers are commercially available for lab\u2011scale synthesis.",
+      "timestamp": "2026-03-11T10:50:48.538410Z",
+      "source": "manufacturability"
+    }
+  ]
+}

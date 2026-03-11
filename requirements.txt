@@ -1,0 +1,21 @@
+# Core LLM and AI
+openai
+autogen
+sentence-transformers
+transformers
+torch
+
+# Knowledge graphs and embeddings
+networkx
+chromadb
+numpy
+
+# Data processing
+pandas
+pyyaml
+pydantic>=2.0
+
+# Utilities
+tqdm
+matplotlib
+reportlab>=4.0
