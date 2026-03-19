@@ -1,0 +1,45 @@
+{
+  "rejected_candidates": [
+    {
+      "candidate": "Composite - KEBAPEAK PEEK XS1300 with 20\u202fwt% Fluorinated Ethylene Propylene (FEP",
+      "constraints": [
+        "Cannot propose PFAS (per- and polyfluoroalkyl substances) materials - materials containing carbon-fluorine bonds are not allowed"
+      ],
+      "reason": "PFAS material detected - contains carbon-fluorine bonds",
+      "timestamp": "2026-03-19T13:15:57.569556Z"
+    },
+    {
+      "candidate": "PEEK/Transparent Polyurethane Elastomer Composite",
+      "constraints": [
+        "Exclude candidates that require simultaneous high\u2011temperature processing of incompatible polymers without proven lab\u2011scale equipment or clear mitigation strategies."
+      ],
+      "reason": "Exclude candidates that require simultaneous high\u2011temperature processing of incompatible polymers without proven lab\u2011scale equipment or clear mitigation strategies.",
+      "timestamp": "2026-03-19T13:28:00.145145Z",
+      "source": "manufacturability"
+    },
+    {
+      "candidate": "EdgetekTM PK\u2011000/000",
+      "constraints": [],
+      "reason": "",
+      "timestamp": "2026-03-19T13:37:47.104792Z"
+    },
+    {
+      "candidate": "AKROTEK\u00ae PEEK 8 natural (dry) / Kapton HN Flexible Polyimide Film Laminate",
+      "constraints": [],
+      "reason": "",
+      "timestamp": "2026-03-19T13:44:44.270332Z"
+    },
+    {
+      "candidate": "AKROTEK\u00ae PEEK 8 natural + Medical\u2011Grade Transparent Polyurethane Elastomer (Composite",
+      "constraints": [],
+      "reason": "",
+      "timestamp": "2026-03-19T13:51:42.624650Z"
+    },
+    {
+      "candidate": "Polyethylene naphthalate (PEN) - Standard Grade",
+      "constraints": [],
+      "reason": "",
+      "timestamp": "2026-03-19T14:00:19.592924Z"
+    }
+  ]
+}
