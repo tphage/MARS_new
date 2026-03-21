@@ -1,0 +1,50 @@
+{
+  "pipeline_run_id": "2026031914",
+  "start_time": "2026-03-19T18:54:36.666654Z",
+  "end_time": "2026-03-19T19:23:16.697200Z",
+  "total_duration_seconds": 1720.030546,
+  "system1": {
+    "run_id": "2026031914_0",
+    "start_time": "2026-03-19T18:54:36.739662Z",
+    "end_time": "2026-03-19T19:01:16.313132Z",
+    "duration_seconds": 399.57347,
+    "result_path": "/orcd/pool/004/tphage/SG_march/MARS/pipeline_logs/system1_2026031914_0.json",
+    "chat_log_path": "/orcd/pool/004/tphage/SG_march/MARS/pipeline_logs/chats/system1_chat_log_material_requirements_2026031914_0.json",
+    "properties_extracted": 26
+  },
+  "system2_system3_loop": {
+    "max_iterations": 5,
+    "total_iterations": 1,
+    "iterations": [
+      {
+        "iteration": 1,
+        "system2": {
+          "run_id": "2026031914_0",
+          "start_time": "2026-03-19T19:01:16.531008Z",
+          "end_time": "2026-03-19T19:17:22.770147Z",
+          "duration_seconds": 966.239139,
+          "result_path": "/orcd/pool/004/tphage/SG_march/MARS/pipeline_logs/system2_2026031914_0.json",
+          "chat_log_path": "/orcd/pool/004/tphage/SG_march/MARS/pipeline_logs/chats/system2_chat_log_material_discovery_2026031914_0.json",
+          "candidate": "ViviOnTM 1608 / EVOH Composite (Cyclic Block Copolymer + Ethylene Vinyl Alcohol",
+          "internal_iterations": []
+        },
+        "system3": {
+          "run_id": "2026031914_0",
+          "start_time": "2026-03-19T19:17:22.786300Z",
+          "end_time": "2026-03-19T19:23:16.613278Z",
+          "duration_seconds": 353.826978,
+          "result_path": "/orcd/pool/004/tphage/SG_march/MARS/pipeline_logs/system3_2026031914_0.json",
+          "chat_log_path": "/orcd/pool/004/tphage/SG_march/MARS/pipeline_logs/chats/system3_chat_log_manufacturability_assessment_2026031914_0.json",
+          "status": "manufacturable",
+          "blocking_constraints": [],
+          "feedback_to_system2": ""
+        }
+      }
+    ]
+  },
+  "final_outcome": {
+    "status": "manufacturable",
+    "final_candidate": "ViviOnTM 1608 / EVOH Composite (Cyclic Block Copolymer + Ethylene Vinyl Alcohol",
+    "total_rejected_candidates": 1
+  }
+}
