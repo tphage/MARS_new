@@ -1,0 +1,92 @@
+{
+  "query": {
+    "sentence": "Find a substitute material for PTFE that can be used in industrial seals applications",
+    "material_X": "PTFE",
+    "application_Y": "industrial seals"
+  },
+  "required_material_properties": {
+    "properties": [
+      "Low friction coefficient (≤0.04 at room temperature)",
+      "High chemical resistance to acids, bases, solvents, and oils",
+      "Thermal stability up to 200 °C continuous service",
+      "Good dimensional stability and low compression set (<10 %) over operating life",
+      "Adequate mechanical strength for sealing under pressure (tensile strength ≥30 MPa)",
+      "Compatibility with typical seal manufacturing processes (extrusion, injection molding, or compression molding)",
+      "Non-reactive to common seal lubricants and greases"
+    ],
+    "constraints": [
+      "Must not degrade or swell in the presence of aggressive chemicals used in the target industrial process",
+      "Should maintain sealing integrity at both low (≤0 °C) and high temperatures (up to 200 °C)",
+      "Material hardness should be within 70–90 Shore A for typical elastomeric seals",
+      "No hazardous by‑products or toxic degradation products during service",
+      "Must be available in grades that can be processed at lab scale without specialized equipment"
+    ]
+  },
+  "candidate_selection": {
+    "final_candidate": {
+      "material_name": "Viton® A (FKM, fluorocarbon elastomer)",
+      "material_class": "Fluoroelastomer",
+      "material_id": null,
+      "justification": "Viton A offers a balance of PTFE‑like chemical resistance and superior mechanical properties. It has a compression set <10 % at 200 °C, tensile strength ~35 MPa, Shore A hardness 70–80, and can be processed by extrusion or injection molding. Its low friction coefficient (~0.04) matches PTFE while providing better sealing performance under pressure. The material is commercially available in lab‑scale grades (e.g., 1‑inch extrudable strands) and has no known toxic degradation products.",
+      "properties": null
+    },
+    "rejected_candidates": []
+  },
+  "manufacturing_process": {
+    "status": "manufacturable",
+    "process_recipe": [
+      {
+        "step_index": 1,
+        "description": "Blend base FKM polymer with 5–10 wt% of a low‑friction additive (e.g., polytetrafluoroethylene powder) and 2–4 wt% of a crosslinking agent (peroxide).",
+        "conditions": "Mix in a twin‑screw extruder at 260–280 °C, 50–70 rpm.",
+        "equipment_class": "Twin‑screw extruder",
+        "inputs": [
+          "Viton A FKM resin",
+          "PTFE powder (≤10 wt%)",
+          "Dicumyl peroxide (2–4 wt%)"
+        ]
+      },
+      {
+        "step_index": 2,
+        "description": "Extrude the compounded material into strands or sheets suitable for compression molding.",
+        "conditions": "Die temperature 260 °C, take‑off speed 5–10 m/min.",
+        "equipment_class": "Extruder die",
+        "inputs": [
+          "Compounded polymer blend"
+        ]
+      },
+      {
+        "step_index": 3,
+        "description": "Compression mold the strands into seal geometry at 260 °C for 30 s, then cool under pressure to room temperature.",
+        "conditions": "Mold pressure 5–10 MPa, cooling time 2 min.",
+        "equipment_class": "Compression molding press",
+        "inputs": [
+          "Extruded strands or sheets"
+        ]
+      },
+      {
+        "step_index": 4,
+        "description": "Post‑cure the molded seal in an oven at 150 °C for 1 h to complete peroxide crosslinking.",
+        "conditions": "Oven temperature 150 °C, ramp rate 5 °C/min.",
+        "equipment_class": "Lab oven",
+        "inputs": [
+          "Compression‑molded seal"
+        ]
+      }
+    ],
+    "blocking_constraints": [],
+    "feedback_to_system2": ""
+  },
+  "metadata": {
+    "pipeline_run_id": "2026032416",
+    "timestamp": "2026-03-24T20:21:36.723319Z",
+    "final_outcome_status": "manufacturable",
+    "total_iterations": 1,
+    "total_rejected_candidates": 0,
+    "ablation_condition": "1agent_no_rag",
+    "duration_seconds": 16.31130599975586
+  },
+  "raw_responses": {
+    "single_agent": "{\n  \"required_material_properties\": {\n    \"properties\": [\n      \"Low friction coefficient (≤0.04 at room temperature)\",\n      \"High chemical resistance to acids, bases, solvents, and oils\",\n      \"Thermal stability up to 200 °C continuous service\",\n      \"Good dimensional stability and low compression set (<10 %) over operating life\",\n      \"Adequate mechanical strength for sealing under pressure (tensile strength ≥30 MPa)\",\n      \"Compatibility with typical seal manufacturing processes (extrusion, injection molding, or compression molding)\",\n      \"Non-reactive to common seal lubricants and greases\"\n    ],\n    \"constraints\": [\n      \"Must not degrade or swell in the presence of aggressive chemicals used in the target industrial process\",\n      \"Should maintain sealing integrity at both low (≤0 °C) and high temperatures (up to 200 °C)\",\n      \"Material hardness should be within 70–90 Shore A for typical elastomeric seals\",\n      \"No hazardous by‑products or toxic degradation products during service\",\n      \"Must be available in grades that can be processed at lab scale without specialized equipment\"\n    ]\n  },\n  \"candidate_selection\": {\n    \"final_candidate\": {\n      \"material_name\": \"Viton® A (FKM, fluorocarbon elastomer)\",\n      \"material_class\": \"Fluoroelastomer\",\n      \"justification\": \"Viton A offers a balance of PTFE‑like chemical resistance and superior mechanical properties. It has a compression set <10 % at 200 °C, tensile strength ~35 MPa, Shore A hardness 70–80, and can be processed by extrusion or injection molding. Its low friction coefficient (~0.04) matches PTFE while providing better sealing performance under pressure. The material is commercially available in lab‑scale grades (e.g., 1‑inch extrudable strands) and has no known toxic degradation products.\"\n    }\n  },\n  \"manufacturing_process\": {\n    \"status\": \"manufacturable\",\n    \"process_recipe\": [\n      {\n        \"step_index\": 1,\n        \"description\": \"Blend base FKM polymer with 5–10 wt% of a low‑friction additive (e.g., polytetrafluoroethylene powder) and 2–4 wt% of a crosslinking agent (peroxide).\",\n        \"conditions\": \"Mix in a twin‑screw extruder at 260–280 °C, 50–70 rpm.\",\n        \"equipment_class\": \"Twin‑screw extruder\",\n        \"inputs\": [\n          \"Viton A FKM resin\",\n          \"PTFE powder (≤10 wt%)\",\n          \"Dicumyl peroxide (2–4 wt%)\"\n        ]\n      },\n      {\n        \"step_index\": 2,\n        \"description\": \"Extrude the compounded material into strands or sheets suitable for compression molding.\",\n        \"conditions\": \"Die temperature 260 °C, take‑off speed 5–10 m/min.\",\n        \"equipment_class\": \"Extruder die\",\n        \"inputs\": [\n          \"Compounded polymer blend\"\n        ]\n      },\n      {\n        \"step_index\": 3,\n        \"description\": \"Compression mold the strands into seal geometry at 260 °C for 30 s, then cool under pressure to room temperature.\",\n        \"conditions\": \"Mold pressure 5–10 MPa, cooling time 2 min.\",\n        \"equipment_class\": \"Compression molding press\",\n        \"inputs\": [\n          \"Extruded strands or sheets\"\n        ]\n      },\n      {\n        \"step_index\": 4,\n        \"description\": \"Post‑cure the molded seal in an oven at 150 °C for 1 h to complete peroxide crosslinking.\",\n        \"conditions\": \"Oven temperature 150 °C, ramp rate 5 °C/min.\",\n        \"equipment_class\": \"Lab oven\",\n        \"inputs\": [\n          \"Compression‑molded seal\"\n        ]\n      }\n    ],\n    \"blocking_constraints\": [],\n    \"feedback_to_system2\": \"\"\n  }\n}"
+  }
+}

@@ -10,6 +10,14 @@ from .subgraph_processor import SubgraphProcessor
 from .material_grounding import MaterialGrounding
 from .step1_cache import Step1Cache
 from .evaluation_export import build_evaluation_payload, save_evaluation_export
+from .ablation_utils import (
+    load_ablation_queries,
+    extract_json_from_response,
+    build_ablation_evaluation,
+    save_ablation_result,
+    format_rag_results_for_prompt,
+    format_kg_results_for_prompt,
+)
 
 __all__ = [
     "llm",
@@ -28,5 +36,11 @@ __all__ = [
     "Step1Cache",
     "build_evaluation_payload",
     "save_evaluation_export",
+    "load_ablation_queries",
+    "extract_json_from_response",
+    "build_ablation_evaluation",
+    "save_ablation_result",
+    "format_rag_results_for_prompt",
+    "format_kg_results_for_prompt",
 ]
 

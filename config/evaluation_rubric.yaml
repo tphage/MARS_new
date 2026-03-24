@@ -1,0 +1,97 @@
+judge_model: "gpt-4o"
+temperature: 0
+max_tokens: 8000
+
+dimensions:
+  property_extraction:
+    name: "Property Extraction Quality"
+    weight: 1.0
+    rubric: |
+      Evaluate how comprehensively and precisely the system identified required material properties.
+      Consider:
+      - Number of properties identified
+      - Quantitative specificity (thresholds, units, test standards like ASTM/IEC)
+      - Coverage breadth (mechanical, thermal, chemical, electrical, optical, processing, regulatory, cost, environmental)
+      - Whether the properties are testable by a lab technician
+
+      Scoring:
+      1-2: Fewer than 5 properties, mostly qualitative, missing major categories
+      3-4: 5-10 properties with some quantitative values, several important categories missing
+      5-6: 10-15 properties with reasonable quantitative detail, covers most categories
+      7-8: 15-25 properties with specific quantitative thresholds and test standards, comprehensive coverage
+      9-10: 25+ properties with precise quantitative thresholds, test standards, and exhaustive coverage across all relevant dimensions
+
+  constraint_correctness:
+    name: "Constraint Correctness"
+    weight: 1.0
+    rubric: |
+      Evaluate whether the constraints correctly capture the non-negotiable requirements implied by the query.
+      Consider:
+      - Does the system correctly interpret the query's intent? (e.g., if replacing a PFAS material, does it correctly identify that the substitute should be PFAS-free?)
+      - Are constraints specific and testable (with pass/fail thresholds)?
+      - Are there any self-contradictory constraints?
+      - Are critical application-specific constraints captured?
+
+      Scoring:
+      1-2: Constraints fundamentally misinterpret the query intent (e.g., requiring the wrong material class)
+      3-4: Correct direction but vague or missing key constraints
+      5-6: Mostly correct, reasonable specificity, captures main constraints
+      7-8: Correct with good specificity, testable thresholds, covers regulatory and application needs
+      9-10: Comprehensive, precise, testable constraints with specific test protocols and regulatory references
+
+  candidate_validity:
+    name: "Candidate Validity"
+    weight: 1.5
+    rubric: |
+      Evaluate whether the proposed candidate material is valid and suitable.
+      Consider:
+      - Is the material real and commercially available, or is it fabricated/hallucinated?
+      - Does the material actually satisfy the stated requirements?
+      - Does the material violate any constraints (especially critical ones like PFAS-free)?
+      - Is the justification well-reasoned and does it address the key requirements?
+      - Are property claims sourced or verifiable, or do they appear fabricated?
+
+      Scoring:
+      1-2: Candidate is fabricated, violates critical constraints, or fundamentally wrong for the application
+      3-4: Real material class but specific product may be fabricated, or material has significant gaps vs requirements
+      5-6: Real material, mostly suitable, but some property claims are unverifiable or the justification has gaps
+      7-8: Real, commercially available material with strong justification addressing most requirements; minor gaps
+      9-10: Verified commercial material with comprehensive justification grounded in real data, addresses all requirements
+
+  manufacturing_realism:
+    name: "Manufacturing Realism"
+    weight: 1.0
+    rubric: |
+      Evaluate whether the manufacturing/process recipe is realistic and actionable at lab scale.
+      Consider:
+      - Are the process steps complete? (Does the recipe actually produce the claimed end product?)
+      - Are conditions (temperature, pressure, time) specific and realistic?
+      - Is the required equipment available at lab scale?
+      - Are there safety concerns that would prevent execution?
+      - For specialty products (e.g., heat shrink tubing), does the recipe include the critical process steps that create the product's key functionality?
+
+      Scoring:
+      1-2: Recipe is incomplete, requires unavailable equipment, or has serious safety issues
+      3-4: Partially complete recipe but missing critical steps or has impractical conditions
+      5-6: Reasonable recipe that would produce something, but may miss specialty steps or have some impractical elements
+      7-8: Complete, practical recipe with specific conditions achievable at lab scale
+      9-10: Detailed, fully actionable recipe with specific conditions, equipment classes, QC steps, and all critical process steps included
+
+  hallucination_risk:
+    name: "Hallucination Risk"
+    weight: 1.0
+    rubric: |
+      Evaluate the risk that the system fabricated materials, product names, property values, or other factual claims.
+      Consider:
+      - Is the candidate material name a real, verifiable product?
+      - Are specific numerical property claims sourced or plausible?
+      - Does the system claim commercial availability for a product that doesn't appear to exist?
+      - Are there self-contradictions (e.g., claiming "no PFAS" while describing a fluorinated backbone)?
+      - Does the system fabricate supplier names or product grades?
+
+      Scoring (INVERTED - higher score = LESS hallucination):
+      1-2: Major fabrications -- fake product names, fake suppliers, invented specific numerical data, self-contradictions
+      3-4: Likely fabrications -- product grade or supplier unverifiable, specific numbers lack any attribution
+      5-6: Some unverifiable claims but core material and approach are real
+      7-8: Material and approach are real; minor unverifiable property extrapolations
+      9-10: All claims are verifiable or clearly labeled as estimates; no fabricated products or suppliers

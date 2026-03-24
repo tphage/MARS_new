@@ -1,0 +1,97 @@
+{
+  "query": {
+    "sentence": "Beyond PEEK, which thermoplastic materials can:\n- Withstand continuous or intermittent use up to 200 °C\n- Offer good chemical compatibility with acid, bases, organic solvents, oils\n- Be co extruded with softer polymers such as TPU, TPE, or TPV (e.g., in multilayer or jacketed constructions)\n",
+    "material_X": "PEEK",
+    "application_Y": "Withstand 200°C, good chemical compatibility with acid, bases, organic solvents, oils, co extrusion with softer polymers"
+  },
+  "required_material_properties": {
+    "properties": [
+      "continuous operating temperature ≥200 °C (or intermittent up to 200 °C)",
+      "excellent chemical resistance to strong acids, bases, organic solvents and oils",
+      "low moisture absorption (<0.1 %) and dimensional stability at high temperatures",
+      "sufficient melt strength for co‑extrusion with TPU/TPE/TPV layers",
+      "compatible melt flow index (MFI) range 5–20 g/10 min @230 °C to allow twin‑screw extrusion",
+      "good mechanical toughness and modulus comparable to PEEK (tensile >70 MPa, elongation >5 %)"
+    ],
+    "constraints": [
+      "melt viscosity must not exceed the capacity of a standard 2–3 mm screw extruder used in lab scale",
+      "processing temperature window should be ≤300 °C to avoid degradation of co‑extruded elastomeric layers",
+      "compatibilizer (e.g., maleic anhydride grafted polyolefin) required for interfacial adhesion with TPU/TPE/TPV",
+      "material must be available in a grade that can be melt‑blended without pre‑treatment (no cross‑linking or curing step)",
+      "cost and supply chain should allow lab‑scale procurement of at least 10 kg per batch"
+    ]
+  },
+  "candidate_selection": {
+    "final_candidate": {
+      "material_name": "DIC.PPS",
+      "material_class": "Polyphenylene sulfide (PPS) – cross‑linked linear grade",
+      "material_id": null,
+      "justification": "DIC.PPS has a melting point of ~280 °C and a heat deflection temperature above 215 °C, satisfying the ≥200 °C requirement. PPS is well known for its outstanding chemical resistance to acids, bases, organic solvents and oils (see materialdb Doc 5). It can be processed as a melt‑flowable thermoplastic in twin‑screw extruders, enabling co‑extrusion with TPU/TPE/TPV when combined with a maleic anhydride grafted polyolefin compatibilizer. The linear cross‑linked structure provides dimensional stability and mechanical toughness comparable to PEEK while being less expensive and more readily available for lab‑scale production.",
+      "properties": null
+    },
+    "rejected_candidates": []
+  },
+  "manufacturing_process": {
+    "status": "manufacturable",
+    "process_recipe": [
+      {
+        "step_index": 1,
+        "description": "Dry blend the PPS pellets (DIC.PPS) with a maleic anhydride grafted polypropylene compatibilizer (MAPP, 2 wt%) and TPU pellets (TPU‑A, 10 mm diameter).",
+        "conditions": "Blend in a tumble mixer for 5 min at room temperature.",
+        "equipment_class": "Tumble mixer or low‑speed blender",
+        "inputs": [
+          "DIC.PPS",
+          "MAPP",
+          "TPU"
+        ]
+      },
+      {
+        "step_index": 2,
+        "description": "Feed the blend into a twin‑screw extruder equipped with a temperature profile: 260 °C (feed zone), 280 °C (mid‑zone), 270 °C (die).",
+        "conditions": "Screw speed 50–70 rpm, barrel pressure ~10 bar.",
+        "equipment_class": "Lab‑scale twin‑screw extruder (e.g., Brabender or Thermo‑Scientific)",
+        "inputs": [
+          "blend"
+        ]
+      },
+      {
+        "step_index": 3,
+        "description": "Co‑extrude a second TPU layer by feeding TPU pellets into the same extruder downstream of the PPS melt, using a two‑channel die that merges the streams at ~190 °C for TPU.",
+        "conditions": "Maintain TPU channel temperature 190–200 °C; adjust screw speed to keep overall residence time <5 s.",
+        "equipment_class": "Co‑extrusion die with dual channels",
+        "inputs": [
+          "TPU"
+        ]
+      },
+      {
+        "step_index": 4,
+        "description": "Collect the multilayer film on a chilled roller, then perform a post‑heat treatment at 260 °C for 30 s to ensure interlayer adhesion.",
+        "conditions": "Cooling rate ~5 °C/s to avoid warping.",
+        "equipment_class": "Heat‑roller and chill roll",
+        "inputs": []
+      },
+      {
+        "step_index": 5,
+        "description": "Cut the film into test specimens for mechanical, thermal, and chemical resistance testing.",
+        "conditions": "",
+        "equipment_class": "Die cutter or laser cutter",
+        "inputs": []
+      }
+    ],
+    "blocking_constraints": [],
+    "feedback_to_system2": ""
+  },
+  "metadata": {
+    "pipeline_run_id": "2026032416",
+    "timestamp": "2026-03-24T20:32:58.569375Z",
+    "final_outcome_status": "manufacturable",
+    "total_iterations": 1,
+    "total_rejected_candidates": 0,
+    "ablation_condition": "1agent_rag",
+    "duration_seconds": 82.79596281051636
+  },
+  "raw_responses": {
+    "single_agent": "{\n  \"required_material_properties\": {\n    \"properties\": [\n      \"continuous operating temperature ≥200 °C (or intermittent up to 200 °C)\",\n      \"excellent chemical resistance to strong acids, bases, organic solvents and oils\",\n      \"low moisture absorption (<0.1 %) and dimensional stability at high temperatures\",\n      \"sufficient melt strength for co‑extrusion with TPU/TPE/TPV layers\",\n      \"compatible melt flow index (MFI) range 5–20 g/10 min @230 °C to allow twin‑screw extrusion\",\n      \"good mechanical toughness and modulus comparable to PEEK (tensile >70 MPa, elongation >5 %)\"\n    ],\n    \"constraints\": [\n      \"melt viscosity must not exceed the capacity of a standard 2–3 mm screw extruder used in lab scale\",\n      \"processing temperature window should be ≤300 °C to avoid degradation of co‑extruded elastomeric layers\",\n      \"compatibilizer (e.g., maleic anhydride grafted polyolefin) required for interfacial adhesion with TPU/TPE/TPV\",\n      \"material must be available in a grade that can be melt‑blended without pre‑treatment (no cross‑linking or curing step)\",\n      \"cost and supply chain should allow lab‑scale procurement of at least 10 kg per batch\"\n    ]\n  },\n  \"candidate_selection\": {\n    \"final_candidate\": {\n      \"material_name\": \"DIC.PPS\",\n      \"material_class\": \"Polyphenylene sulfide (PPS) – cross‑linked linear grade\",\n      \"justification\": \"DIC.PPS has a melting point of ~280 °C and a heat deflection temperature above 215 °C, satisfying the ≥200 °C requirement. PPS is well known for its outstanding chemical resistance to acids, bases, organic solvents and oils (see materialdb Doc 5). It can be processed as a melt‑flowable thermoplastic in twin‑screw extruders, enabling co‑extrusion with TPU/TPE/TPV when combined with a maleic anhydride grafted polyolefin compatibilizer. The linear cross‑linked structure provides dimensional stability and mechanical toughness comparable to PEEK while being less expensive and more readily available for lab‑scale production.\"\n    }\n  },\n  \"manufacturing_process\": {\n    \"status\": \"manufacturable\",\n    \"process_recipe\": [\n      {\n        \"step_index\": 1,\n        \"description\": \"Dry blend the PPS pellets (DIC.PPS) with a maleic anhydride grafted polypropylene compatibilizer (MAPP, 2 wt%) and TPU pellets (TPU‑A, 10 mm diameter).\",\n        \"conditions\": \"Blend in a tumble mixer for 5 min at room temperature.\",\n        \"equipment_class\": \"Tumble mixer or low‑speed blender\",\n        \"inputs\": [\"DIC.PPS\", \"MAPP\", \"TPU\"]\n      },\n      {\n        \"step_index\": 2,\n        \"description\": \"Feed the blend into a twin‑screw extruder equipped with a temperature profile: 260 °C (feed zone), 280 °C (mid‑zone), 270 °C (die).\",\n        \"conditions\": \"Screw speed 50–70 rpm, barrel pressure ~10 bar.\",\n        \"equipment_class\": \"Lab‑scale twin‑screw extruder (e.g., Brabender or Thermo‑Scientific)\",\n        \"inputs\": [\"blend\"]\n      },\n      {\n        \"step_index\": 3,\n        \"description\": \"Co‑extrude a second TPU layer by feeding TPU pellets into the same extruder downstream of the PPS melt, using a two‑channel die that merges the streams at ~190 °C for TPU.\",\n        \"conditions\": \"Maintain TPU channel temperature 190–200 °C; adjust screw speed to keep overall residence time <5 s.\",\n        \"equipment_class\": \"Co‑extrusion die with dual channels\",\n        \"inputs\": [\"TPU\"]\n      },\n      {\n        \"step_index\": 4,\n        \"description\": \"Collect the multilayer film on a chilled roller, then perform a post‑heat treatment at 260 °C for 30 s to ensure interlayer adhesion.\",\n        \"conditions\": \"Cooling rate ~5 °C/s to avoid warping.\",\n        \"equipment_class\": \"Heat‑roller and chill roll\",\n        \"inputs\": []\n      },\n      {\n        \"step_index\": 5,\n        \"description\": \"Cut the film into test specimens for mechanical, thermal, and chemical resistance testing.\",\n        \"conditions\": \"\",\n        \"equipment_class\": \"Die cutter or laser cutter\",\n        \"inputs\": []\n      }\n    ],\n    \"blocking_constraints\": [],\n    \"feedback_to_system2\": \"\"\n  }\n}",
+    "retrieved_context_chars": 41548
+  }
+}

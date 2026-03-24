@@ -1,0 +1,118 @@
+{
+  "query_name": "Query1",
+  "query_sentence": "Find a substitute material for PFAS material THV (elastomeric terpolymer of tetrafluoroethylene, hexafluoropropylene, and vinylidene fluoride) that has broad chemical resistance, including acids, bases, protic and aprotic solvents, oils, and salt solutions. Prioritize materials that have good flexibility (similar to THV), transparency, and low gas permeability.",
+  "blind_mapping": {
+    "A": "ablation_1agent_rag",
+    "B": "ablation_3agent",
+    "C": "ablation_1agent_no_rag",
+    "D": "evaluation"
+  },
+  "scores": {
+    "evaluation": {
+      "property_extraction": {
+        "score": 6,
+        "reasoning": "Many properties listed, though some are contradictory or poorly quantified."
+      },
+      "constraint_correctness": {
+        "score": 5,
+        "reasoning": "Captures most constraints but misinterprets flexibility (proposes a stiff composite)."
+      },
+      "candidate_validity": {
+        "score": 2,
+        "reasoning": "Product name appears fabricated; no evidence of such a composite existing."
+      },
+      "manufacturing_realism": {
+        "score": 7,
+        "reasoning": "Extrusion and compression molding steps are realistic for lab scale."
+      },
+      "hallucination_risk": {
+        "score": 1,
+        "reasoning": "High risk of hallucinated product name and unverified property claims."
+      },
+      "weighted_total": 4.0,
+      "overall_comment": "Poor candidate due to likely fabrication and mismatch with key mechanical requirements."
+    },
+    "ablation_3agent": {
+      "property_extraction": {
+        "score": 8,
+        "reasoning": "Comprehensive list of quantitative properties and thresholds across many categories."
+      },
+      "constraint_correctness": {
+        "score": 8,
+        "reasoning": "Accurately captures the PFAS‑free requirement and other constraints from the query."
+      },
+      "candidate_validity": {
+        "score": 2,
+        "reasoning": "Arkema FPU‑1000 appears fabricated; no evidence of such a product or its properties."
+      },
+      "manufacturing_realism": {
+        "score": 5,
+        "reasoning": "Recipe is plausible but relies on a non‑existent material, reducing practical relevance."
+      },
+      "hallucination_risk": {
+        "score": 1,
+        "reasoning": "High risk of hallucinated product name and property data without sources."
+      },
+      "weighted_total": 4.55,
+      "overall_comment": "Well‑structured but likely fabricated; low confidence in the candidate."
+    },
+    "ablation_1agent_rag": {
+      "property_extraction": {
+        "score": 4,
+        "reasoning": "Lists six properties with some quantitative limits but lacks breadth and detailed test standards."
+      },
+      "constraint_correctness": {
+        "score": 3,
+        "reasoning": "Misinterprets the PFAS‑free requirement by insisting on a fluorinated elastomer, contradicting the query’s implied constraint."
+      },
+      "candidate_validity": {
+        "score": 8,
+        "reasoning": "PFA is an established, commercially available fluoropolymer with known properties matching many of the requested criteria."
+      },
+      "manufacturing_realism": {
+        "score": 7,
+        "reasoning": "Recipe details realistic extrusion and annealing steps for PFA; conditions are achievable in a typical lab."
+      },
+      "hallucination_risk": {
+        "score": 9,
+        "reasoning": "No fabricated product names or unrealistic data; all claims align with known PFA characteristics."
+      },
+      "weighted_total": 6.36,
+      "overall_comment": "Solid technical foundation but fails to honor the PFAS‑free constraint."
+    },
+    "ablation_1agent_no_rag": {
+      "property_extraction": {
+        "score": 4,
+        "reasoning": "Only four properties listed with limited quantitative detail; lacks full coverage."
+      },
+      "constraint_correctness": {
+        "score": 3,
+        "reasoning": "Does not address the PFAS‑free requirement, misreading the query’s intent."
+      },
+      "candidate_validity": {
+        "score": 7,
+        "reasoning": "PFA-1000 is a real grade of PFA; properties are plausible and verifiable."
+      },
+      "manufacturing_realism": {
+        "score": 6,
+        "reasoning": "Autoclave polymerization steps are realistic but require specialized high‑pressure equipment."
+      },
+      "hallucination_risk": {
+        "score": 8,
+        "reasoning": "No fabricated product names; claims align with known PFA behavior."
+      },
+      "weighted_total": 5.73,
+      "overall_comment": "Acceptable candidate but ignores the PFAS‑free constraint."
+    }
+  },
+  "ranking": [
+    "ablation_1agent_rag",
+    "ablation_1agent_no_rag",
+    "ablation_3agent",
+    "evaluation"
+  ],
+  "ranking_reasoning": "System A offers a real, low‑hallucination substitute that meets most technical needs but misreads the PFAS constraint. System C provides a real product but ignores that constraint. Systems B and D rely on fabricated materials with questionable data.",
+  "judge_model": "gpt-oss-20b",
+  "timestamp": "2026-03-24T20:56:08.439781Z",
+  "judge_elapsed_seconds": 57.8
+}

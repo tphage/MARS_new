@@ -1,0 +1,30 @@
+queries:
+  - name: "Query1"
+    sentence: "Find a substitute material for PFAS material THV (elastomeric terpolymer of tetrafluoroethylene, hexafluoropropylene, and vinylidene fluoride) that has broad chemical resistance, including acids, bases, protic and aprotic solvents, oils, and salt solutions. Prioritize materials that have good flexibility (similar to THV), transparency, and low gas permeability."
+    material_X: "elastomeric terpolymer of tetrafluoroethylene, hexafluoropropylene, and vinylidene fluoride"
+    application_Y: "broad chemical resistance"
+
+  - name: "Query2"
+    sentence: "Identify PFAS free thermoplastic material for heat shrink tubing with a 2:1 shrink ratio that could replace FEP heat shrink tubing that has an application / service temperature of up to ~200°C and a shrink temperature under 250°C."
+    material_X: "FEP"
+    application_Y: "heat shrink tubing"
+
+  - name: "Query3"
+    sentence: "Identify non fluoropolymer thermoplastics that can withstand severe thermal shock, specifically direct immersion into liquid nitrogen (-196 °C) and maintain structural integrity (no cracking, embrittlement, or catastrophic failure)."
+    material_X: "non fluoropolymer thermoplastics"
+    application_Y: "severe thermal shock"
+
+  - name: "Query4"
+    sentence: "What non-PFAS additives or formulation strategies can be used in thermoplastics to achieve low coefficient of friction (COF), good release / anti stick behavior and low surface energy?"
+    material_X: "PFAS additives"
+    application_Y: "anti stick behavior"
+
+  - name: "Query5"
+    sentence: "Beyond PEEK, which thermoplastic materials can:\n- Withstand continuous or intermittent use up to 200 °C\n- Offer good chemical compatibility with acid, bases, organic solvents, oils\n- Be co extruded with softer polymers such as TPU, TPE, or TPV (e.g., in multilayer or jacketed constructions)\n"
+    material_X: "PEEK"
+    application_Y: "Withstand 200°C, good chemical compatibility with acid, bases, organic solvents, oils, co extrusion with softer polymers"
+
+  - name: "PTFE_Seals"
+    sentence: "Find a substitute material for PTFE that can be used in industrial seals applications"
+    material_X: "PTFE"
+    application_Y: "industrial seals"

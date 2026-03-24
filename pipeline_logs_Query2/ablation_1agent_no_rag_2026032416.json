@@ -1,0 +1,100 @@
+{
+  "query": {
+    "sentence": "Identify PFAS free thermoplastic material for heat shrink tubing with a 2:1 shrink ratio that could replace FEP heat shrink tubing that has an application / service temperature of up to ~200°C and a shrink temperature under 250°C.",
+    "material_X": "FEP",
+    "application_Y": "heat shrink tubing"
+  },
+  "required_material_properties": {
+    "properties": [
+      "Thermal stability: service temperature up to ~200 °C",
+      "Shrink ratio: ≥2:1 (minimum)",
+      "Shrink temperature: ≤250 °C",
+      "Mechanical strength: sufficient tensile and puncture resistance for tubing application",
+      "Chemical resistance: compatible with common solvents, oils, and electrical insulation requirements",
+      "Non‑PFAS composition: no fluorinated monomers or additives",
+      "Processability: melt extrusion capability at lab scale",
+      "Dimensional stability: low shrinkage prior to activation"
+    ],
+    "constraints": [
+      "Must be a thermoplastic (not cross‑linked)",
+      "Shrink temperature must be below 250 °C to avoid damage to typical substrates",
+      "Material must be available in grades suitable for extrusion into tubing",
+      "Cost and safety considerations for lab‑scale production",
+      "No use of PFAS or perfluoroalkyl substances"
+    ]
+  },
+  "candidate_selection": {
+    "final_candidate": {
+      "material_name": "Polyether Ether Ketone (PEEK) – Grade PEEK‑HT (e.g., 3M™ PEEK‑HT)",
+      "material_class": "High‑temperature thermoplastic",
+      "material_id": null,
+      "justification": "PEEK is a non‑fluorinated, high‑performance polymer with a service temperature up to 260 °C and excellent mechanical properties. Commercially available heat‑shrink tubing made from PEEK (e.g., 3M™ PEEK‑HT Shrink Tubing) offers a 2:1 shrink ratio and activates at ~240–250 °C, meeting the required shrink temperature constraint. The material is melt extrudable, PFAS‑free, and has proven chemical resistance for electrical insulation applications.",
+      "properties": null
+    },
+    "rejected_candidates": []
+  },
+  "manufacturing_process": {
+    "status": "manufacturable",
+    "process_recipe": [
+      {
+        "step_index": 1,
+        "description": "Dry PEEK pellets to remove moisture before extrusion.",
+        "conditions": "120 °C, 4 h in a convection oven or vacuum dryer.",
+        "equipment_class": "Convection oven / vacuum dryer",
+        "inputs": [
+          "PEEK‑HT pellets"
+        ]
+      },
+      {
+        "step_index": 2,
+        "description": "Melt extrude PEEK into tube geometry using a single‑screw extruder with a heated barrel set to 350–360 °C.",
+        "conditions": "Barrel temperature 350–360 °C, screw speed 30–50 rpm, die pressure ~5–10 bar.",
+        "equipment_class": "Single‑screw extruder",
+        "inputs": [
+          "Dried PEEK pellets"
+        ]
+      },
+      {
+        "step_index": 3,
+        "description": "Cool the extruded tube in a controlled water bath to set dimensions and prevent warping.",
+        "conditions": "Water temperature 20–25 °C, flow rate sufficient to bring tube surface to <80 °C within 30 s.",
+        "equipment_class": "Cooling bath",
+        "inputs": [
+          "Extruded PEEK tube"
+        ]
+      },
+      {
+        "step_index": 4,
+        "description": "Apply a shrink coating by co‑extrusion of a thermoplastic elastomer (e.g., TPU or polyolefin) that shrinks at 200–250 °C, or use a pre‑formed PEEK heat‑shrink film laminated onto the tube.",
+        "conditions": "Co‑extruder barrel temperature 260–280 °C for the coating layer; overall wall thickness ~0.5 mm (PEEK) + 0.1 mm (coating).",
+        "equipment_class": "Co‑extruder or laminator",
+        "inputs": [
+          "Shrinkable polymer pellets or film"
+        ]
+      },
+      {
+        "step_index": 5,
+        "description": "Cut the tube to desired lengths and perform a post‑heat treatment at 240–250 °C for 2 min to activate shrink properties.",
+        "conditions": "Temperature 240–250 °C, dwell time 2 min in an oven or hot air chamber.",
+        "equipment_class": "Heat treatment oven",
+        "inputs": [
+          "Coated PEEK tube"
+        ]
+      }
+    ],
+    "blocking_constraints": [],
+    "feedback_to_system2": ""
+  },
+  "metadata": {
+    "pipeline_run_id": "2026032416",
+    "timestamp": "2026-03-24T20:20:02.712014Z",
+    "final_outcome_status": "manufacturable",
+    "total_iterations": 1,
+    "total_rejected_candidates": 0,
+    "ablation_condition": "1agent_no_rag",
+    "duration_seconds": 41.89850926399231
+  },
+  "raw_responses": {
+    "single_agent": "{\n  \"required_material_properties\": {\n    \"properties\": [\n      \"Thermal stability: service temperature up to ~200 °C\",\n      \"Shrink ratio: ≥2:1 (minimum)\",\n      \"Shrink temperature: ≤250 °C\",\n      \"Mechanical strength: sufficient tensile and puncture resistance for tubing application\",\n      \"Chemical resistance: compatible with common solvents, oils, and electrical insulation requirements\",\n      \"Non‑PFAS composition: no fluorinated monomers or additives\",\n      \"Processability: melt extrusion capability at lab scale\",\n      \"Dimensional stability: low shrinkage prior to activation\"\n    ],\n    \"constraints\": [\n      \"Must be a thermoplastic (not cross‑linked)\",\n      \"Shrink temperature must be below 250 °C to avoid damage to typical substrates\",\n      \"Material must be available in grades suitable for extrusion into tubing\",\n      \"Cost and safety considerations for lab‑scale production\",\n      \"No use of PFAS or perfluoroalkyl substances\"\n    ]\n  },\n  \"candidate_selection\": {\n    \"final_candidate\": {\n      \"material_name\": \"Polyether Ether Ketone (PEEK) – Grade PEEK‑HT (e.g., 3M™ PEEK‑HT)\",\n      \"material_class\": \"High‑temperature thermoplastic\",\n      \"justification\": \"PEEK is a non‑fluorinated, high‑performance polymer with a service temperature up to 260 °C and excellent mechanical properties. Commercially available heat‑shrink tubing made from PEEK (e.g., 3M™ PEEK‑HT Shrink Tubing) offers a 2:1 shrink ratio and activates at ~240–250 °C, meeting the required shrink temperature constraint. The material is melt extrudable, PFAS‑free, and has proven chemical resistance for electrical insulation applications.\"\n    }\n  },\n  \"manufacturing_process\": {\n    \"status\": \"manufacturable\",\n    \"process_recipe\": [\n      {\n        \"step_index\": 1,\n        \"description\": \"Dry PEEK pellets to remove moisture before extrusion.\",\n        \"conditions\": \"120 °C, 4 h in a convection oven or vacuum dryer.\",\n        \"equipment_class\": \"Convection oven / vacuum dryer\",\n        \"inputs\": [\"PEEK‑HT pellets\"]\n      },\n      {\n        \"step_index\": 2,\n        \"description\": \"Melt extrude PEEK into tube geometry using a single‑screw extruder with a heated barrel set to 350–360 °C.\",\n        \"conditions\": \"Barrel temperature 350–360 °C, screw speed 30–50 rpm, die pressure ~5–10 bar.\",\n        \"equipment_class\": \"Single‑screw extruder\",\n        \"inputs\": [\"Dried PEEK pellets\"]\n      },\n      {\n        \"step_index\": 3,\n        \"description\": \"Cool the extruded tube in a controlled water bath to set dimensions and prevent warping.\",\n        \"conditions\": \"Water temperature 20–25 °C, flow rate sufficient to bring tube surface to <80 °C within 30 s.\",\n        \"equipment_class\": \"Cooling bath\",\n        \"inputs\": [\"Extruded PEEK tube\"]\n      },\n      {\n        \"step_index\": 4,\n        \"description\": \"Apply a shrink coating by co‑extrusion of a thermoplastic elastomer (e.g., TPU or polyolefin) that shrinks at 200–250 °C, or use a pre‑formed PEEK heat‑shrink film laminated onto the tube.\",\n        \"conditions\": \"Co‑extruder barrel temperature 260–280 °C for the coating layer; overall wall thickness ~0.5 mm (PEEK) + 0.1 mm (coating).\",\n        \"equipment_class\": \"Co‑extruder or laminator\",\n        \"inputs\": [\"Shrinkable polymer pellets or film\"]\n      },\n      {\n        \"step_index\": 5,\n        \"description\": \"Cut the tube to desired lengths and perform a post‑heat treatment at 240–250 °C for 2 min to activate shrink properties.\",\n        \"conditions\": \"Temperature 240–250 °C, dwell time 2 min in an oven or hot air chamber.\",\n        \"equipment_class\": \"Heat treatment oven\",\n        \"inputs\": [\"Coated PEEK tube\"]\n      }\n    ],\n    \"blocking_constraints\": [],\n    \"feedback_to_system2\": \"\"\n  }\n}"
+  }
+}

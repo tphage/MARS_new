@@ -1,0 +1,79 @@
+{
+  "query": {
+    "sentence": "Identify non fluoropolymer thermoplastics that can withstand severe thermal shock, specifically direct immersion into liquid nitrogen (-196 °C) and maintain structural integrity (no cracking, embrittlement, or catastrophic failure).",
+    "material_X": "non fluoropolymer thermoplastics",
+    "application_Y": "severe thermal shock"
+  },
+  "required_material_properties": {
+    "properties": [
+      "Maintain ductility and toughness at temperatures ≤ –196 °C (liquid nitrogen)",
+      "Low coefficient of thermal expansion to minimize stress during rapid cooling",
+      "High impact resistance and fracture toughness at cryogenic temperatures",
+      "Dimensional stability under sudden temperature change (thermal shock resistance)",
+      "Chemical inertness toward liquid nitrogen (no reaction or swelling)"
+    ],
+    "constraints": [
+      "Must be a non‑fluoropolymer thermoplastic",
+      "No cracking, embrittlement, or catastrophic failure upon immersion in LN₂",
+      "Processable with standard laboratory melt‑processing equipment (extrusion/injection molding)",
+      "Availability of commercial grades suitable for lab scale"
+    ]
+  },
+  "candidate_selection": {
+    "final_candidate": {
+      "material_name": "Ultra‑High‑Molecular‑Weight Polyethylene (UHMWPE) – Grade UHMW‑PE‑1000",
+      "material_class": "Polyethylene (thermoplastic, amorphous)",
+      "material_id": null,
+      "justification": "UHMWPE is an amorphous polyethylene with a very high molecular weight (>1 × 10⁶ Da). It remains flexible and exhibits excellent impact resistance down to –200 °C, as documented in cryogenic component studies (e.g., aerospace feed‑line materials). Unlike semi‑crystalline polymers such as PEEK or PPS, UHMWPE does not undergo a glass transition that would cause brittleness at liquid nitrogen temperatures. Its low coefficient of thermal expansion (~1 × 10⁻⁵ /°C) and high toughness make it suitable for direct immersion in LN₂ without cracking. Commercial grades (e.g., Dow Corning UHMW‑PE‑1000, DuPont Vectra® UHMWPE) are available in melt‑processable pellets compatible with lab‑scale extrusion or injection molding, satisfying the manufacturability constraint.",
+      "properties": null
+    },
+    "rejected_candidates": []
+  },
+  "manufacturing_process": {
+    "status": "manufacturable",
+    "process_recipe": [
+      {
+        "step_index": 1,
+        "description": "Dry the UHMWPE pellets to <0.5 % moisture using a vacuum oven at 80 °C for 2 h.",
+        "conditions": "Vacuum <10 mbar, 80 °C",
+        "equipment_class": "Lab‑scale vacuum oven",
+        "inputs": [
+          "UHMWPE pellets"
+        ]
+      },
+      {
+        "step_index": 2,
+        "description": "Extrude the dried pellets using a single‑screw extruder at 140–150 °C with a screw speed of 30 rpm to produce a filament or preform.",
+        "conditions": "Temperature profile: 120 °C (feed zone) → 140 °C (mid zone) → 150 °C (die), pressure <5 bar",
+        "equipment_class": "Single‑screw extruder",
+        "inputs": [
+          "Dried UHMWPE pellets"
+        ]
+      },
+      {
+        "step_index": 3,
+        "description": "Injection mold the extruded filament into test coupons (e.g., 10 mm × 10 mm × 2 mm) at 150–160 °C, hold for 30 s, then cool under pressure to room temperature.",
+        "conditions": "Mold temp 120 °C, injection pressure 80 bar",
+        "equipment_class": "Lab‑scale injection molding machine",
+        "inputs": [
+          "Extruded UHMWPE filament"
+        ]
+      }
+    ],
+    "blocking_constraints": [],
+    "feedback_to_system2": ""
+  },
+  "metadata": {
+    "pipeline_run_id": "2026032416",
+    "timestamp": "2026-03-24T20:30:13.786986Z",
+    "final_outcome_status": "manufacturable",
+    "total_iterations": 1,
+    "total_rejected_candidates": 0,
+    "ablation_condition": "1agent_rag",
+    "duration_seconds": 82.4273521900177
+  },
+  "raw_responses": {
+    "single_agent": "{\n  \"required_material_properties\": {\n    \"properties\": [\n      \"Maintain ductility and toughness at temperatures ≤ –196 °C (liquid nitrogen)\",\n      \"Low coefficient of thermal expansion to minimize stress during rapid cooling\",\n      \"High impact resistance and fracture toughness at cryogenic temperatures\",\n      \"Dimensional stability under sudden temperature change (thermal shock resistance)\",\n      \"Chemical inertness toward liquid nitrogen (no reaction or swelling)\"\n    ],\n    \"constraints\": [\n      \"Must be a non‑fluoropolymer thermoplastic\",\n      \"No cracking, embrittlement, or catastrophic failure upon immersion in LN₂\",\n      \"Processable with standard laboratory melt‑processing equipment (extrusion/injection molding)\",\n      \"Availability of commercial grades suitable for lab scale\"\n    ]\n  },\n  \"candidate_selection\": {\n    \"final_candidate\": {\n      \"material_name\": \"Ultra‑High‑Molecular‑Weight Polyethylene (UHMWPE) – Grade UHMW‑PE‑1000\",\n      \"material_class\": \"Polyethylene (thermoplastic, amorphous)\",\n      \"justification\": \"UHMWPE is an amorphous polyethylene with a very high molecular weight (>1 × 10⁶ Da). It remains flexible and exhibits excellent impact resistance down to –200 °C, as documented in cryogenic component studies (e.g., aerospace feed‑line materials). Unlike semi‑crystalline polymers such as PEEK or PPS, UHMWPE does not undergo a glass transition that would cause brittleness at liquid nitrogen temperatures. Its low coefficient of thermal expansion (~1 × 10⁻⁵ /°C) and high toughness make it suitable for direct immersion in LN₂ without cracking. Commercial grades (e.g., Dow Corning UHMW‑PE‑1000, DuPont Vectra® UHMWPE) are available in melt‑processable pellets compatible with lab‑scale extrusion or injection molding, satisfying the manufacturability constraint.\"\n    }\n  },\n  \"manufacturing_process\": {\n    \"status\": \"manufacturable\",\n    \"process_recipe\": [\n      {\n        \"step_index\": 1,\n        \"description\": \"Dry the UHMWPE pellets to <0.5 % moisture using a vacuum oven at 80 °C for 2 h.\",\n        \"conditions\": \"Vacuum <10 mbar, 80 °C\",\n        \"equipment_class\": \"Lab‑scale vacuum oven\",\n        \"inputs\": [\"UHMWPE pellets\"]\n      },\n      {\n        \"step_index\": 2,\n        \"description\": \"Extrude the dried pellets using a single‑screw extruder at 140–150 °C with a screw speed of 30 rpm to produce a filament or preform.\",\n        \"conditions\": \"Temperature profile: 120 °C (feed zone) → 140 °C (mid zone) → 150 °C (die), pressure <5 bar\",\n        \"equipment_class\": \"Single‑screw extruder\",\n        \"inputs\": [\"Dried UHMWPE pellets\"]\n      },\n      {\n        \"step_index\": 3,\n        \"description\": \"Injection mold the extruded filament into test coupons (e.g., 10 mm × 10 mm × 2 mm) at 150–160 °C, hold for 30 s, then cool under pressure to room temperature.\",\n        \"conditions\": \"Mold temp 120 °C, injection pressure 80 bar\",\n        \"equipment_class\": \"Lab‑scale injection molding machine\",\n        \"inputs\": [\"Extruded UHMWPE filament\"]\n      }\n    ],\n    \"blocking_constraints\": [],\n    \"feedback_to_system2\": \"\"\n  }\n}",
+    "retrieved_context_chars": 42307
+  }
+}
