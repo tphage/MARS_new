@@ -432,9 +432,9 @@ def _scoring_scale_block() -> str:
         "Scoring scale (1--5):",
         "1 -- Unacceptable or not provided",
         "2 -- Poor, significant weaknesses",
-        "3 -- Adequate, needs expert refinement",
-        "4 -- Good, minor issues",
-        "5 -- Excellent, directly usable",
+        "3 -- Adequate, workable starting point",
+        "4 -- Good, needs expert refinement",
+        "5 -- Great, only minor issues",
     ]
     return _latex_itemize(lines)
 
@@ -443,14 +443,18 @@ def _system_evaluation_block(system_label: str, criteria: List[str]) -> str:
     criteria_block = _latex_itemize(criteria)
     scale_block = _scoring_scale_block()
     return (
-        f"\\subsection*{{{_latex_escape(system_label)} -- Expert evaluation}}\n"
+        "\\vspace{0.6cm}\n"
+        "\\noindent{\\Large\\bfseries\\textcolor{blue}{"
+        + _latex_escape(system_label)
+        + "}}\\\\[0.4cm]\n"
         "Assess:\n\n"
         f"{criteria_block}\n"
         f"{scale_block}\n"
+        "\\vspace{1.0cm}\n"
         "% Emphasized fields for evaluator input\n"
-        "{\\Large\\bfseries\\textcolor{blue}{SCORE (1--5):}} "
+        "\\noindent{\\Large\\bfseries\\textcolor{blue}{SCORE (1--5):}} "
         "\\rule{2.5cm}{0.3mm}\\\\[0.8cm]\n"
-        "{\\Large\\bfseries\\textcolor{blue}{SHORT EXPERT COMMENT:}}\\\\[3cm]\n"
+        "\\noindent{\\Large\\bfseries\\textcolor{blue}{SHORT EXPERT COMMENT:}}\\\\[3cm]\n"
         "\\clearpage\n"
     )
 
@@ -460,7 +464,13 @@ def _system_evaluation_block(system_label: str, criteria: List[str]) -> str:
 # ---------------------------
 
 
-def render_latex(evaluation: EvaluationRun, label: Optional[str] = None, blind: bool = False) -> str:
+def render_latex(
+    evaluation: EvaluationRun,
+    label: Optional[str] = None,
+    blind: bool = False,
+    skip_rejected: bool = False,
+    skip_hard_constraints: bool = False,
+) -> str:
     """Render the full LaTeX document as a string."""
     title_label = label or "PFAS Replacement Evaluation"
 
@@ -493,16 +503,19 @@ def render_latex(evaluation: EvaluationRun, label: Optional[str] = None, blind: 
             f"{_latex_multiline('No structured required properties recorded.')}\\\\\n"
         )
 
-    if evaluation.required_material_properties.constraints:
-        constraints_block = (
-            "\\subsubsection*{Hard constraints}\n"
-            f"{_latex_itemize(evaluation.required_material_properties.constraints)}\n"
-        )
+    if skip_hard_constraints:
+        constraints_block = ""
     else:
-        constraints_block = (
-            "\\subsubsection*{Hard constraints}\n"
-            f"{_latex_multiline('No explicit hard constraints recorded.')}\\\\\n"
-        )
+        if evaluation.required_material_properties.constraints:
+            constraints_block = (
+                "\\subsubsection*{Hard constraints}\n"
+                f"{_latex_itemize(evaluation.required_material_properties.constraints)}\n"
+            )
+        else:
+            constraints_block = (
+                "\\subsubsection*{Hard constraints}\n"
+                f"{_latex_multiline('No explicit hard constraints recorded.')}\\\\\n"
+            )
 
     # System 2 - final candidate
     if evaluation.final_candidate:
@@ -622,12 +635,42 @@ def render_latex(evaluation: EvaluationRun, label: Optional[str] = None, blind: 
 
     # Assemble full document
     meta_tex = _latex_multiline(meta_line) if meta_line else ""
-    query_block = "\n".join(
-        [
-            f"\\textbf{{Sentence}}: {_latex_multiline(evaluation.sentence or '-')}\\\\",
-            f"\\textbf{{Material X}}: {_latex_multiline(evaluation.material_x or '-')}\\\\",
-            f"\\textbf{{Application Y}}: {_latex_multiline(evaluation.application_y or '-')}\\\\",
+    if skip_rejected:
+        query_block = (
+            f"{_latex_multiline(evaluation.sentence or '-')}\\\\"
+        )
+    else:
+        query_block = "\n".join(
+            [
+                f"\\textbf{{Sentence}}: {_latex_multiline(evaluation.sentence or '-')}\\\\",
+                f"\\textbf{{Material X}}: {_latex_multiline(evaluation.material_x or '-')}\\\\",
+                f"\\textbf{{Application Y}}: {_latex_multiline(evaluation.application_y or '-')}\\\\",
+            ]
+        )
+
+    if skip_rejected:
+        rejected_section = ""
+        system2_criteria = [
+            "Alignment with required properties",
+            "Novelty",
+            "Realism",
+            "Reasoning",
+            "Internal consistency",
         ]
+    else:
+        rejected_section = (
+            "\\subsection*{Rejected candidates}\n" + rejected_block
+        )
+        system2_criteria = [
+            "Alignment with required properties",
+            "Novelty",
+            "Realism",
+            "Reasoning",
+            "Internal consistency",
+        ]
+
+    system2_eval_block = _system_evaluation_block(
+        "System 2 -- Expert evaluation section", system2_criteria
     )
 
     # Basic article class; user can post-process as needed
@@ -649,12 +692,17 @@ def render_latex(evaluation: EvaluationRun, label: Optional[str] = None, blind: 
 \\section*{{Query}}
 {query_block}
 
-\\section*{{System 1 -- Required Material Properties}}
+\\begin{{center}}
+\\Huge\\bfseries System 1\\\\[0.15cm]
+\\Large\\bfseries Required Material Properties
+\\end{{center}}
+\\vspace{{0.3cm}}
+\\section*{{System 1 -- Results}}
 {props_block}
 {constraints_block}
 
 {_system_evaluation_block(
-    "System 1 -- Required Material Properties",
+    "System 1 -- Expert evaluation section",
     [
         "Completeness",
         "Relevance to query",
@@ -663,30 +711,30 @@ def render_latex(evaluation: EvaluationRun, label: Optional[str] = None, blind: 
     ],
 )}
 
-\\section*{{System 2 -- Candidate Selection}}
+\\begin{{center}}
+\\Huge\\bfseries System 2\\\\[0.15cm]
+\\Large\\bfseries Candidate Selection
+\\end{{center}}
+\\vspace{{0.3cm}}
+\\section*{{System 2 -- Results}}
 
 \\subsection*{{Final candidate}}
 {fc_block}
 
-\\subsection*{{Rejected candidates}}
-{rejected_block}
+{rejected_section}
 
-{_system_evaluation_block(
-    "System 2 -- Candidate Selection",
-    [
-        "Alignment with required properties",
-        "Feasibility and realism",
-        "Tradeoff reasoning",
-        "Appropriateness of rejected alternatives",
-        "Internal consistency",
-    ],
-)}
+{system2_eval_block}
 
-\\section*{{System 3 -- Manufacturing Process}}
+\\begin{{center}}
+\\Huge\\bfseries System 3\\\\[0.15cm]
+\\Large\\bfseries Manufacturing Process
+\\end{{center}}
+\\vspace{{0.3cm}}
+\\section*{{System 3 -- Results}}
 {mfg_block}
 
 {_system_evaluation_block(
-    "System 3 -- Manufacturing Process",
+    "System 3 -- Expert evaluation section",
     [
         "Plausibility of synthesis route",
         "Processing practicality",
@@ -705,6 +753,8 @@ def render_pdf_with_latex(
     output_path: Path,
     label: Optional[str] = None,
     blind: bool = False,
+    skip_rejected: bool = False,
+    skip_hard_constraints: bool = False,
 ) -> None:
     """
     Render a PDF report at output_path by generating LaTeX and running pdflatex.
@@ -713,7 +763,13 @@ def render_pdf_with_latex(
     """
     output_path.parent.mkdir(parents=True, exist_ok=True)
 
-    latex_source = render_latex(evaluation, label=label, blind=blind)
+    latex_source = render_latex(
+        evaluation,
+        label=label,
+        blind=blind,
+        skip_rejected=skip_rejected,
+        skip_hard_constraints=skip_hard_constraints,
+    )
 
     with tempfile.TemporaryDirectory() as tmpdir:
         tmpdir_path = Path(tmpdir)
@@ -760,6 +816,7 @@ def generate_evaluation_pdf_latex(
     output_path: Optional[str | Path] = None,
     label: Optional[str] = None,
     blind: bool = False,
+    skip_rejected: bool = False,
 ) -> Path:
     """
     High-level helper to generate a LaTeX-based PDF from one evaluation JSON.
@@ -777,7 +834,7 @@ def generate_evaluation_pdf_latex(
     else:
         output_path = Path(output_path)
 
-    render_pdf_with_latex(evaluation, output_path, label=label, blind=blind)
+    render_pdf_with_latex(evaluation, output_path, label=label, blind=blind, skip_rejected=skip_rejected)
     return output_path
 
 
