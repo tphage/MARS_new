@@ -341,11 +341,16 @@ def _latex_inline_markdown(text: str) -> str:
     return re.sub(r"\*\*(.+?)\*\*", r"\\textbf{\1}", escaped)
 
 
+_BULLET_RE = re.compile(r"\s*(?:[•\-\*])\s+(.*)")
+_NUMBERED_RE = re.compile(r"\s*\d+\.\s+(.*)")
+
+
 def _latex_rich_text_block(text: str) -> str:
     """
     Render a markdown-like text block into LaTeX with support for:
     - Normal paragraphs
-    - A single numbered list (1., 2., ...) rendered as one enumerate block
+    - Bullet lists (•, -, *) rendered as an itemize block
+    - Numbered lists (1., 2., ...) rendered as an enumerate block
     - **bold** via _latex_inline_markdown
     """
     if not text or not text.strip():
@@ -356,9 +361,11 @@ def _latex_rich_text_block(text: str) -> str:
 
     blocks: List[str] = []
     para_lines: List[str] = []
+    bullet_items: List[str] = []
+    numbered_items: List[str] = []
 
     def flush_paragraph() -> None:
-        nonlocal para_lines, blocks
+        nonlocal para_lines
         if not para_lines:
             return
         joined = " ".join(ln.strip() for ln in para_lines if ln.strip())
@@ -366,48 +373,57 @@ def _latex_rich_text_block(text: str) -> str:
             blocks.append(_latex_inline_markdown(joined) + r"\\")
         para_lines = []
 
-    # First, gather paragraphs until we hit the first numbered line
-    numbered_start_idx = None
-    for idx, ln in enumerate(lines):
-        if re.match(r"\s*\d+\.\s+", ln):
-            numbered_start_idx = idx
-            break
-        if ln.strip():
-            para_lines.append(ln)
-        else:
-            flush_paragraph()
+    def flush_bullets() -> None:
+        nonlocal bullet_items
+        if not bullet_items:
+            return
+        blocks.append(
+            "\\begin{itemize}\n"
+            + "\n".join(bullet_items)
+            + "\n\\end{itemize}"
+        )
+        bullet_items = []
 
-    # Flush any pre-list paragraphs
-    flush_paragraph()
+    def flush_numbered() -> None:
+        nonlocal numbered_items
+        if not numbered_items:
+            return
+        blocks.append(
+            "\\begin{enumerate}\n"
+            + "\n".join(numbered_items)
+            + "\n\\end{enumerate}"
+        )
+        numbered_items = []
 
-    # If we never saw a numbered line, just render all as paragraphs
-    if numbered_start_idx is None:
-        if not blocks:  # no paragraphs flushed yet
-            para_lines = lines
-            flush_paragraph()
-        return "\n\n".join(blocks)
-
-    # Render numbered list from first numbered line onwards as one enumerate block
-    items: List[str] = []
-    for ln in lines[numbered_start_idx:]:
+    for ln in lines:
         stripped = ln.strip()
-        if not stripped:
-            # skip blank lines between list items
-            continue
-        m = re.match(r"(\d+)\.\s+(.*)", stripped)
-        if m:
-            content = m.group(2)
-            items.append("  \\item " + _latex_inline_markdown(content))
-        else:
-            # continuation line for the last item
-            if items:
-                items[-1] = items[-1] + " " + _latex_inline_markdown(stripped)
-            else:
-                # fall back to a paragraph if something unexpected appears
-                blocks.append(_latex_inline_markdown(stripped) + r"\\")
 
-    if items:
-        blocks.append("\\begin{enumerate}\n" + "\n".join(items) + "\n\\end{enumerate}")
+        if not stripped:
+            flush_paragraph()
+            continue
+
+        bm = _BULLET_RE.match(stripped)
+        nm = _NUMBERED_RE.match(stripped)
+
+        if bm:
+            flush_paragraph()
+            flush_numbered()
+            bullet_items.append("  \\item " + _latex_inline_markdown(bm.group(1)))
+        elif nm:
+            flush_paragraph()
+            flush_bullets()
+            numbered_items.append("  \\item " + _latex_inline_markdown(nm.group(1)))
+        else:
+            if bullet_items:
+                bullet_items[-1] += " " + _latex_inline_markdown(stripped)
+            elif numbered_items:
+                numbered_items[-1] += " " + _latex_inline_markdown(stripped)
+            else:
+                para_lines.append(ln)
+
+    flush_paragraph()
+    flush_bullets()
+    flush_numbered()
 
     return "\n\n".join(blocks)
 
@@ -523,10 +539,6 @@ def render_latex(
         fc_lines = [
             f"\\textbf{{Name}}: {_latex_multiline(fc.material_name)}\\\\",
         ]
-        if fc.material_class:
-            fc_lines.append(
-                f"\\textbf{{Class}}: {_latex_multiline(fc.material_class)}\\\\"
-            )
         if fc.material_id:
             fc_lines.append(
                 f"\\textbf{{ID}}: {_latex_multiline(fc.material_id)}\\\\"
