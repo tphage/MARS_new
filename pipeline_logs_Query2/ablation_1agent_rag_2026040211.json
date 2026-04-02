@@ -1,0 +1,93 @@
+{
+  "query": {
+    "sentence": "Identify PFAS free thermoplastic material for heat shrink tubing with a 2:1 shrink ratio that could replace FEP heat shrink tubing that has an application / service temperature of up to ~200°C and a shrink temperature under 250°C.",
+    "material_X": "FEP",
+    "application_Y": "heat shrink tubing"
+  },
+  "required_material_properties": {
+    "properties": [
+      "Thermoplastic with melt flow suitable for extrusion",
+      "Glass transition temperature (Tg) ≥ 200 °C to allow service up to ~200 °C",
+      "Melting point or softening temperature ≤ 300 °C for lab‑scale processing",
+      "Shrink ratio of at least 2:1 when pre‑expanded and heated",
+      "Shrink activation temperature < 250 °C",
+      "Dimensional stability during heating (low shrinkage loss)",
+      "Chemical resistance to common solvents and cable insulation materials",
+      "Low moisture absorption for consistent dimensional control",
+      "Non‑PFAS composition (no C–F bonds)"
+    ],
+    "constraints": [
+      "Must be extrudable with standard twin‑screw or single‑screw extruders at < 350 °C",
+      "Cannot contain fluorinated monomers or additives",
+      "Shrink temperature must not exceed 250 °C to avoid cable damage",
+      "Material must retain mechanical integrity after repeated heating cycles"
+    ]
+  },
+  "candidate_selection": {
+    "final_candidate": {
+      "material_name": "Polyethylene Naphthalate (PEN) Heat Shrink Tubing",
+      "material_class": "Thermoplastic Polyesters",
+      "material_id": null,
+      "justification": "PEN has a Tg of ~260 °C and a melt temperature around 280–310 °C, enabling service up to ~200 °C while remaining processable in standard extrusion equipment. Commercial PEN heat‑shrink tubing is available with pre‑expanded diameters that achieve a 2:1 shrink ratio when heated to 200–220 °C, well below the 250 °C limit. The polymer contains no fluorine atoms, satisfying the PFAS‑free requirement, and its high dimensional stability and chemical resistance make it suitable for cable insulation applications.",
+      "properties": null
+    },
+    "rejected_candidates": []
+  },
+  "manufacturing_process": {
+    "status": "manufacturable",
+    "process_recipe": [
+      {
+        "step_index": 1,
+        "description": "Extrude PEN pellets into a tube with the desired outer diameter (e.g., 0.5 in) and wall thickness (~0.02–0.04 in). Use a twin‑screw extruder set to 280–300 °C with a screw speed of 50–70 rpm.",
+        "conditions": "Feed rate 1–2 kg/h, barrel temperature profile 260/270/280/290/300 °C (from feed zone to die).",
+        "equipment_class": "Twin‑screw extruder with temperature control",
+        "inputs": [
+          "PEN pellets"
+        ]
+      },
+      {
+        "step_index": 2,
+        "description": "Pre‑expand the freshly extruded tube by heating it in a convection oven at 120–140 °C for 5 minutes. This creates an expansion ratio of ~1.8–2.0, which will contract to the original diameter when later heated.",
+        "conditions": "Oven temperature 130 °C, dwell time 5 min, air flow 1 m/s.",
+        "equipment_class": "Convection oven",
+        "inputs": [
+          "Extruded PEN tube"
+        ]
+      },
+      {
+        "step_index": 3,
+        "description": "Cool the expanded tube to room temperature and store in a dry environment to prevent moisture uptake.",
+        "conditions": "Ambient 20–25 °C, relative humidity <30 %.",
+        "equipment_class": "Storage cabinet",
+        "inputs": [
+          "Expanded PEN tube"
+        ]
+      },
+      {
+        "step_index": 4,
+        "description": "For use, place the tube over the cable or component and heat in a laboratory oven or hot air gun at 200–220 °C for 30–60 s. The tube will contract to its original diameter, providing a tight fit.",
+        "conditions": "Temperature 210 °C, dwell time 45 s, airflow 0.5 m/s.",
+        "equipment_class": "Hot air oven or hot‑air gun",
+        "inputs": [
+          "Expanded PEN tube",
+          "Cable/component"
+        ]
+      }
+    ],
+    "blocking_constraints": [],
+    "feedback_to_system2": ""
+  },
+  "metadata": {
+    "pipeline_run_id": "2026040211",
+    "timestamp": "2026-04-02T15:20:03.172360Z",
+    "final_outcome_status": "manufacturable",
+    "total_iterations": 1,
+    "total_rejected_candidates": 0,
+    "ablation_condition": "1agent_rag",
+    "duration_seconds": 135.30723667144775
+  },
+  "raw_responses": {
+    "single_agent": "{\n  \"required_material_properties\": {\n    \"properties\": [\n      \"Thermoplastic with melt flow suitable for extrusion\",\n      \"Glass transition temperature (Tg) ≥ 200 °C to allow service up to ~200 °C\",\n      \"Melting point or softening temperature ≤ 300 °C for lab‑scale processing\",\n      \"Shrink ratio of at least 2:1 when pre‑expanded and heated\",\n      \"Shrink activation temperature < 250 °C\",\n      \"Dimensional stability during heating (low shrinkage loss)\",\n      \"Chemical resistance to common solvents and cable insulation materials\",\n      \"Low moisture absorption for consistent dimensional control\",\n      \"Non‑PFAS composition (no C–F bonds)\"\n    ],\n    \"constraints\": [\n      \"Must be extrudable with standard twin‑screw or single‑screw extruders at < 350 °C\",\n      \"Cannot contain fluorinated monomers or additives\",\n      \"Shrink temperature must not exceed 250 °C to avoid cable damage\",\n      \"Material must retain mechanical integrity after repeated heating cycles\"\n    ]\n  },\n  \"candidate_selection\": {\n    \"final_candidate\": {\n      \"material_name\": \"Polyethylene Naphthalate (PEN) Heat Shrink Tubing\",\n      \"material_class\": \"Thermoplastic Polyesters\",\n      \"justification\": \"PEN has a Tg of ~260 °C and a melt temperature around 280–310 °C, enabling service up to ~200 °C while remaining processable in standard extrusion equipment. Commercial PEN heat‑shrink tubing is available with pre‑expanded diameters that achieve a 2:1 shrink ratio when heated to 200–220 °C, well below the 250 °C limit. The polymer contains no fluorine atoms, satisfying the PFAS‑free requirement, and its high dimensional stability and chemical resistance make it suitable for cable insulation applications.\"\n    }\n  },\n  \"manufacturing_process\": {\n    \"status\": \"manufacturable\",\n    \"process_recipe\": [\n      {\n        \"step_index\": 1,\n        \"description\": \"Extrude PEN pellets into a tube with the desired outer diameter (e.g., 0.5 in) and wall thickness (~0.02–0.04 in). Use a twin‑screw extruder set to 280–300 °C with a screw speed of 50–70 rpm.\",\n        \"conditions\": \"Feed rate 1–2 kg/h, barrel temperature profile 260/270/280/290/300 °C (from feed zone to die).\",\n        \"equipment_class\": \"Twin‑screw extruder with temperature control\",\n        \"inputs\": [\"PEN pellets\"]\n      },\n      {\n        \"step_index\": 2,\n        \"description\": \"Pre‑expand the freshly extruded tube by heating it in a convection oven at 120–140 °C for 5 minutes. This creates an expansion ratio of ~1.8–2.0, which will contract to the original diameter when later heated.\",\n        \"conditions\": \"Oven temperature 130 °C, dwell time 5 min, air flow 1 m/s.\",\n        \"equipment_class\": \"Convection oven\",\n        \"inputs\": [\"Extruded PEN tube\"]\n      },\n      {\n        \"step_index\": 3,\n        \"description\": \"Cool the expanded tube to room temperature and store in a dry environment to prevent moisture uptake.\",\n        \"conditions\": \"Ambient 20–25 °C, relative humidity <30 %.\",\n        \"equipment_class\": \"Storage cabinet\",\n        \"inputs\": [\"Expanded PEN tube\"]\n      },\n      {\n        \"step_index\": 4,\n        \"description\": \"For use, place the tube over the cable or component and heat in a laboratory oven or hot air gun at 200–220 °C for 30–60 s. The tube will contract to its original diameter, providing a tight fit.\",\n        \"conditions\": \"Temperature 210 °C, dwell time 45 s, airflow 0.5 m/s.\",\n        \"equipment_class\": \"Hot air oven or hot‑air gun\",\n        \"inputs\": [\"Expanded PEN tube\", \"Cable/component\"]\n      }\n    ],\n    \"blocking_constraints\": [],\n    \"feedback_to_system2\": \"\"\n  }\n}",
+    "retrieved_context_chars": 43818
+  }
+}

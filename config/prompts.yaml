@@ -722,6 +722,7 @@ ablation:
     Guidelines:
     - Propose a concrete, specific material (e.g., a specific polymer grade or compound name), not just a material class
     - Ensure the candidate satisfies the required properties and does not violate any constraints
+    - CRITICAL: Do NOT propose any PFAS (per- and polyfluoroalkyl substances) materials. PFAS are synthetic chemicals containing carbon-fluorine bonds, including fluoropolymers (PTFE, PFA, FEP, PVDF, ETFE, ECTFE, PCTFE) and fluoroelastomers (FKM, FFKM, Aflas). The proposed candidate must be PFAS-free.
     - Provide detailed justification linking the candidate's known properties to the requirements
     - Consider commercially available materials when possible
     - Respond with ONLY the JSON object, no other text
@@ -837,6 +838,7 @@ ablation:
     - Use the retrieved context to ground your analysis in real data
     - Be specific and quantitative where the context supports it
     - For the candidate, propose a concrete material (specific grade or compound), not just a class
+    - CRITICAL: Do NOT propose any PFAS (per- and polyfluoroalkyl substances) materials. PFAS are synthetic chemicals containing carbon-fluorine bonds, including fluoropolymers (PTFE, PFA, FEP, PVDF, ETFE, ECTFE, PCTFE) and fluoroelastomers (FKM, FFKM, Aflas). The proposed candidate must be PFAS-free.
     - If the candidate is manufacturable, provide a process recipe; if blocked, list blocking constraints and leave process_recipe as an empty array
     - Respond with ONLY the JSON object, no other text
 
@@ -898,6 +900,7 @@ ablation:
     - Rely on your training knowledge of materials science, chemistry, and manufacturing
     - Be specific and quantitative where possible
     - For the candidate, propose a concrete material (specific grade or compound), not just a class
+    - CRITICAL: Do NOT propose any PFAS (per- and polyfluoroalkyl substances) materials. PFAS are synthetic chemicals containing carbon-fluorine bonds, including fluoropolymers (PTFE, PFA, FEP, PVDF, ETFE, ECTFE, PCTFE) and fluoroelastomers (FKM, FFKM, Aflas). The proposed candidate must be PFAS-free.
     - If the candidate is manufacturable, provide a process recipe; if blocked, list blocking constraints and leave process_recipe as an empty array
     - Respond with ONLY the JSON object, no other text
 

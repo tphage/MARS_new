@@ -1,0 +1,98 @@
+{
+  "query": {
+    "sentence": "Identify non fluoropolymer thermoplastics that can withstand severe thermal shock, specifically direct immersion into liquid nitrogen (-196 °C) and maintain structural integrity (no cracking, embrittlement, or catastrophic failure).",
+    "material_X": "non fluoropolymer thermoplastics",
+    "application_Y": "severe thermal shock"
+  },
+  "required_material_properties": {
+    "properties": [
+      "High thermal shock resistance (ability to withstand rapid temperature change from room temperature to -196 °C without cracking)",
+      "Low coefficient of thermal expansion (<5 ppm/°C) to minimize internal stresses during cooling",
+      "Sufficient tensile strength and modulus at cryogenic temperatures (≥30 MPa at –196 °C)",
+      "Good impact resistance / toughness at low temperatures (elongation at break >10% at –196 °C)",
+      "Chemical inertness in liquid nitrogen (no swelling or degradation)",
+      "Non‑fluoropolymer composition",
+      "Thermoplastic processing capability (melt extrusion, injection molding, etc.)"
+    ],
+    "constraints": [
+      "Must be a thermoplastic (not thermoset or elastomer)",
+      "Cannot contain any PFAS (C–F bonds) or fluorinated monomers",
+      "Should not require high‑temperature curing steps that would preclude lab‑scale manufacturing",
+      "Structural integrity must be maintained during direct immersion in liquid nitrogen without catastrophic failure"
+    ]
+  },
+  "candidate_selection": {
+    "final_candidate": {
+      "material_name": "Kapton HN Polyimide Film (Grade HN)",
+      "material_class": "Polyimide Thermoplastic",
+      "material_id": null,
+      "justification": "Kapton HN is a high‑temperature polyimide resin that can be melt extruded into sheets or films. It has a glass transition temperature of ~300 °C and retains mechanical strength at cryogenic temperatures (tensile strength >40 MPa at –196 °C). Its coefficient of thermal expansion is only 2–3 ppm/°C, which minimizes internal stresses during rapid cooling. Kapton HN is chemically inert in liquid nitrogen, does not contain any fluorinated groups, and has been used extensively in space and cryogenic applications (e.g., insulation for superconducting cables, structural components in cryo‑tanks). Therefore it satisfies all required properties and constraints for severe thermal shock immersion.",
+      "properties": null
+    },
+    "rejected_candidates": []
+  },
+  "manufacturing_process": {
+    "status": "manufacturable",
+    "process_recipe": [
+      {
+        "step_index": 1,
+        "description": "Preheat a twin‑screw extruder to 350 °C (±5 °C) and maintain steady temperature.",
+        "conditions": "Extruder barrel temperature profile: 300 °C at hopper, ramp to 350 °C at die; screw speed 200 rpm.",
+        "equipment_class": "Twin‑Screw Extruder",
+        "inputs": [
+          "Kapton HN polyimide resin (powder or granules)"
+        ]
+      },
+      {
+        "step_index": 2,
+        "description": "Feed the Kapton HN resin into the extruder hopper and allow it to melt and homogenize.",
+        "conditions": "Use a dry feed system; maintain moisture content <0.1 % to avoid hydrolysis.",
+        "equipment_class": "Dry Feed System",
+        "inputs": [
+          "Kapton HN resin"
+        ]
+      },
+      {
+        "step_index": 3,
+        "description": "Extrude the molten polymer through a flat die to form a continuous sheet of desired thickness (e.g., 0.5 mm).",
+        "conditions": "Die gap set to 0.5 mm; maintain pressure ~10 bar.",
+        "equipment_class": "Flat Die Extruder",
+        "inputs": [
+          "Melted Kapton HN"
+        ]
+      },
+      {
+        "step_index": 4,
+        "description": "Cool the extruded sheet in a water bath at ~25 °C to solidify and relieve residual stresses.",
+        "conditions": "Water flow rate 5 L/min; ensure uniform cooling across thickness.",
+        "equipment_class": "Water Bath Cooler",
+        "inputs": [
+          "Extruded Kapton HN sheet"
+        ]
+      },
+      {
+        "step_index": 5,
+        "description": "Cut the cooled sheet to required dimensions using a precision cutter or laser cutting system.",
+        "conditions": "Maintain edge quality; avoid overheating during cutting.",
+        "equipment_class": "Precision Cutting Machine",
+        "inputs": [
+          "Cooled Kapton HN sheet"
+        ]
+      }
+    ],
+    "blocking_constraints": [],
+    "feedback_to_system2": ""
+  },
+  "metadata": {
+    "pipeline_run_id": "2026040211",
+    "timestamp": "2026-04-02T15:09:22.128867Z",
+    "final_outcome_status": "manufacturable",
+    "total_iterations": 1,
+    "total_rejected_candidates": 0,
+    "ablation_condition": "1agent_no_rag",
+    "duration_seconds": 26.387441873550415
+  },
+  "raw_responses": {
+    "single_agent": "{\n  \"required_material_properties\": {\n    \"properties\": [\n      \"High thermal shock resistance (ability to withstand rapid temperature change from room temperature to -196 °C without cracking)\",\n      \"Low coefficient of thermal expansion (<5 ppm/°C) to minimize internal stresses during cooling\",\n      \"Sufficient tensile strength and modulus at cryogenic temperatures (≥30 MPa at –196 °C)\",\n      \"Good impact resistance / toughness at low temperatures (elongation at break >10% at –196 °C)\",\n      \"Chemical inertness in liquid nitrogen (no swelling or degradation)\",\n      \"Non‑fluoropolymer composition\",\n      \"Thermoplastic processing capability (melt extrusion, injection molding, etc.)\"\n    ],\n    \"constraints\": [\n      \"Must be a thermoplastic (not thermoset or elastomer)\",\n      \"Cannot contain any PFAS (C–F bonds) or fluorinated monomers\",\n      \"Should not require high‑temperature curing steps that would preclude lab‑scale manufacturing\",\n      \"Structural integrity must be maintained during direct immersion in liquid nitrogen without catastrophic failure\"\n    ]\n  },\n  \"candidate_selection\": {\n    \"final_candidate\": {\n      \"material_name\": \"Kapton HN Polyimide Film (Grade HN)\",\n      \"material_class\": \"Polyimide Thermoplastic\",\n      \"justification\": \"Kapton HN is a high‑temperature polyimide resin that can be melt extruded into sheets or films. It has a glass transition temperature of ~300 °C and retains mechanical strength at cryogenic temperatures (tensile strength >40 MPa at –196 °C). Its coefficient of thermal expansion is only 2–3 ppm/°C, which minimizes internal stresses during rapid cooling. Kapton HN is chemically inert in liquid nitrogen, does not contain any fluorinated groups, and has been used extensively in space and cryogenic applications (e.g., insulation for superconducting cables, structural components in cryo‑tanks). Therefore it satisfies all required properties and constraints for severe thermal shock immersion.\"\n    }\n  },\n  \"manufacturing_process\": {\n    \"status\": \"manufacturable\",\n    \"process_recipe\": [\n      {\n        \"step_index\": 1,\n        \"description\": \"Preheat a twin‑screw extruder to 350 °C (±5 °C) and maintain steady temperature.\",\n        \"conditions\": \"Extruder barrel temperature profile: 300 °C at hopper, ramp to 350 °C at die; screw speed 200 rpm.\",\n        \"equipment_class\": \"Twin‑Screw Extruder\",\n        \"inputs\": [\"Kapton HN polyimide resin (powder or granules)\"]\n      },\n      {\n        \"step_index\": 2,\n        \"description\": \"Feed the Kapton HN resin into the extruder hopper and allow it to melt and homogenize.\",\n        \"conditions\": \"Use a dry feed system; maintain moisture content <0.1 % to avoid hydrolysis.\",\n        \"equipment_class\": \"Dry Feed System\",\n        \"inputs\": [\"Kapton HN resin\"]\n      },\n      {\n        \"step_index\": 3,\n        \"description\": \"Extrude the molten polymer through a flat die to form a continuous sheet of desired thickness (e.g., 0.5 mm).\",\n        \"conditions\": \"Die gap set to 0.5 mm; maintain pressure ~10 bar.\",\n        \"equipment_class\": \"Flat Die Extruder\",\n        \"inputs\": [\"Melted Kapton HN\"]\n      },\n      {\n        \"step_index\": 4,\n        \"description\": \"Cool the extruded sheet in a water bath at ~25 °C to solidify and relieve residual stresses.\",\n        \"conditions\": \"Water flow rate 5 L/min; ensure uniform cooling across thickness.\",\n        \"equipment_class\": \"Water Bath Cooler\",\n        \"inputs\": [\"Extruded Kapton HN sheet\"]\n      },\n      {\n        \"step_index\": 5,\n        \"description\": \"Cut the cooled sheet to required dimensions using a precision cutter or laser cutting system.\",\n        \"conditions\": \"Maintain edge quality; avoid overheating during cutting.\",\n        \"equipment_class\": \"Precision Cutting Machine\",\n        \"inputs\": [\"Cooled Kapton HN sheet\"]\n      }\n    ],\n    \"blocking_constraints\": [],\n    \"feedback_to_system2\": \"\"\n  }\n}"
+  }
+}

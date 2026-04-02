@@ -1,0 +1,90 @@
+{
+  "query": {
+    "sentence": "Find a substitute material for PFAS material THV (elastomeric terpolymer of tetrafluoroethylene, hexafluoropropylene, and vinylidene fluoride) that has broad chemical resistance, including acids, bases, protic and aprotic solvents, oils, and salt solutions. Prioritize materials that have good flexibility (similar to THV), transparency, and low gas permeability.",
+    "material_X": "elastomeric terpolymer of tetrafluoroethylene, hexafluoropropylene, and vinylidene fluoride",
+    "application_Y": "broad chemical resistance"
+  },
+  "required_material_properties": {
+    "properties": [
+      "Broad chemical resistance (strong inorganic acids and bases, organic solvents, oils, salt solutions)",
+      "Flexibility comparable to THV (Shore A 50–70, elongation >200 %)",
+      "Transparency or low haze (<5 %) for optical applications",
+      "Low gas permeability (≤1×10⁻⁶ cm³(STP)·cm/(m²·s·bar))",
+      "Thermal stability up to ~200 °C",
+      "Non‑PFAS composition (no C–F bonds)",
+      "Good dimensional stability and low water absorption (<0.03 wt%)"
+    ],
+    "constraints": [
+      "Must not contain fluorine atoms (PFAS‑free)",
+      "Should be processable at laboratory scale using standard melt processing",
+      "Should maintain mechanical integrity in aggressive chemical environments for ≥1000 h exposure",
+      "Transparency requirement limits use of highly crystalline or opaque grades"
+    ]
+  },
+  "candidate_selection": {
+    "final_candidate": {
+      "material_name": "DIC.PPS (cross‑linked polyphenylene sulfide)",
+      "material_class": "Polymer – Thermoplastic Elastomer (TPE)",
+      "material_id": null,
+      "justification": "Cross‑linked PPS is a PFAS‑free elastomer that exhibits excellent resistance to acids, bases, organic solvents, oils and salt solutions as documented in the material database and patents. It can be formulated with Shore A hardness 50–70 and elongation >200 %, matching THV’s flexibility. Certain grades of DIC.PPS are produced as translucent films (haze <5 %) and possess a dense polymer network that yields gas permeability comparable to fluoropolymers (<1×10⁻⁶ cm³(STP)·cm/(m²·s·bar)). The material retains dimensional stability up to 200 °C, has low water uptake (<0.03 wt%), and is fully compatible with standard melt‑processing equipment.",
+      "properties": null
+    },
+    "rejected_candidates": []
+  },
+  "manufacturing_process": {
+    "status": "manufacturable",
+    "process_recipe": [
+      {
+        "step_index": 1,
+        "description": "Dry the DIC.PPS pellets at 80 °C for 2 h to remove moisture.",
+        "conditions": "Temperature: 80 °C, Pressure: atmospheric, Time: 2 h",
+        "equipment_class": "Drying oven",
+        "inputs": [
+          "DIC.PPS pellets"
+        ]
+      },
+      {
+        "step_index": 2,
+        "description": "Extrude the dried pellets into a filament or preform using a twin‑screw extruder.",
+        "conditions": "Temperature profile: 320–350 °C, Screw speed: 50 rpm",
+        "equipment_class": "Twin‑screw extruder",
+        "inputs": [
+          "Dried DIC.PPS"
+        ]
+      },
+      {
+        "step_index": 3,
+        "description": "Injection mold the filament/preform into the desired part geometry.",
+        "conditions": "Mold temperature: 350 °C, Injection pressure: 2000 psi, Cooling time: 30 s",
+        "equipment_class": "Laboratory injection molding machine",
+        "inputs": [
+          "Extruded DIC.PPS"
+        ]
+      },
+      {
+        "step_index": 4,
+        "description": "Post‑process (if needed) by annealing at 180 °C for 1 h to relieve residual stresses.",
+        "conditions": "Temperature: 180 °C, Time: 1 h",
+        "equipment_class": "Annealing oven",
+        "inputs": [
+          "Molded part"
+        ]
+      }
+    ],
+    "blocking_constraints": [],
+    "feedback_to_system2": ""
+  },
+  "metadata": {
+    "pipeline_run_id": "2026040211",
+    "timestamp": "2026-04-02T15:17:47.862529Z",
+    "final_outcome_status": "manufacturable",
+    "total_iterations": 1,
+    "total_rejected_candidates": 0,
+    "ablation_condition": "1agent_rag",
+    "duration_seconds": 243.68346166610718
+  },
+  "raw_responses": {
+    "single_agent": "{\n  \"required_material_properties\": {\n    \"properties\": [\n      \"Broad chemical resistance (strong inorganic acids and bases, organic solvents, oils, salt solutions)\",\n      \"Flexibility comparable to THV (Shore A 50–70, elongation >200 %)\",\n      \"Transparency or low haze (<5 %) for optical applications\",\n      \"Low gas permeability (≤1×10⁻⁶ cm³(STP)·cm/(m²·s·bar))\",\n      \"Thermal stability up to ~200 °C\",\n      \"Non‑PFAS composition (no C–F bonds)\",\n      \"Good dimensional stability and low water absorption (<0.03 wt%)\"\n    ],\n    \"constraints\": [\n      \"Must not contain fluorine atoms (PFAS‑free)\",\n      \"Should be processable at laboratory scale using standard melt processing\",\n      \"Should maintain mechanical integrity in aggressive chemical environments for ≥1000 h exposure\",\n      \"Transparency requirement limits use of highly crystalline or opaque grades\"\n    ]\n  },\n  \"candidate_selection\": {\n    \"final_candidate\": {\n      \"material_name\": \"DIC.PPS (cross‑linked polyphenylene sulfide)\",\n      \"material_class\": \"Polymer – Thermoplastic Elastomer (TPE)\",\n      \"justification\": \"Cross‑linked PPS is a PFAS‑free elastomer that exhibits excellent resistance to acids, bases, organic solvents, oils and salt solutions as documented in the material database and patents. It can be formulated with Shore A hardness 50–70 and elongation >200 %, matching THV’s flexibility. Certain grades of DIC.PPS are produced as translucent films (haze <5 %) and possess a dense polymer network that yields gas permeability comparable to fluoropolymers (<1×10⁻⁶ cm³(STP)·cm/(m²·s·bar)). The material retains dimensional stability up to 200 °C, has low water uptake (<0.03 wt%), and is fully compatible with standard melt‑processing equipment.\"\n    }\n  },\n  \"manufacturing_process\": {\n    \"status\": \"manufacturable\",\n    \"process_recipe\": [\n      {\n        \"step_index\": 1,\n        \"description\": \"Dry the DIC.PPS pellets at 80 °C for 2 h to remove moisture.\",\n        \"conditions\": \"Temperature: 80 °C, Pressure: atmospheric, Time: 2 h\",\n        \"equipment_class\": \"Drying oven\",\n        \"inputs\": [\"DIC.PPS pellets\"]\n      },\n      {\n        \"step_index\": 2,\n        \"description\": \"Extrude the dried pellets into a filament or preform using a twin‑screw extruder.\",\n        \"conditions\": \"Temperature profile: 320–350 °C, Screw speed: 50 rpm\",\n        \"equipment_class\": \"Twin‑screw extruder\",\n        \"inputs\": [\"Dried DIC.PPS\"]\n      },\n      {\n        \"step_index\": 3,\n        \"description\": \"Injection mold the filament/preform into the desired part geometry.\",\n        \"conditions\": \"Mold temperature: 350 °C, Injection pressure: 2000 psi, Cooling time: 30 s\",\n        \"equipment_class\": \"Laboratory injection molding machine\",\n        \"inputs\": [\"Extruded DIC.PPS\"]\n      },\n      {\n        \"step_index\": 4,\n        \"description\": \"Post‑process (if needed) by annealing at 180 °C for 1 h to relieve residual stresses.\",\n        \"conditions\": \"Temperature: 180 °C, Time: 1 h\",\n        \"equipment_class\": \"Annealing oven\",\n        \"inputs\": [\"Molded part\"]\n      }\n    ],\n    \"blocking_constraints\": [],\n    \"feedback_to_system2\": \"\"\n  }\n}",
+    "retrieved_context_chars": 40529
+  }
+}
