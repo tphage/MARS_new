@@ -10,13 +10,25 @@ logger = logging.getLogger(__name__)
 from ..agents import ResearchAnalyst, ResearchManager, ResearchScientist, RejectedCandidateTracker
 from ..agents.material_scientist import MaterialScientist
 from ..utils.material_database import MaterialDatabase
-from ..utils.subgraph_processor import SubgraphProcessor
 from ..utils.material_grounding import MaterialGrounding
-from ..utils.step1_cache import Step1Cache
+from ..utils.dual_kg_subgraph import (
+    KgMappingCaps,
+    build_connection_subgraph_shortest_paths,
+    map_terms_to_nodes_best_match,
+    merge_subgraphs_unify_by_embedding,
+)
 from ..utils.subgraph_storage import SubgraphStorage
 from ..config import load_prompts, load_config
 from .material_requirements import _clean_extracted_keywords
 from ..utils.parsing import clean_material_name
+
+
+def _req(d: Dict[str, Any], key: str, section: str = "") -> Any:
+    """Retrieve a required config key, raising ``KeyError`` if missing."""
+    if key not in d:
+        prefix = f"{section}." if section else ""
+        raise KeyError(f"Missing required config key: {prefix}{key}")
+    return d[key]
 
 
 def extract_subgraph_insights(
@@ -49,9 +61,9 @@ def extract_subgraph_insights(
     
     # Use config defaults if not provided
     if batch_size is None:
-        batch_size = pipeline_config.get("batch_size", 30)
+        batch_size = _req(pipeline_config, "batch_size", "pipelines.material_discovery")
     if temperature is None:
-        temperature = pipeline_config.get("temperature", 0)
+        temperature = _req(pipeline_config, "temperature", "pipelines.material_discovery")
     
     if subgraph is None or subgraph.number_of_nodes() == 0:
         return {
@@ -180,7 +192,7 @@ def extract_subgraph_insights(
             print(f"Warning: Error processing batch {batch_start // batch_size + 1}: {e}")
             # Continue with next batch
     
-    max_nodes_for_context = pipeline_config.get("batch_nodes_for_llm_context", 10)
+    max_nodes_for_context = _req(pipeline_config, "batch_nodes_for_llm_context", "pipelines.material_discovery")
     return {
         'material_nodes': material_nodes[:max_nodes_for_context],
         'property_nodes': property_nodes[:max_nodes_for_context],
@@ -194,44 +206,48 @@ def run_material_substitution_step(
     application_Y: str,
     properties_W: Dict[str, Any],
     constraints_U: List[str],
-    subgraph_data: Optional[Dict[str, Any]],
     material_db: MaterialDatabase,
-    subgraph_processor: SubgraphProcessor,
-    material_grounding: MaterialGrounding,
     material_scientist: MaterialScientist,
-    knowledge_graph: nx.DiGraph,
+    knowledge_graph_material: nx.DiGraph,
+    knowledge_graph_patents: nx.DiGraph,
+    material_grounding_material: MaterialGrounding,
+    material_grounding_patents: MaterialGrounding,
     scientist: ResearchScientist,
     temperature: Optional[float] = None,
     run_id: Optional[str] = None
 ) -> Dict[str, Any]:
     """
-    Run the material substitution step.
-    
+    Run the material substitution step (dual-KG canonical path).
+
+    Builds a material-informed subgraph from both the Material Properties KG
+    and the Patents KG, grounds lab materials, and extracts material classes.
+
     Args:
-        material_X: Material to be replaced
-        application_Y: Target application
-        properties_W: Required material properties
-        constraints_U: List of constraints
-        subgraph_data: Subgraph data from System 1 (optional)
-        material_db: MaterialDatabase instance
-        subgraph_processor: SubgraphProcessor instance
-        material_grounding: MaterialGrounding instance
-        material_scientist: MaterialScientist instance
-        knowledge_graph: Global knowledge graph
-        scientist: ResearchScientist instance for extracting material classes from KG
-        temperature: Temperature for LLM generation (default: None, uses config value)
-        
+        material_X: Material to be replaced.
+        application_Y: Target application description.
+        properties_W: Required material properties (dict with ``required`` key).
+        constraints_U: List of constraint strings.
+        material_db: MaterialDatabase instance.
+        material_scientist: MaterialScientist instance.
+        knowledge_graph_material: Material Properties knowledge graph (DiGraph).
+        knowledge_graph_patents: Patents knowledge graph (DiGraph).
+        material_grounding_material: MaterialGrounding bound to the Material Properties KG.
+        material_grounding_patents: MaterialGrounding bound to the Patents KG.
+        scientist: ResearchScientist used for material-class extraction from the subgraph.
+        temperature: LLM temperature (default: ``None``, uses config value).
+        run_id: Pipeline run identifier used for subgraph persistence.
+
     Returns:
-        Dictionary with substitution results (ranked_candidates will be empty as candidates
-        are generated iteratively in Step 2), and kg_material_mapping (KG-derived material classes and insights)
+        Dict with ``ranked_candidates`` (empty), ``material_informed_subgraph``,
+        ``kg_material_mapping``, ``property_mapping``, ``material_grounding``,
+        and ``subgraph_storage_path``.
     """
     # Load config
     config = load_config()
     pipeline_config = config.get("pipelines", {}).get("material_discovery", {})
     
-    # Use config default if not provided
     if temperature is None:
-        temperature = pipeline_config.get("temperature", 0)
+        temperature = _req(pipeline_config, "temperature", "pipelines.material_discovery")
     
     print("\n" + "=" * 70)
     print("Step 1: Material Substitution (Re-engineered)")
@@ -249,141 +265,122 @@ def run_material_substitution_step(
         for constraint in constraints_U:
             print(f"    - {constraint}")
     print(f"  Temperature: {temperature}")
-    print(f"  Knowledge Graph: {knowledge_graph.number_of_nodes()} nodes, {knowledge_graph.number_of_edges()} edges")
+    print(f"  Material Properties KG: {knowledge_graph_material.number_of_nodes()} nodes, {knowledge_graph_material.number_of_edges()} edges")
+    print(f"  Patents KG: {knowledge_graph_patents.number_of_nodes()} nodes, {knowledge_graph_patents.number_of_edges()} edges")
     print(f"  Material Database: {len(material_db)} materials")
     
-    # Load and filter subgraph
+    # Canonical dual-KG material-informed subgraph construction (single allowed path).
+    # This step does not use System 1's serialized subgraph_data.
     print("\n" + "-" * 70)
-    print("Phase 1.1: Load and Filter Subgraph from System 1")
+    print("Phase 1.1: Dual-KG material-informed subgraph (canonical)")
     print("-" * 70)
-    filtered_subgraph = None
-    if subgraph_data:
-        print("→ Loading subgraph from System 1...")
-        print(f"  → Subgraph data keys: {list(subgraph_data.keys())}")
-        if subgraph_data.get('matched_node_ids'):
-            print(f"  → Matched node IDs in data: {len(subgraph_data.get('matched_node_ids', []))}")
-        if subgraph_data.get('found_paths'):
-            print(f"  → Found paths in data: {len(subgraph_data.get('found_paths', []))}")
-        
-        filtered_subgraph = subgraph_processor.load_subgraph(subgraph_data)
-        if filtered_subgraph:
-            initial_nodes = filtered_subgraph.number_of_nodes()
-            initial_edges = filtered_subgraph.number_of_edges()
-            print(f"  [OK] Loaded subgraph: {initial_nodes} nodes, {initial_edges} edges")
-            
-            # Filter by relevance
-            print("\n→ Filtering subgraph by relevance...")
-            print(f"  → Application context: {application_Y}")
-            print(f"  → Required properties: {properties_W.get('required', [])}")
-            print(f"  → Constraints: {constraints_U}")
-            
-            filtered_subgraph = subgraph_processor.filter_by_relevance(
-                filtered_subgraph,
-                application_Y,
-                properties_W,
-                constraints_U
-            )
-            final_nodes = filtered_subgraph.number_of_nodes()
-            final_edges = filtered_subgraph.number_of_edges()
-            print(f"  [OK] Filtered subgraph: {final_nodes} nodes, {final_edges} edges")
-            print(f"  → Reduction: {initial_nodes - final_nodes} nodes removed ({100*(initial_nodes-final_nodes)/max(initial_nodes,1):.1f}%)")
-            print(f"  → Reduction: {initial_edges - final_edges} edges removed ({100*(initial_edges-final_edges)/max(initial_edges,1):.1f}%)")
-        else:
-            print("  [WARNING] Could not load subgraph from data, will use empty subgraph")
-            filtered_subgraph = nx.DiGraph()
-    else:
-        print("  [WARNING] No subgraph data provided, will use empty subgraph")
-        filtered_subgraph = nx.DiGraph()
-    
-    # Ground lab materials in KG
-    print("\n" + "-" * 70)
-    print("Phase 1.2: Ground Lab Materials in Knowledge Graph")
-    print("-" * 70)
-    print("→ Grounding lab materials in knowledge graph...")
-    print(f"  → Material database contains {len(material_db)} materials")
-    
-    # Show sample materials from database
-    if len(material_db) > 0:
-        sample_db_materials = []
-        # MaterialDatabase stores materials in _material_index dict (material_id -> material_dict)
-        material_index = material_db._material_index
-        for i, (mat_id, mat_data) in enumerate(list(material_index.items())[:5]):
-            mat_name = mat_data.get('material_name', mat_id)
-            sample_db_materials.append(f"{mat_name} ({mat_id})")
-        print(f"  → Sample materials in database: {', '.join(sample_db_materials)}")
-    
-    material_grounding_map = material_grounding.ground_material_database(material_db)
-    print(f"  [OK] Grounded {len(material_grounding_map)} materials")
-    
+
+    dual_cfg = pipeline_config.get("dual_kg_material_informed_subgraph", {})
+    _section = "pipelines.material_discovery.dual_kg_material_informed_subgraph"
+    caps = KgMappingCaps(
+        max_property_terms=int(_req(dual_cfg, "max_property_terms", _section)),
+        max_materials=int(_req(dual_cfg, "max_materials", _section)),
+        max_nodes_total=int(_req(dual_cfg, "max_nodes_total", _section)),
+        max_pairs_evaluated=int(_req(dual_cfg, "max_pairs_evaluated", _section)),
+        max_shortest_path_len=int(_req(dual_cfg, "max_shortest_path_len", _section)),
+    )
+    merge_threshold = float(_req(dual_cfg, "merge_similarity_threshold", _section))
+    mapping_n_samples = int(_req(dual_cfg, "n_samples", _section))
+    mapping_similarity_threshold = float(_req(dual_cfg, "similarity_threshold", _section))
+
+    # Ground lab materials in MatKG first (reused for seed nodes and downstream prompts)
+    print("\n  Phase 1.1a: Ground lab materials in MatKG")
+    material_grounding_map = material_grounding_material.ground_material_database(material_db)
+    print(f"  [OK] Grounded {len(material_grounding_map)} materials in MatKG")
+
+    min_matches = _req(pipeline_config, "min_matches_for_multiple_grounding", "pipelines.material_discovery")
     if material_grounding_map:
-        sample_materials = list(material_grounding_map.keys())[:5]
-        print(f"  → Sample grounded materials: {', '.join(sample_materials)}")
-        
-        # Show grounding details for sample materials
-        min_matches = load_config().get("pipelines", {}).get("material_discovery", {}).get("min_matches_for_multiple_grounding", 2)
-        print(f"\n  Grounding Details (sample):")
-        for mat_id in sample_materials[:3]:
+        sample_materials = list(material_grounding_map.keys())[:3]
+        for mat_id in sample_materials:
             matches = material_grounding_map[mat_id]
-            print(f"    - {mat_id}:")
-            print(f"      → Found {len(matches)} matching nodes in KG")
+            print(f"    - {mat_id}: {len(matches)} match(es)")
             for i, match in enumerate(matches[:min_matches], 1):
-                node_id = match.get('node_id', 'N/A')
-                similarity = match.get('similarity', 0.0)
-                print(f"        {i}. Node: {node_id} (similarity: {similarity:.3f})")
-            if len(matches) > min_matches:
-                print(f"        ... and {len(matches) - min_matches} more matches")
+                print(f"        {i}. {match.get('node_id', 'N/A')} (sim={match.get('similarity', 0.0):.3f})")
     else:
-        print("  [WARNING] No materials were successfully grounded in the knowledge graph")
-    
-    # Retrieve material relationships
-    print("\n" + "-" * 70)
-    print("Phase 1.3: Retrieve Material-Property Relationships")
-    print("-" * 70)
-    print("→ Retrieving material-property relationships...")
-    all_material_node_ids = []
-    for material_id, matches in material_grounding_map.items():
-        all_material_node_ids.extend([m["node_id"] for m in matches])
-    print(f"  → Collected {len(all_material_node_ids)} material node IDs from grounding")
-    print(f"  → Unique material node IDs: {len(set(all_material_node_ids))}")
-    
-    required_properties = properties_W.get("required", [])
-    print(f"\n  → Searching for relationships with {len(required_properties)} required properties:")
-    for i, prop in enumerate(required_properties, 1):
-        print(f"    {i}. {prop}")
-    
-    material_relationships = material_grounding.retrieve_material_relationships(
-        all_material_node_ids,
-        None  # Will search for property nodes in the subgraph
+        print("  [WARNING] No materials were successfully grounded in MatKG")
+
+    required_props = properties_W.get("required", []) or []
+
+    prop_nodes_matkg = map_terms_to_nodes_best_match(
+        required_props,
+        material_grounding_material.node_embeddings,
+        material_grounding_material.embedding_tokenizer,
+        material_grounding_material.embedding_model,
+        n_samples=mapping_n_samples,
+        similarity_threshold=mapping_similarity_threshold,
+        max_terms=caps.max_property_terms,
     )
-    rel_nodes = material_relationships.number_of_nodes()
-    rel_edges = material_relationships.number_of_edges()
-    print(f"  [OK] Found {rel_nodes} nodes, {rel_edges} edges in material relationships")
-    
-    if rel_nodes > 0:
-        # Show sample nodes and edges
-        sample_nodes = list(material_relationships.nodes())[:5]
-        print(f"  → Sample relationship nodes: {sample_nodes}")
-        if rel_edges > 0:
-            sample_edges = list(material_relationships.edges())[:3]
-            print(f"  → Sample relationship edges: {sample_edges}")
-    
-    # Merge into material-informed subgraph
-    print("\n" + "-" * 70)
-    print("Phase 1.4: Merge into Material-Informed Subgraph")
-    print("-" * 70)
-    print("→ Merging filtered subgraph with material relationships...")
-    print(f"  → Filtered subgraph: {filtered_subgraph.number_of_nodes()} nodes, {filtered_subgraph.number_of_edges()} edges")
-    print(f"  → Material relationships: {rel_nodes} nodes, {rel_edges} edges")
-    
-    material_informed_subgraph = material_grounding.merge_into_subgraph(
-        filtered_subgraph,
-        material_relationships
+    prop_nodes_patkg = map_terms_to_nodes_best_match(
+        required_props,
+        material_grounding_patents.node_embeddings,
+        material_grounding_patents.embedding_tokenizer,
+        material_grounding_patents.embedding_model,
+        n_samples=mapping_n_samples,
+        similarity_threshold=mapping_similarity_threshold,
+        max_terms=caps.max_property_terms,
     )
+
+    # Extract MatKG material seed nodes from the grounding map (no redundant calls)
+    material_nodes_matkg: List[str] = []
+    for matches in material_grounding_map.values():
+        if matches:
+            material_nodes_matkg.append(matches[0]["node_id"])
+
+    # PatKG material seed nodes still need individual grounding
+    all_materials = material_db.get_all_materials()
+    materials_capped = all_materials[: caps.max_materials]
+    material_nodes_patkg: List[str] = []
+    for m in materials_capped:
+        name = m.get("material_name")
+        if not name:
+            continue
+        pat_matches = material_grounding_patents.ground_material(name)
+        if pat_matches:
+            material_nodes_patkg.append(pat_matches[0]["node_id"])
+
+    seed_nodes_matkg = list(dict.fromkeys(prop_nodes_matkg + material_nodes_matkg))
+    seed_nodes_patkg = list(dict.fromkeys(prop_nodes_patkg + material_nodes_patkg))
+
+    print(f"  → MatKG seeds: {len(seed_nodes_matkg)} (props={len(prop_nodes_matkg)}, materials={len(material_nodes_matkg)})")
+    print(f"  → PatKG seeds: {len(seed_nodes_patkg)} (props={len(prop_nodes_patkg)}, materials={len(material_nodes_patkg)})")
+
+    subgraph_matkg = build_connection_subgraph_shortest_paths(
+        knowledge_graph_material,
+        seed_nodes_matkg,
+        max_pairs_evaluated=caps.max_pairs_evaluated,
+        max_shortest_path_len=caps.max_shortest_path_len,
+        max_nodes_total=caps.max_nodes_total,
+    )
+    subgraph_patkg = build_connection_subgraph_shortest_paths(
+        knowledge_graph_patents,
+        seed_nodes_patkg,
+        max_pairs_evaluated=caps.max_pairs_evaluated,
+        max_shortest_path_len=caps.max_shortest_path_len,
+        max_nodes_total=caps.max_nodes_total,
+    )
+
+    print(f"  [OK] MatKG subgraph: {subgraph_matkg.number_of_nodes()} nodes, {subgraph_matkg.number_of_edges()} edges")
+    print(f"  [OK] PatKG subgraph: {subgraph_patkg.number_of_nodes()} nodes, {subgraph_patkg.number_of_edges()} edges")
+
+    material_informed_subgraph, cross_kg_mapping = merge_subgraphs_unify_by_embedding(
+        subgraph_matkg,
+        subgraph_patkg,
+        material_grounding_material.node_embeddings,
+        material_grounding_patents.node_embeddings,
+        similarity_threshold=merge_threshold,
+    )
+    print(f"  [OK] Merged material-informed subgraph: {material_informed_subgraph.number_of_nodes()} nodes, {material_informed_subgraph.number_of_edges()} edges")
+    print(f"  → Unified {len(cross_kg_mapping)} PatKG nodes onto MatKG nodes (threshold={merge_threshold})")
+    
     final_nodes = material_informed_subgraph.number_of_nodes()
     final_edges = material_informed_subgraph.number_of_edges()
-    print(f"  [OK] Material-informed subgraph: {final_nodes} nodes, {final_edges} edges")
-    
-    # Show subgraph statistics
+    required_properties = properties_W.get("required", [])
+
     if final_nodes > 0:
         print(f"\n  Subgraph Statistics:")
         print(f"    - Total nodes: {final_nodes}")
@@ -402,7 +399,7 @@ def run_material_substitution_step(
         print(f"    - Estimated material nodes: {material_node_count}")
         print(f"    - Estimated property nodes: {property_node_count}")
     
-    # Save material-informed subgraph to persistent storage
+    # Save merged material-informed subgraph to persistent storage
     subgraph_storage_path = None
     if run_id:
         subgraph_storage = SubgraphStorage()
@@ -416,7 +413,7 @@ def run_material_substitution_step(
     
     # Extract material classes from material-informed subgraph using ResearchScientist
     print("\n" + "-" * 70)
-    print("Phase 1.6: Extract Material Classes from Material-Informed Subgraph")
+    print("Phase 1.3: Extract Material Classes from Material-Informed Subgraph")
     print("-" * 70)
     print("→ Extracting material classes from material-informed subgraph...")
     try:
@@ -475,79 +472,65 @@ def run_material_discovery_pipeline(
     scientist: ResearchScientist,
     tracker: RejectedCandidateTracker,
     material_db: MaterialDatabase,
-    subgraph_processor: SubgraphProcessor,
-    material_grounding: MaterialGrounding,
+    material_grounding_material: MaterialGrounding,
+    material_grounding_patents: MaterialGrounding,
     material_scientist: MaterialScientist,
-    knowledge_graph: nx.DiGraph,
-    subgraph_data: Optional[Dict[str, Any]] = None,
+    knowledge_graph_material: nx.DiGraph,
+    knowledge_graph_patents: nx.DiGraph,
     max_iterations: int = None,
     temperature: float = None,
     chat_logger=None,
-    step1_cache: Optional[Step1Cache] = None,
-    material_db_path: Optional[str] = None,
     run_id: Optional[str] = None,
     substitution_result: Optional[Dict[str, Any]] = None,
-    **kwargs
 ) -> Dict[str, Any]:
     """
     Run the iterative, closed-loop material discovery pipeline.
-    
+
     Workflow:
-    1. Material Substitution: Find ranked candidates using lab DB + subgraph + KG
-    2. Loop (max_iterations):
-       a. ResearchManager: Propose candidate Z_i (avoiding rejected)
-       b. ResearchManager: Generate validation queries SQ_i
-       c. ResearchAnalyst: Retrieve evidence I_i for each query
-       d. ResearchManager: Validate feasibility
-       e. If feasible → return Z_j
-       f. If not feasible → record constraints U_i, add to rejected list, continue
-    3. Return final result (success or exhaustion)
-    
+        1. Material Substitution (Step 1): build dual-KG material-informed
+           subgraph, ground materials, extract material classes.
+        2. Iterative candidate loop (Step 2, up to *max_iterations*):
+           a. Propose candidate Z_i (avoiding previously rejected).
+           b. Generate validation queries.
+           c. Retrieve evidence via RAG.
+           d. Validate feasibility.
+           e. Accept or reject and continue.
+        3. Return final result (success or exhaustion).
+
     Args:
-        material_X: Material to be replaced (required)
-        application_Y: Target application description
-        properties_W: Dictionary with property requirements:
-            - "required": List of property names
-            - "target_values": Optional dict mapping properties to target values
-        constraints_U: List of constraint strings
-        analyst: ResearchAnalyst instance (required)
-        manager: ResearchManager instance (required)
-        scientist: ResearchScientist instance (required)
-        tracker: RejectedCandidateTracker instance (required)
-        material_db: MaterialDatabase instance (required)
-        subgraph_processor: SubgraphProcessor instance (required)
-        material_grounding: MaterialGrounding instance (required)
-        material_scientist: MaterialScientist instance (required)
-        knowledge_graph: Global knowledge graph (required)
-        subgraph_data: Optional subgraph data from System 1
-        max_iterations: Maximum number of iteration attempts (default: None, uses config value)
-        temperature: Temperature for LLM generation (default: None, uses config value)
-        step1_cache: Optional Step1Cache instance for caching Step 1 results
-        material_db_path: Optional path to material database file (for cache key generation)
-        substitution_result: Optional pre-computed Step 1 result. If provided, Step 1 will be skipped.
-        **kwargs: Additional arguments passed to agent methods
-    
+        material_X: Material to be replaced.
+        application_Y: Target application description.
+        properties_W: Dict with ``required`` (list) and optional ``target_values``.
+        constraints_U: List of constraint strings.
+        analyst: ResearchAnalyst instance.
+        manager: ResearchManager instance.
+        scientist: ResearchScientist instance.
+        tracker: RejectedCandidateTracker instance.
+        material_db: MaterialDatabase instance.
+        material_grounding_material: MaterialGrounding bound to Material Properties KG.
+        material_grounding_patents: MaterialGrounding bound to Patents KG.
+        material_scientist: MaterialScientist instance.
+        knowledge_graph_material: Material Properties knowledge graph (DiGraph).
+        knowledge_graph_patents: Patents knowledge graph (DiGraph).
+        max_iterations: Max candidate iterations (default: config value).
+        temperature: LLM temperature (default: config value).
+        chat_logger: Optional ChatLogger for interaction logging.
+        run_id: Pipeline run identifier for subgraph persistence.
+        substitution_result: Pre-computed Step 1 result; skips Step 1 if provided.
+
     Returns:
-        Dict containing:
-            - "success": bool indicating if viable candidate was found
-            - "candidate": Candidate material dict if success, else None
-            - "iterations": Number of iterations performed
-            - "rejected_candidates": List of rejected candidate names
-            - "final_constraints": List of final constraints if not success
-            - "evidence_summary": Summary of evidence gathered
-            - "property_mapping": Result from substitution step
-            - "iteration_history": List of iteration results
-            - "substitution_result": Result from Step 1
+        Dict with ``success``, ``candidate``, ``iterations``,
+        ``rejected_candidates``, ``final_constraints``, ``evidence_summary``,
+        ``property_mapping``, ``iteration_history``, and ``substitution_result``.
     """
     # Load config
     config = load_config()
     pipeline_config = config.get("pipelines", {}).get("material_discovery", {})
     
-    # Use config defaults if not provided
     if max_iterations is None:
-        max_iterations = pipeline_config.get("max_iterations", 5)
+        max_iterations = _req(pipeline_config, "max_iterations", "pipelines.material_discovery")
     if temperature is None:
-        temperature = pipeline_config.get("temperature", 0)
+        temperature = _req(pipeline_config, "temperature", "pipelines.material_discovery")
     
     # Extract run_id from chat_logger if not provided
     if run_id is None and chat_logger is not None:
@@ -590,47 +573,22 @@ def run_material_discovery_pipeline(
             print(f"      - {constraint}")
     print(f"  [OK] Max iterations: {max_iterations}")
     print(f"  [OK] Temperature: {temperature}")
+
+    # No Phase 0: keyword-connection graphs are not part of the canonical pipeline.
     
     # Initialize variables for Step 2
     ranked_candidates = []
     property_mapping_final = {}  # Will be populated with Step 1 results
     
-    # Step 1: Material Substitution (with caching or pre-computed result)
+    # Step 1: Material Substitution (pre-computed or fresh run)
     try:
-        # If substitution_result is provided, skip Step 1 entirely
         if substitution_result is not None:
             print("\n" + "=" * 70)
             print("Step 1: Material Substitution (PRE-COMPUTED)")
             print("=" * 70)
             print("✓ Using pre-computed Step 1 results from previous iteration")
             print("✓ Skipping expensive operations (material grounding, KG extraction, etc.)...")
-            cache_hit = True  # Treat as cache hit to skip Step 1 execution
         else:
-            substitution_result = None
-            cache_hit = False
-        
-        # Check cache first if available and no pre-computed result provided
-        if not cache_hit and step1_cache is not None:
-            cached_result = step1_cache.get(
-                material_X=material_X,
-                application_Y=application_Y,
-                properties_W=properties_W,
-                constraints_U=constraints_U_final,
-                subgraph_data=subgraph_data,
-                material_db_path=material_db_path
-            )
-            
-            if cached_result is not None:
-                substitution_result = cached_result
-                cache_hit = True
-                print("\n" + "=" * 70)
-                print("Step 1: Material Substitution (CACHED)")
-                print("=" * 70)
-                print("✓ Using cached Step 1 results (material grounding, KG extraction, etc.)")
-                print("✓ Skipping expensive operations...")
-        
-        # If cache miss and no pre-computed result, run Step 1 normally
-        if not cache_hit:
             print("\n" + "=" * 70)
             print("Step 1: Material Substitution")
             print("=" * 70)
@@ -640,30 +598,17 @@ def run_material_discovery_pipeline(
                 material_X=material_X,
                 application_Y=application_Y,
                 properties_W=properties_W,
-                constraints_U=constraints_U_final,  # Use constraints with PFAS constraint included
-                subgraph_data=subgraph_data,
+                constraints_U=constraints_U_final,
                 material_db=material_db,
-                subgraph_processor=subgraph_processor,
-                material_grounding=material_grounding,
                 material_scientist=material_scientist,
-                knowledge_graph=knowledge_graph,
-                scientist=scientist,  # Pass scientist for KG material class extraction
+                knowledge_graph_material=knowledge_graph_material,
+                knowledge_graph_patents=knowledge_graph_patents,
+                material_grounding_material=material_grounding_material,
+                material_grounding_patents=material_grounding_patents,
+                scientist=scientist,
                 temperature=temperature,
-                run_id=run_id  # Pass run_id for subgraph persistence
+                run_id=run_id,
             )
-            
-            # Store in cache for future iterations
-            if step1_cache is not None:
-                step1_cache.set(
-                    material_X=material_X,
-                    application_Y=application_Y,
-                    properties_W=properties_W,
-                    constraints_U=constraints_U_final,
-                    substitution_result=substitution_result,
-                    subgraph_data=subgraph_data,
-                    material_db_path=material_db_path
-                )
-                print("✓ Step 1 results cached for future iterations")
         
         # Extract ranked candidates for Step 2 (will be empty in new flow)
         ranked_candidates = substitution_result.get("ranked_candidates", [])
@@ -786,7 +731,6 @@ def run_material_discovery_pipeline(
                     rejection_lessons = manager.summarize_rejection_lessons(
                         rejection_details=rejection_details,
                         temperature=temperature,
-                        **kwargs
                     )
                     if rejection_lessons:
                         print(f"      [OK] Generated rejection lessons summary ({len(rejection_lessons)} chars)")
@@ -816,7 +760,6 @@ def run_material_discovery_pipeline(
                 rejection_lessons=rejection_lessons,
                 material_db=material_db,
                 temperature=temperature,
-                **kwargs
             )
             
             material_name = candidate_Z.get("material_name", "Unknown")
@@ -1016,7 +959,6 @@ def run_material_discovery_pipeline(
                 node_embeddings=scientist.node_embeddings if scientist else None,
                 embedding_model=scientist.embedding_model if scientist else None,
                 embedding_tokenizer=scientist.embedding_tokenizer if scientist else None,
-                **kwargs
             )
             print(f"      [OK] Generated {len(validation_queries)} validation queries:")
             for i, query in enumerate(validation_queries, 1):
@@ -1054,7 +996,6 @@ def run_material_discovery_pipeline(
                     question=query,
                     rag_results=rag_results,
                     temperature=temperature,
-                    **kwargs
                 )
                 
                 answer_preview = str(answer)[:200] if answer else "N/A"
@@ -1105,9 +1046,8 @@ def run_material_discovery_pipeline(
                 node_embeddings=scientist.node_embeddings if scientist else None,
                 embedding_model=scientist.embedding_model if scientist else None,
                 embedding_tokenizer=scientist.embedding_tokenizer if scientist else None,
-                **kwargs
             )
-            
+
             is_feasible = feasibility_result.get("is_feasible", False)
             constraints_violated = feasibility_result.get("constraints_violated", [])
             reasoning = feasibility_result.get("reasoning", "")

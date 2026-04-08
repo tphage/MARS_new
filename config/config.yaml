@@ -132,6 +132,17 @@ pipelines:
     batch_size: 30
     batch_nodes_for_llm_context: 10
     min_matches_for_multiple_grounding: 2
+    dual_kg_material_informed_subgraph:
+      # Strictly required. No in-code defaults; missing keys should raise.
+      max_property_terms: 30
+      max_materials: 200
+      max_nodes_total: 500
+      max_pairs_evaluated: 2000
+      max_shortest_path_len: 10
+      merge_similarity_threshold: 0.88
+      # Mapping hyperparameters (best-fit node search) used for BOTH KGs:
+      n_samples: 5
+      similarity_threshold: 0.8
   manufacturability_assessment:
     enabled: true # Not currently used
     n_results_per_source: 8
