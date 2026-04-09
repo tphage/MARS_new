@@ -73,6 +73,26 @@ flowchart TD
 
 This section ties **retrieval mechanics** (how text and graph context are fetched) to **prompt construction** (how that context is turned into LLM input). Shared implementation pieces live in [`ResearchAnalyst`](../src/agents/research_analyst.py) (Chroma only), [`MultiAnalyst`](../src/agents/multi_analyst.py) (multi-corpus Chroma), [`ResearchManager`](../src/agents/research_manager.py) (formatting + YAML prompt templates), and [`initialize()`](../src/runner.py) (wiring collections to agents).
 
+### Loading resources: `initialize()` and `MARSComponents`
+
+[`initialize()`](../src/runner.py) is the single place that loads **all** backends and returns a [`MARSComponents`](../src/runner.py) dataclass:
+
+| Field | Purpose |
+|-------|---------|
+| `G_materialproperties`, `G_pfas`, `G_patents` | NetworkX `DiGraph` instances from GraphML |
+| `node_embeddings_*` | Dicts keyed by node id → vector (from `GraphReasoning.load_embeddings`) |
+| `pfas_collection`, `patents_collection`, `materialdb_collection` | Open Chroma **collections**; System 1 binds `pfas_collection` to its `ResearchAnalyst`, while System 2/3 use the same patents/materialdb collections via `analyst_*_s2` and `process_analyst` |
+| `analyst_patents_s2`, `analyst_materialdb_s2` | `ResearchAnalyst` instances wired to patents + materialdb (`agents.research_analyst` hyperparameters) |
+| `scientist_s2` | `ResearchScientist` with **two** graphs (`material_properties` + `patents`), `multi_kg_strategy="separate"` |
+| `process_analyst` | `MultiAnalyst` over textbooks + patents + materialdb (+ optional spec sheets) |
+| `material_db`, `material_grounding_material`, `material_grounding_patents`, `property_mapper` | JSON inventory + grounding helpers |
+
+**GraphML normalization:** On load, edge attributes named `title` are copied to `relation` so downstream code and `ResearchManager._get_edge_label` prefer a consistent `relation` field.
+
+**Chroma paths:** Each DB’s on-disk directory is `os.path.join(data.chromadb.base_path, <entry>.database_path)` when `base_path` is set. If `collection_name` is **null**, the **first** collection in that persist directory is used (and empty DBs raise `RuntimeError`).
+
+**Per-query wiring in `run_query`:** System 1 constructs **new** `ResearchAnalyst` / `ResearchManager` / `ResearchAssistant` / `ResearchScientist` instances bound to the PFAS collection and PFAS graph (with `ChatLogger`). System 2 **reuses** the long-lived `analyst_patents_s2` and `analyst_materialdb_s2` but swaps their `chat_logger` each System 2 run, then wraps them in a fresh `MultiAnalyst`. System 3 builds a new `ResearchManager` with its own `ChatLogger` and reuses the shared `process_analyst`.
+
 ### Shared infrastructure: embeddings and Chroma
 
 - **One embedding model** (`config.embeddings.model_name`, loaded in `initialize()`) backs both **Chroma queries** and **KG node alignment**: the same `SentenceTransformer` + `TransformerEmbeddingFunction` is passed when opening each persisted Chroma database and when matching text to graph nodes.
@@ -126,6 +146,22 @@ YAML templates in [`config/prompts.yaml`](../config/prompts.yaml) use **placehol
 
 **KG path formatting** (`_format_kg_context`): only runs when `summary.connections_found` is true; it summarizes counts and includes **serialized paths** (up to `formatting.max_paths`) so the model sees explicit node-to-node chains, not just free text.
 
+**System 1 answer gating:** After each `answer_question`, `ResearchManager._is_question_answered` may return **false** if no RAG docs were retrieved, the answer is too short, or a separate LLM **evaluation** prompt returns “not answered”. Only pairs with `is_answered: true` feed `ResearchAssistant.extract_keywords` / `extract_constraints`; unanswered questions are skipped for property extraction.
+
+### Prompt keys in `config/prompts.yaml` (where to look)
+
+| Area | YAML path (under `agents.research_manager` or `pipelines.*`) | Role |
+|------|----------------------------------------------------------------|------|
+| S1 question generation | `process`, `process_user_prompt` | Inserts initial PFAS-paper RAG into research-question prompt |
+| S1 answers | `answer_question`, `answer_question_user_prompt` | RAG + optional PFAS KG |
+| S2 proposal | `propose_candidate`, `propose_candidate_user_prompt` | Property list, KG path insights, lab DB list, rejections |
+| S2 validation queries | `generate_validation_queries`, `generate_validation_queries_user_prompt` | Candidate + requirements + optional subgraph context |
+| S2 feasibility | `validate_feasibility`, `validate_feasibility_user_prompt` | Evidence list (query / short answer / doc counts) + optional KG section |
+| S2 other | `summarize_rejection_lessons`, etc. | Closed-loop text for next proposal |
+| S3 | `pipelines.manufacturability_assessment.*` | Constituents, decomposition queries, feasibility questions, recipe synthesis, etc. |
+
+All system prompts are expected to exist in YAML—missing keys raise **ValueError** at runtime.
+
 ### Knowledge graphs: retrieval and use
 
 Graphs are **GraphML** + **pickled per-node embeddings**. Edge labels are read preferentially from the `relation` attribute (see `_get_edge_label` in `ResearchManager`).
@@ -145,13 +181,36 @@ Step 1 (`run_material_substitution_step`) builds one **material-informed** subgr
 3. **Build** `subgraph_matkg` and `subgraph_patkg` with `build_connection_subgraph_shortest_paths` (undirected shortest paths between seed pairs, subject to `max_pairs_evaluated`, `max_shortest_path_len`, `max_nodes_total`).
 4. **Merge** with `merge_subgraphs_unify_by_embedding`: patent nodes can be **unified** onto material-KG nodes when cosine similarity of node embeddings exceeds `merge_similarity_threshold`.
 
+**Reference: `pipelines.material_discovery.dual_kg_material_informed_subgraph`** (all keys are required in config; the code does not invent defaults). Example semantics:
+
+| Key | Typical role |
+|-----|----------------|
+| `max_property_terms` | Cap how many distinct property strings from `properties_W` are mapped to nodes per KG |
+| `max_materials` | Cap how many JSON inventory rows contribute PatKG seed nodes (first N materials) |
+| `max_nodes_total` | Stop growing shortest-path bundles once this many nodes are collected |
+| `max_pairs_evaluated` | Upper bound on seed **pairs** `(u, v)` for shortest-path expansion |
+| `max_shortest_path_len` | Discard paths longer than this (in hops) |
+| `merge_similarity_threshold` | Minimum cosine similarity to merge a PatKG node into a MatKG node in the merged graph |
+| `n_samples` / `similarity_threshold` | Passed to `find_best_fitting_node_list` when mapping free-text terms to nodes (same hyperparameters for **both** KGs) |
+
 Downstream:
 
 - **`ResearchScientist.map_properties_to_materials`** runs on this **merged** subgraph (not the full global graphs) to derive material classes and path statistics.
 - **`extract_subgraph_insights`** batches **node lists** (attributes like `title`, `label`, `name`, `description`) into LLM prompts (`pipelines.material_discovery` prompts) to classify nodes as material-like vs property-like; results are capped by `batch_nodes_for_llm_context`.
 - **Candidate loop:** `generate_validation_queries` / `validate_feasibility` can receive **optional** `kg_context` / `kg_evidence` derived from the same subgraph (e.g. node IDs whose string label contains the candidate name) so prompts can mention **local** KG hooks—not full graph dumps.
 
+**`validate_feasibility` subgraph paths:** If a subgraph plus embeddings are passed and at least **two** keywords can be extracted from the combined validation-query text, `ResearchManager` may call `_find_paths_in_subgraph` to add **extra** path evidence into the feasibility prompt (thresholds from `agents.research_scientist`). Failures there emit a **warning** but do not abort the step.
+
 **Note:** System 3 does **not** load or query these large KGs by default; it relies on Chroma-backed process evidence and structured LLM outputs.
+
+#### `ResearchScientist` modes (PFAS vs System 2)
+
+| Instance | Graph(s) | Used for |
+|----------|----------|----------|
+| System 1 `pfas_scientist_s1` | PFAS graph only | `find_connections` per research question (shortest-path style algorithm, `use_best_match_only=True` in pipeline) |
+| `scientist_s2` | Material properties + Patents | `map_properties_to_materials` on merged subgraph; **not** `find_connections` in the default dual-KG path—the “multi” here is for **material-class** extraction across two named graphs (`multi_kg_strategy="separate"`) |
+
+The return structure of `find_connections` always includes `summary`, `found_paths`, `matched_node_ids`, and `keyword_to_nodes`, which `_format_kg_context` and chat logging consume.
 
 ### Internal material database (JSON)
 
@@ -163,6 +222,20 @@ In System 2 it feeds:
 - **Property / substitution logic** elsewhere in the discovery pipeline (ranking context, proposals—see `material_discovery.py` and `PropertyMapper` where configured).
 
 The JSON is **not** embedded into Chroma by this pipeline; the **MaterialDB Chroma collection** is a separate vector index that often mirrors or extends that structured inventory as unstructured chunks.
+
+**Property normalization:** [`MaterialDatabase`](../src/utils/material_database.py) can hold a [`PropertyMapper`](../src/utils/property_mapper.py) (`utils.property_mapper` in config) for canonical property-name alignment and numeric comparisons when code paths call search/match APIs that require it.
+
+**`propose_candidate` (System 2):** The LLM does **not** query Chroma directly. `ResearchManager.propose_candidate` assembles a single user prompt from:
+
+- Required properties (and optional `target_values` lines) derived from `property_mapping`,
+- **Formatted KG paths** from `kg_insights.found_paths` via `_format_kg_paths` (not raw edge lists),
+- An **enumerated lab inventory** section (every material name + id from `get_all_materials()`),
+- Optional **rejected candidate** list and **rejection lessons** (from prior S2/S3 failures when the pipeline supplies them),
+- Then applies `_truncate_prompt` against `max_prompt_chars`. Parsed output fills `material_name`, `justification`, and up to `max_kg_nodes_in_context` **kg node ids** matched to the proposed name.
+
+**`generate_validation_queries`:** Builds property and constraint lists, includes optional KG hints when `kg_context` / `subgraph` allow; post-processing **caps the list at six** queries. Those strings drive the **MultiAnalyst** RAG loop in the next step.
+
+**`ResearchAssistant`:** `extract_keywords` and `extract_constraints` use **only** the original user sentence plus the **answered** Q&A list from System 1—**no** Chroma and **no** KG calls. Outputs are passed through `_clean_extracted_keywords` (strip markdown, drop meta lines, enforce `min_keyword_length`).
 
 ---
 
@@ -203,6 +276,25 @@ The `ResearchAnalyst` passed from [`run_query`](../src/runner.py) is a **`MultiA
 | **G. Recipe (if feasible)** | Reuses **C** | `synthesize_process_recipe` formats **`retrieved_rag_results`** from step C (not the per-question lists from E) via `_format_rag_context` with `max_chars_per_result_feasibility`. |
 
 **Note:** `ResearchManager.generate_process_retrieval_queries` performs an initial `process_analyst` query and injects snippets into a **different** prompt path; the default manufacturability pipeline above uses the **decomposition** flow instead (A–G). The helper remains available for alternate entry points or experiments.
+
+**Evidence deduplication (step C, detail):** Documents are sorted by `(distance, source, id)`, then deduped with a key `(source_norm, id_norm, sha1 of first 500 normalized content chars)`. **Source balancing** takes at most `max(1, max_process_families // num_sources)` items per source in sorted name order, then fills up to `max_process_families` from the remaining unique list. Composites track **combination** queries separately for coverage statistics and optional guardrails.
+
+**`schemas` limits:** `config/schemas` (`max_evidence_content_length`, `max_evidence_items_before_truncation`) bound how much structured evidence is retained in some JSON-oriented paths; tune if recipe or evidence blobs are clipped.
+
+### Closed-loop feedback (System 3 → System 2)
+
+When [`run_query`](../src/runner.py) receives `status == "blocked"` from System 3, it appends to **`constraints_U`** (the same list passed into the next `run_material_discovery_pipeline`):
+
+- One compact string per **blocking constraint** (`S3[<type>]: <description>` truncated ~220 chars), deduped case-insensitively against existing entries,
+- Plus an optional line `S3 feedback: …` from `feedback_to_system2` if present and not duplicate.
+
+The **outer** loop runs at most `pipelines.material_discovery.max_iterations` times (each iteration = full System 2 run + System 3 run). **Substitution Step 1** subgraph can be **cached** (`cached_substitution_result`) after the first successful System 2 so later outer iterations skip rebuilding the dual subgraph when inputs are unchanged.
+
+### Logging and artifacts
+
+- **`ChatLogger`** (under `logging.pipeline_logs_dir` / `chats_subdir`) records LLM calls and, where configured, **RAG query previews** (`logging.max_content_chars_in_log`) and KG path snippets (`max_paths_in_log`).
+- Each stage writes JSON artefacts under the run’s `output_dir` (e.g. `system1_*.json`, `system2_*.json`, `system3_*.json`, `pipeline_run_*.json`, `rejected_candidates.json`).
+- **`save_evaluation_export`** produces a consolidated export (e.g. `mars.json`) for benchmarking.
 
 ---
 
