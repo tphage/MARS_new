@@ -71,40 +71,138 @@ flowchart TD
 
 ## How Each Source Is Used
 
-### Knowledge graphs (NetworkX + embeddings)
+This section ties **retrieval mechanics** (how text and graph context are fetched) to **prompt construction** (how that context is turned into LLM input). Shared implementation pieces live in [`ResearchAnalyst`](../src/agents/research_analyst.py) (Chroma only), [`MultiAnalyst`](../src/agents/multi_analyst.py) (multi-corpus Chroma), [`ResearchManager`](../src/agents/research_manager.py) (formatting + YAML prompt templates), and [`initialize()`](../src/runner.py) (wiring collections to agents).
 
-Graphs are stored as **GraphML** with companion **pickled node-embedding** files. Edges use a normalized `relation` attribute for downstream reasoning.
+### Shared infrastructure: embeddings and Chroma
 
-1. **Material properties graph**  
-   - **System 2:** Seeds and shortest-path subgraphs connect **property terms** and **lab materials** (from the internal JSON) to relevant nodes.  
-   - **Grounding:** [`MaterialGrounding`](../src/utils/material_grounding.py) maps material names to nodes via embedding similarity (`GraphReasoning.find_best_fitting_node_list`).  
-   - **Agent:** [`ResearchScientist`](../src/agents/research_scientist.py) runs path-finding and material-class style reasoning on the merged / dual-graph structure.
+- **One embedding model** (`config.embeddings.model_name`, loaded in `initialize()`) backs both **Chroma queries** and **KG node alignment**: the same `SentenceTransformer` + `TransformerEmbeddingFunction` is passed when opening each persisted Chroma database and when matching text to graph nodes.
+- **Chroma retrieval** is always `collection.query(query_texts=[...], n_results=..., include=["documents", "metadatas", "distances"])`. Distances are **lower = more similar** for the configured space; downstream code sorts merged lists by distance when combining sources.
 
-2. **Patents graph**  
-   - **System 2:** Parallel subgraph construction and **cross-graph merging** (embedding-based unification of patent-side nodes with material-property nodes where configured).  
-   - **Grounding:** Separate `MaterialGrounding` instance for patent graph nodes.
+### How RAG is retrieved (`ResearchAnalyst`)
 
-3. **PFAS graph**  
-   - **System 1:** For each generated research question, optional **PFAS KG** queries (`find_connections`) add structured paths when enough keywords are extracted from the question.  
-   - **Not** used in System 2’s dual-KG discovery path in the default pipeline.
+`ResearchAnalyst` does **not** call an LLM; it only queries Chroma.
 
-Together, a **full** `run_query` that executes System 1 and System 2 touches **all three** graphs; System 3 does not query KGs in the default implementation (it relies on RAG + LLM outputs for process evidence).
+1. **Query expansion:** For each call, it requests `n_results * rag_query_multiplier` hits (`agents.research_analyst`: default `n_results: 5`, `rag_query_multiplier: 20`), i.e. up to 100 candidates before filtering.
+2. **Keyword filter (optional):** If the caller passes keywords, each document must contain **every** keyword as a case-insensitive substring (`analyze` path). This is used in System 1 when `run_query` passes `keywords=[material_X, application_Y]`.
+3. **Distance filter (optional):** If `distance_threshold` is set on the analyst, chunks beyond that distance are dropped.
+4. **Cap:** Scanning in Chroma’s order, the analyst keeps hits until it has `n_results` items (or runs out).
+5. **Per-hit payload** passed to the LLM layer: `content`, `distance`, `id`, `metadata` (and later `source` when wrapped by `MultiAnalyst`).
 
-### Retrieval-augmented generation (ChromaDB)
+**System 1 fallback:** If the keyword-filtered retrieval returns **zero** documents, `run_fixed_pipeline` retries with `analyze_question(sentence)` (no keywords), so the pipeline can still proceed when strict substring matching is too harsh.
 
-Chunks are retrieved by **embedding similarity** to the query string. Multiple corpora are combined via [`MultiAnalyst`](../src/agents/multi_analyst.py), which tags each hit with its **source** name and merges results (e.g., by distance).
+### How multi-corpus RAG is merged (`MultiAnalyst`)
 
-- **PFAS papers (Chroma):** Attached to **System 1** only. Supports initial retrieval from the user sentence, per-question retrieval, and answers synthesized by `ResearchManager`.
+`MultiAnalyst` holds a **dict of named** `ResearchAnalyst` instances (e.g. `{"patents": ..., "materialdb": ...}`). For each user string or question it:
 
-- **Patents + MaterialDB (Chroma):** Used in **System 2** as a `MultiAnalyst` over `patents` and `materialdb` analysts for validation-style questions and evidence. Used again in **System 3** as part of `process_analyst` for process/manufacturing retrieval.
+1. Queries **every** analyst independently (same `analyze` / `analyze_question` rules as above).
+2. Tags each hit with a string field **`source`** equal to that dict key.
+3. **Concatenates** all hits and sorts **globally** by `distance` ascending.
 
-- **Manufacturing textbooks (Chroma):** **Required** at init. Wired into **System 3** `process_analyst` so manufacturability assessment can pull textbook-style process knowledge alongside patents and material DB text.
+There is **no** separate “top-k across corpora” cap inside `MultiAnalyst` itself: you get up to `n_results` **per** underlying analyst before the merge sort. The LLM side may still **truncate** how many chunks enter a particular prompt (see below).
 
-- **Spec sheets (Chroma):** Optional. If `data.chromadb.spec_sheets.enabled` is **true**, the same Chroma loader runs and a **spec_sheets** analyst is added to `process_analyst` for System 3. If disabled, this corpus is not loaded.
+### How retrieved text is injected into prompts (`ResearchManager`)
+
+`ResearchManager` turns RAG hits into prose with `_format_rag_context`:
+
+- Enumerates documents as `[Document 1]`, `[Document 2]`, …
+- If present, emits **`Source:`** (critical for `MultiAnalyst` output), **`ID:`**, **`Metadata:`**, then **`Content:`** (possibly truncated).
+
+Truncation and budgets are controlled under `agents.research_manager`:
+
+| Setting | Role |
+|--------|------|
+| `formatting.max_chars_per_result` | Default cap per chunk in generic / question-generation prompts |
+| `formatting.max_chars_per_result_answer` | Per chunk when **answering** a question (`answer_question`) |
+| `formatting.max_chars_per_result_validation` | Chunks for validation-oriented prompts (e.g. initial process-query context) |
+| `formatting.max_chars_per_result_feasibility` | Recipe / feasibility synthesis |
+| `context_limits.max_rag_results_in_context` | Hard slice `rag_results[:N]` in some code paths (e.g. seeding process-query generation) |
+| `max_prompt_chars` | Safety truncation of an entire assembled user prompt (with a warning) |
+
+YAML templates in [`config/prompts.yaml`](../config/prompts.yaml) use **placeholders** such as `{rag_context}`, `{question}`, `{kg_context}`, `{kg_instruction}`. For example, `answer_question` builds:
+
+- `rag_context_str` from formatted documents (or a fixed “no documents” line),
+- optional `kg_context_str` from `_format_kg_context` when PFAS KG paths exist,
+- then fills `agents.research_manager.answer_question_user_prompt`.
+
+**KG path formatting** (`_format_kg_context`): only runs when `summary.connections_found` is true; it summarizes counts and includes **serialized paths** (up to `formatting.max_paths`) so the model sees explicit node-to-node chains, not just free text.
+
+### Knowledge graphs: retrieval and use
+
+Graphs are **GraphML** + **pickled per-node embeddings**. Edge labels are read preferentially from the `relation` attribute (see `_get_edge_label` in `ResearchManager`).
+
+#### PFAS graph — System 1
+
+- **Keyword gating:** For each research question, `_extract_keywords_from_question` strips stop words and keeps up to `pipelines.material_requirements.max_keywords` terms. The PFAS KG runs only if `len(question_keywords) >= min_question_keywords` (default **2**).
+- **Query:** `ResearchScientist.find_connections` embeds keywords, maps them to nodes, searches paths (see `research_scientist` path-finding settings), returns a structured dict.
+- **Prompt injection:** If connections exist, `answer_question` appends the formatted KG block plus an instruction to weigh **both** documents and graph relationships.
+
+#### Material + Patents graphs — System 2 (dual subgraph)
+
+Step 1 (`run_material_substitution_step`) builds one **material-informed** subgraph:
+
+1. **Ground lab materials** in the material-properties KG (`ground_material_database`) → seed node IDs.
+2. **Map required property strings** to nodes in **both** KGs via `map_terms_to_nodes_best_match` (embedding similarity, capped counts from `dual_kg_material_informed_subgraph`).
+3. **Build** `subgraph_matkg` and `subgraph_patkg` with `build_connection_subgraph_shortest_paths` (undirected shortest paths between seed pairs, subject to `max_pairs_evaluated`, `max_shortest_path_len`, `max_nodes_total`).
+4. **Merge** with `merge_subgraphs_unify_by_embedding`: patent nodes can be **unified** onto material-KG nodes when cosine similarity of node embeddings exceeds `merge_similarity_threshold`.
+
+Downstream:
+
+- **`ResearchScientist.map_properties_to_materials`** runs on this **merged** subgraph (not the full global graphs) to derive material classes and path statistics.
+- **`extract_subgraph_insights`** batches **node lists** (attributes like `title`, `label`, `name`, `description`) into LLM prompts (`pipelines.material_discovery` prompts) to classify nodes as material-like vs property-like; results are capped by `batch_nodes_for_llm_context`.
+- **Candidate loop:** `generate_validation_queries` / `validate_feasibility` can receive **optional** `kg_context` / `kg_evidence` derived from the same subgraph (e.g. node IDs whose string label contains the candidate name) so prompts can mention **local** KG hooks—not full graph dumps.
+
+**Note:** System 3 does **not** load or query these large KGs by default; it relies on Chroma-backed process evidence and structured LLM outputs.
 
 ### Internal material database (JSON)
 
-The file at `data.material_database.path` lists **lab materials** and extracted properties. It is loaded into [`MaterialDatabase`](../src/utils/material_database.py) and used in **System 2** to align required properties with concrete materials and to support candidate scoring and subgraph-driven proposals. Initialization **fails** if this file path does not exist.
+[`MaterialDatabase`](../src/utils/material_database.py) is loaded once in `initialize()`; missing path → **hard failure**.
+
+In System 2 it feeds:
+
+- **Seeding the dual subgraph:** grounded material nodes come from every entry’s `material_name` (and related fields) via `MaterialGrounding`.
+- **Property / substitution logic** elsewhere in the discovery pipeline (ranking context, proposals—see `material_discovery.py` and `PropertyMapper` where configured).
+
+The JSON is **not** embedded into Chroma by this pipeline; the **MaterialDB Chroma collection** is a separate vector index that often mirrors or extends that structured inventory as unstructured chunks.
+
+---
+
+### End-to-end by stage (retrieval → prompt → next step)
+
+#### System 1 — [`run_fixed_pipeline`](../src/pipelines/material_requirements.py)
+
+| Step | Retrieval | Injected into prompt via |
+|------|-----------|---------------------------|
+| Question generation | `ResearchAnalyst.analyze(sentence, keywords)` on **PFAS papers** | `ResearchManager.process` ← `process_user_prompt` with `{rag_context}`, `{sentence}`, `{keywords_section}` |
+| Per-question evidence | `analyze_question(question)` on PFAS papers; optional `pfas_scientist.find_connections` | `answer_question` ← `answer_question_user_prompt` with RAG + optional KG blocks |
+| Property / constraint extraction | No new retrieval | `ResearchAssistant` prompts using **answered** Q&A text only |
+
+Optional **parallel RAG workers** (`parallel_rag_workers` set above 1) run per-question RAG+KG work in a thread pool; ordering of `question_results` is preserved to match `manager_result`.
+
+#### System 2 — [`run_material_discovery_pipeline`](../src/pipelines/material_discovery.py)
+
+| Phase | Sources | Mechanism |
+|-------|---------|-----------|
+| Substitution | Mat KG + Patents KG + material JSON | Dual subgraph + merge (above); LLM subgraph insight extraction |
+| Iteration | **`MultiAnalyst`** `{patents, materialdb}` | For each validation query string: `analyst.analyze_question(query)` returns tagged hits; `answer_question` compresses each query’s evidence |
+| Feasibility | RAG answers + optional subgraph hints | `validate_feasibility` assembles evidence summaries (see `max_chars_per_result_feasibility` / validation prompts in YAML) |
+
+The `ResearchAnalyst` passed from [`run_query`](../src/runner.py) is a **`MultiAnalyst`** over patents and materialdb collections (`n_results` from `agents.research_analyst`).
+
+#### System 3 — [`run_manufacturability_assessment_pipeline`](../src/pipelines/manufacturability_assessment.py)
+
+`initialize()` builds `process_analyst` as a `MultiAnalyst` over **manufacturing_textbooks**, **patents**, and **materialdb** (and **spec_sheets** if enabled). Each underlying `ResearchAnalyst` uses `pipelines.manufacturability_assessment.n_results_per_source` (see [`config/config.yaml`](../config/config.yaml)).
+
+| Step | Retrieval | How it reaches the LLM |
+|------|-----------|-------------------------|
+| **A. Constituents** | None | `extract_material_constituents_for_manufacturing` — structured JSON (composite vs single) from candidate + application + constraints |
+| **B. Decomposition query plan** | None | `generate_decomposition_process_queries` — LLM emits constituent- and combination-type search strings from the decomposition JSON (no Chroma call in this step) |
+| **C. First-pass process evidence** | For **each** planned query string: `process_analyst.analyze_question` | Hits are tagged by corpus, concatenated, sorted by distance, then **deduplicated** (source + id + content hash) and **source-balanced** up to `max_process_families`. This list becomes `retrieved_rag_results`. |
+| **D. Feasibility question generation** | Uses **only** the evidence from C | `generate_feasibility_questions` formats `retrieved_rag_results` into the prompt so the model asks targeted follow-ups grounded in what was already retrieved. |
+| **E. Per-question refinement** | For **each** feasibility question: `process_analyst.analyze_question` again | `answer_feasibility_question` injects that question’s RAG hits (confidence + “evidence used” metadata). |
+| **F. Overall verdict** | None new | `assess_manufacturability_feasibility` aggregates the Q&A pairs (and coverage stats); no additional retrieval. |
+| **G. Recipe (if feasible)** | Reuses **C** | `synthesize_process_recipe` formats **`retrieved_rag_results`** from step C (not the per-question lists from E) via `_format_rag_context` with `max_chars_per_result_feasibility`. |
+
+**Note:** `ResearchManager.generate_process_retrieval_queries` performs an initial `process_analyst` query and injects snippets into a **different** prompt path; the default manufacturability pipeline above uses the **decomposition** flow instead (A–G). The helper remains available for alternate entry points or experiments.
 
 ---
 
@@ -130,9 +228,10 @@ The file at `data.material_database.path` lists **lab materials** and extracted 
 
 ### System 3 (`run_manufacturability_assessment_pipeline` in [`manufacturability_assessment.py`](../src/pipelines/manufacturability_assessment.py))
 
-1. **LLM:** Decompose the candidate into constituents and plan **process-oriented queries**.  
-2. **RAG:** For each query, `process_analyst.analyze_question` hits **manufacturing_textbooks**, **patents**, **materialdb**, and **spec_sheets** (if enabled)—each as a separate Chroma-backed analyst behind one `MultiAnalyst`.  
-3. **LLM:** Assess manufacturability, produce a recipe or **blocking constraints** and **feedback** for System 2 if blocked.
+1. **LLM:** Constituent decomposition, then a **structured query plan** (no RAG in those two steps).  
+2. **RAG:** Run the plan through `process_analyst` (textbooks + patents + materialdb + optional spec sheets), dedupe and cap evidence.  
+3. **LLM:** Generate **feasibility questions** informed by that evidence; **RAG again** per question; aggregate with `assess_manufacturability_feasibility`.  
+4. If feasible: **LLM** `synthesize_process_recipe` using the step-2 evidence list; if blocked: emit constraints and **feedback** for System 2.
 
 ---
 
