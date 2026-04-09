@@ -340,19 +340,6 @@ agents:
 
       Format: Provide a numbered list. Each item should be a single, specific, testable constraint.
 
-  material_scientist:
-    rank_candidates: "You are a materials expert ranking candidate substitutes."
-
-    rank_candidates_user_prompt: |
-      Material to replace: {material_X}
-      Application: {application_Y}
-      Required properties: {required_properties}
-
-      Candidates:
-      {candidate_list}
-
-      Rank these candidates 1-3 based on suitability as a substitute.
-
   research_scientist:
     classify_material_nodes: |
       You are a materials science expert specializing in knowledge graph analysis and node classification.

@@ -25,7 +25,7 @@ System 3 (Manufacturability) ─────┘
 │   └── evaluation_rubric.yaml   # LLM-judge dimensions and weights
 ├── src/
 │   ├── runner.py                # Pipeline orchestrator (initialize + run_query)
-│   ├── agents/                  # ResearchManager, ResearchScientist, MaterialScientist, …
+│   ├── agents/                  # ResearchManager, ResearchScientist, …
 │   ├── pipelines/               # System 1, 2, 3 pipeline functions
 │   ├── config/                  # YAML loader with ${ENV_VAR} interpolation
 │   └── utils/                   # LLM wrapper, embeddings, ChromaDB helpers, KG tools, …
@@ -66,6 +66,8 @@ Edit `config/config.yaml` to set:
 - **`data.material_database.path`** — path to `internal_material_database.json`
 
 The config loader supports `${ENV_VAR}` and `${ENV_VAR:-default}` interpolation, so you can set paths via environment variables instead of editing the file directly.
+
+**Strict data loading:** `initialize()` fails immediately if any required path is missing or invalid: the three knowledge-graph file pairs under `data.graphs.kg_dir`, the four Chroma persist directories (`pfas`, `patents`, `materialdb`, `manufacturing_textbooks` under `data.chromadb.base_path`), and `data.material_database.path`. Optional **`data.chromadb.spec_sheets`** is only loaded when `enabled: true`; in that case the spec-sheet Chroma path must exist or initialization raises.
 
 ## Reproducing the Experiments
 

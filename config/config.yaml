@@ -48,9 +48,10 @@ data:
       database_path: "Textbooks/chromaDB_textbooks"
       collection_name: null  # null means use first available collection
     spec_sheets:
-      database_path: "SpecSheets/chromaDB_specsheets"  # TODO: update path when spec-sheet ChromaDB is available
+      database_path: "SpecSheets/chromaDB_specsheets"
       collection_name: null  # null means use first available collection
-      enabled: false  # Set to true once the spec_sheets database is populated
+      # When true, database_path must exist and the collection is loaded into System 3 RAG; init fails if not usable.
+      enabled: false
   material_database:
     path: "/home/tphage/orcd/pool/SG_Ph1_Data/MaterialDB/internal_material_database.json"
 
@@ -95,22 +96,6 @@ agents:
   research_analyst:
     n_results: 5
     rag_query_multiplier: 20  # n_results * multiplier for initial query
-  
-  material_scientist:
-    temperature: 0
-    evidence_limits:
-      matching_nodes_preview: 3
-      property_nodes_preview: 3
-      matching_nodes_in_dict: 5
-      property_nodes_in_dict: 5
-      property_matches_for_rag: 5
-    scoring:
-      graph_normalization_divisor: 5.0
-      rag_normalization_divisor: 10.0
-      property_weight: 0.5
-      graph_weight: 0.3
-      rag_weight: 0.2
-    min_property_matches_for_many: 3
 
   material_grounding:
     similarity_threshold: 0.8

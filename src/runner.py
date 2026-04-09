@@ -21,7 +21,6 @@ from chromadb import PersistentClient
 from sentence_transformers import SentenceTransformer
 
 from .agents import (
-    MaterialScientist,
     MultiAnalyst,
     RejectedCandidateTracker,
     ResearchAnalyst,
@@ -103,7 +102,7 @@ class MARSComponents:
     analyst_patents_s2: ResearchAnalyst = field(repr=False)
     analyst_materialdb_s2: ResearchAnalyst = field(repr=False)
     scientist_s2: ResearchScientist = field(repr=False)
-    process_analyst: Optional[MultiAnalyst] = field(default=None, repr=False)
+    process_analyst: MultiAnalyst = field(repr=False)
 
     # Material discovery helpers
     property_mapper: PropertyMapper = field(repr=False)
@@ -115,29 +114,66 @@ class MARSComponents:
 # ---------------------------------------------------------------------------
 # Initialization
 # ---------------------------------------------------------------------------
-def _load_kg(kg_dir: str, cfg: dict, label: str) -> tuple:
+def _require_dir(path: str, description: str) -> None:
+    """Raise FileNotFoundError if *path* is not an existing directory."""
+    if not os.path.isdir(path):
+        raise FileNotFoundError(
+            f"Required directory missing or not a directory ({description}): {path!r}"
+        )
+
+
+def _require_file(path: str, description: str) -> None:
+    """Raise FileNotFoundError if *path* is not an existing file."""
+    if not os.path.isfile(path):
+        raise FileNotFoundError(
+            f"Required file missing or not a file ({description}): {path!r}"
+        )
+
+
+def _load_kg(kg_dir: str, cfg: dict, label: str, config_section: str) -> tuple:
     """Load a knowledge graph + its node embeddings from disk."""
     graph_path = os.path.join(kg_dir, cfg["graph_file"])
+    emb_path = os.path.join(kg_dir, cfg["embedding_file"])
+    _require_file(graph_path, f"{config_section} graph_file ({label})")
+    _require_file(emb_path, f"{config_section} embedding_file ({label})")
+
     G = nx.read_graphml(graph_path)
     relation = nx.get_edge_attributes(G, "title")
     nx.set_edge_attributes(G, relation, "relation")
     print(f"  {label} KG loaded: {G}")
 
-    emb_path = os.path.join(kg_dir, cfg["embedding_file"])
     embeddings = load_embeddings(emb_path)
     print(f"  {label} embeddings loaded: {len(embeddings)} nodes")
     return G, embeddings
 
 
-def _load_chroma_collection(base_path: str, db_cfg: dict, ef, label: str):
-    """Open a ChromaDB PersistentClient and return (client, collection)."""
+def _load_chroma_collection(
+    base_path: str,
+    db_cfg: dict,
+    ef,
+    label: str,
+    config_key: str,
+) -> tuple:
+    """Open a ChromaDB PersistentClient and return (client, collection).
+
+    Fails fast if the DB directory is missing, empty of collections when
+    ``collection_name`` is unset, or the collection cannot be opened.
+    """
     db_path = os.path.join(base_path, db_cfg["database_path"]) if base_path else db_cfg["database_path"]
+    _require_dir(db_path, f"data.chromadb.{config_key} (Chroma persist directory)")
+
     client = PersistentClient(path=db_path)
     col_name = db_cfg.get("collection_name")
     if not col_name:
-        col_name = client.list_collections()[0].name
+        collections = client.list_collections()
+        if not collections:
+            raise RuntimeError(
+                f"No collections in Chroma DB ({label}, config data.chromadb.{config_key}): {db_path!r}. "
+                "Set collection_name explicitly or populate the database."
+            )
+        col_name = collections[0].name
     collection = client.get_collection(col_name, embedding_function=ef)
-    print(f"  {label} ChromaDB loaded")
+    print(f"  {label} ChromaDB loaded (collection={col_name!r})")
     return client, collection
 
 
@@ -176,19 +212,35 @@ def initialize(config: Optional[Dict[str, Any]] = None) -> MARSComponents:
     # -- Knowledge graphs -----------------------------------------------------
     graphs_cfg = config["data"]["graphs"]
     kg_dir = graphs_cfg["kg_dir"]
+    _require_dir(kg_dir, "data.graphs.kg_dir")
     print("Loading knowledge graphs …")
-    G_mp, emb_mp = _load_kg(kg_dir, graphs_cfg["material_properties"], "MaterialProperties")
-    G_pfas, emb_pfas = _load_kg(kg_dir, graphs_cfg["pfas"], "PFAS")
-    G_pat, emb_pat = _load_kg(kg_dir, graphs_cfg["patents"], "Patents")
+    G_mp, emb_mp = _load_kg(
+        kg_dir, graphs_cfg["material_properties"], "MaterialProperties", "graphs.material_properties",
+    )
+    G_pfas, emb_pfas = _load_kg(kg_dir, graphs_cfg["pfas"], "PFAS", "graphs.pfas")
+    G_pat, emb_pat = _load_kg(kg_dir, graphs_cfg["patents"], "Patents", "graphs.patents")
 
     # -- ChromaDB -------------------------------------------------------------
     chroma_cfg = config["data"]["chromadb"]
     base_path = chroma_cfg.get("base_path", "")
     print("Loading ChromaDB collections …")
 
-    _, pfas_col = _load_chroma_collection(base_path, chroma_cfg["pfas"], embedding_function, "PFAS")
-    _, patents_col = _load_chroma_collection(base_path, chroma_cfg["patents"], embedding_function, "Patents")
-    _, matdb_col = _load_chroma_collection(base_path, chroma_cfg["materialdb"], embedding_function, "MaterialDB")
+    _, pfas_col = _load_chroma_collection(
+        base_path, chroma_cfg["pfas"], embedding_function, "PFAS", "pfas",
+    )
+    _, patents_col = _load_chroma_collection(
+        base_path, chroma_cfg["patents"], embedding_function, "Patents", "patents",
+    )
+    _, matdb_col = _load_chroma_collection(
+        base_path, chroma_cfg["materialdb"], embedding_function, "MaterialDB", "materialdb",
+    )
+
+    mfg_cfg = chroma_cfg.get("manufacturing_textbooks")
+    if not mfg_cfg:
+        raise ValueError("config data.chromadb.manufacturing_textbooks is required for MARS")
+    _, mfg_col = _load_chroma_collection(
+        base_path, mfg_cfg, embedding_function, "MfgTextbooks", "manufacturing_textbooks",
+    )
 
     # Process analysts for System 3
     n_results_s3 = (
@@ -196,27 +248,32 @@ def initialize(config: Optional[Dict[str, Any]] = None) -> MARSComponents:
         .get("manufacturability_assessment", {})
         .get("n_results_per_source", 5)
     )
-    process_analysts: Dict[str, ResearchAnalyst] = {}
+    process_analysts: Dict[str, ResearchAnalyst] = {
+        "manufacturing_textbooks": ResearchAnalyst(
+            collection=mfg_col, embedding_function=embedding_function, n_results=n_results_s3,
+        ),
+        "patents": ResearchAnalyst(
+            collection=patents_col, embedding_function=embedding_function, n_results=n_results_s3,
+        ),
+        "materialdb": ResearchAnalyst(
+            collection=matdb_col, embedding_function=embedding_function, n_results=n_results_s3,
+        ),
+    }
 
-    mfg_cfg = chroma_cfg.get("manufacturing_textbooks", {})
-    if mfg_cfg:
-        try:
-            mfg_path = os.path.join(base_path, mfg_cfg["database_path"]) if base_path else mfg_cfg["database_path"]
-            if os.path.exists(mfg_path):
-                _, mfg_col = _load_chroma_collection(base_path, mfg_cfg, embedding_function, "MfgTextbooks")
-                process_analysts["manufacturing_textbooks"] = ResearchAnalyst(
-                    collection=mfg_col, embedding_function=embedding_function, n_results=n_results_s3,
-                )
-        except Exception as exc:
-            print(f"  Skipping manufacturing_textbooks: {exc}")
+    spec_cfg = chroma_cfg.get("spec_sheets") or {}
+    if spec_cfg.get("enabled"):
+        if not spec_cfg.get("database_path"):
+            raise ValueError(
+                "data.chromadb.spec_sheets.database_path is required when spec_sheets.enabled is true",
+            )
+        _, spec_col = _load_chroma_collection(
+            base_path, spec_cfg, embedding_function, "SpecSheets", "spec_sheets",
+        )
+        process_analysts["spec_sheets"] = ResearchAnalyst(
+            collection=spec_col, embedding_function=embedding_function, n_results=n_results_s3,
+        )
 
-    process_analysts["patents"] = ResearchAnalyst(
-        collection=patents_col, embedding_function=embedding_function, n_results=n_results_s3,
-    )
-    process_analysts["materialdb"] = ResearchAnalyst(
-        collection=matdb_col, embedding_function=embedding_function, n_results=n_results_s3,
-    )
-    process_analyst = MultiAnalyst(process_analysts) if process_analysts else None
+    process_analyst = MultiAnalyst(process_analysts)
     print(f"  Process analyst initialized with {len(process_analysts)} sources")
 
     # -- System 2 persistent agents -------------------------------------------
@@ -255,6 +312,7 @@ def initialize(config: Optional[Dict[str, Any]] = None) -> MARSComponents:
     mat_db_path = (
         config.get("data", {}).get("material_database", {}).get("path", "./data/internal_material_database.json")
     )
+    _require_file(mat_db_path, "data.material_database.path")
     material_db = MaterialDatabase.load_from_json(mat_db_path, property_mapper=property_mapper)
     print(f"Material database loaded: {len(material_db)} materials")
 
@@ -507,11 +565,6 @@ def run_query(
             name="research_manager", system_message=None,
             generate_fn=c.generate, chat_logger=chat_logger_s2,
         )
-        material_scientist_s2 = MaterialScientist(
-            material_db=c.material_db, knowledge_graph=c.G_materialproperties,
-            analyst=analyst_s2, manager=manager_s2,
-            embedding_model=c.embedding_model, embedding_tokenizer=c.embedding_tokenizer,
-        )
 
         s2_start = datetime.utcnow()
 
@@ -526,7 +579,6 @@ def run_query(
             material_db=c.material_db,
             material_grounding_material=c.material_grounding_material,
             material_grounding_patents=c.material_grounding_patents,
-            material_scientist=material_scientist_s2,
             knowledge_graph_material=c.G_materialproperties,
             knowledge_graph_patents=c.G_patents,
             substitution_result=cached_substitution_result,

@@ -5,7 +5,6 @@ from .research_manager import ResearchManager
 from .research_assistant import ResearchAssistant
 from .research_scientist import ResearchScientist
 from .tracker import RejectedCandidateTracker
-from .material_scientist import MaterialScientist
 from .multi_analyst import MultiAnalyst
 
 __all__ = [
@@ -14,7 +13,6 @@ __all__ = [
     "ResearchAssistant",
     "ResearchScientist",
     "RejectedCandidateTracker",
-    "MaterialScientist",
     "MultiAnalyst",
 ]
 

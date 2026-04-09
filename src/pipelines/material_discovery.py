@@ -8,7 +8,6 @@ import networkx as nx
 
 logger = logging.getLogger(__name__)
 from ..agents import ResearchAnalyst, ResearchManager, ResearchScientist, RejectedCandidateTracker
-from ..agents.material_scientist import MaterialScientist
 from ..utils.material_database import MaterialDatabase
 from ..utils.material_grounding import MaterialGrounding
 from ..utils.dual_kg_subgraph import (
@@ -207,7 +206,6 @@ def run_material_substitution_step(
     properties_W: Dict[str, Any],
     constraints_U: List[str],
     material_db: MaterialDatabase,
-    material_scientist: MaterialScientist,
     knowledge_graph_material: nx.DiGraph,
     knowledge_graph_patents: nx.DiGraph,
     material_grounding_material: MaterialGrounding,
@@ -228,7 +226,6 @@ def run_material_substitution_step(
         properties_W: Required material properties (dict with ``required`` key).
         constraints_U: List of constraint strings.
         material_db: MaterialDatabase instance.
-        material_scientist: MaterialScientist instance.
         knowledge_graph_material: Material Properties knowledge graph (DiGraph).
         knowledge_graph_patents: Patents knowledge graph (DiGraph).
         material_grounding_material: MaterialGrounding bound to the Material Properties KG.
@@ -474,7 +471,6 @@ def run_material_discovery_pipeline(
     material_db: MaterialDatabase,
     material_grounding_material: MaterialGrounding,
     material_grounding_patents: MaterialGrounding,
-    material_scientist: MaterialScientist,
     knowledge_graph_material: nx.DiGraph,
     knowledge_graph_patents: nx.DiGraph,
     max_iterations: int = None,
@@ -509,7 +505,6 @@ def run_material_discovery_pipeline(
         material_db: MaterialDatabase instance.
         material_grounding_material: MaterialGrounding bound to Material Properties KG.
         material_grounding_patents: MaterialGrounding bound to Patents KG.
-        material_scientist: MaterialScientist instance.
         knowledge_graph_material: Material Properties knowledge graph (DiGraph).
         knowledge_graph_patents: Patents knowledge graph (DiGraph).
         max_iterations: Max candidate iterations (default: config value).
@@ -600,7 +595,6 @@ def run_material_discovery_pipeline(
                 properties_W=properties_W,
                 constraints_U=constraints_U_final,
                 material_db=material_db,
-                material_scientist=material_scientist,
                 knowledge_graph_material=knowledge_graph_material,
                 knowledge_graph_patents=knowledge_graph_patents,
                 material_grounding_material=material_grounding_material,
