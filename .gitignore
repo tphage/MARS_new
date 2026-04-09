@@ -1,10 +1,32 @@
+# Python
 __pycache__/
 *.pyc
 *.pyo
+*.egg-info/
+dist/
+build/
+*.egg
+
+# Large data files (KGs and embeddings live outside the repo)
 *.pkl
 *.graphml
+
+# Runtime artifacts
 pipeline_logs/
 chroma/
+cache/
+*.log
+
+# Environment & secrets
 .env
-*.ipynb_checkpoints
+.env.*
+
+# IDE / OS
 .DS_Store
+.vscode/
+.idea/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# NOTE: results/ is explicitly committed (frozen experiment outputs for the paper).

@@ -13,10 +13,12 @@ from typing import Any, Dict, List, Optional
 
 
 def load_ablation_queries(config_path: Optional[str] = None) -> List[Dict[str, str]]:
-    """Load benchmark queries from config/ablation_queries.yaml."""
+    """Load benchmark queries from config/queries.yaml."""
     if config_path is None:
         project_root = Path(__file__).parent.parent.parent
-        config_path = project_root / "config" / "ablation_queries.yaml"
+        config_path = project_root / "config" / "queries.yaml"
+        if not config_path.exists():
+            config_path = project_root / "config" / "ablation_queries.yaml"
     with open(config_path, "r", encoding="utf-8") as f:
         data = yaml.safe_load(f)
     return data["queries"]

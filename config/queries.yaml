@@ -1,0 +1,15 @@
+queries:
+  - name: "Query1"
+    sentence: "Find a substitute material for PFAS material THV (elastomeric terpolymer of tetrafluoroethylene, hexafluoropropylene, and vinylidene fluoride) that has broad chemical resistance, including acids, bases, protic and aprotic solvents, oils, and salt solutions. Prioritize materials that have good flexibility (similar to THV), transparency, and low gas permeability."
+    material_X: "elastomeric terpolymer of tetrafluoroethylene, hexafluoropropylene, and vinylidene fluoride"
+    application_Y: "broad chemical resistance"
+
+  - name: "Query2"
+    sentence: "Identify PFAS free thermoplastic material for heat shrink tubing with a 2:1 shrink ratio that could replace FEP heat shrink tubing that has an application / service temperature of up to ~200°C and a shrink temperature under 250°C."
+    material_X: "FEP"
+    application_Y: "heat shrink tubing"
+
+  - name: "Query3"
+    sentence: "Identify non fluoropolymer thermoplastics that can withstand severe thermal shock, specifically direct immersion into liquid nitrogen (-196 °C) and maintain structural integrity (no cracking, embrittlement, or catastrophic failure)."
+    material_X: "non fluoropolymer thermoplastics"
+    application_Y: "severe thermal shock"

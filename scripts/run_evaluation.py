@@ -49,19 +49,69 @@ def load_rubric(path: Optional[str] = None) -> Dict[str, Any]:
 
 
 def discover_query_dirs() -> Dict[str, Path]:
-    """Find all pipeline_logs_* directories that have all 4 condition files."""
+    """Find query directories under results/ that have all 4 condition files.
+
+    Supports both the new layout (results/QueryN/) and the legacy layout
+    (pipeline_logs_QueryN/ at repo root).
+    """
     results = {}
-    for d in sorted(PROJECT_ROOT.iterdir()):
-        if not d.is_dir() or not d.name.startswith("pipeline_logs_"):
-            continue
-        query_name = d.name.replace("pipeline_logs_", "")
-        has_eval = any(f.name.startswith("evaluation_") and f.suffix == ".json" for f in d.iterdir())
-        has_3agent = any(f.name.startswith("ablation_3agent_") and f.suffix == ".json" for f in d.iterdir())
-        has_1rag = any(f.name.startswith("ablation_1agent_rag_") and f.suffix == ".json" for f in d.iterdir())
-        has_1norag = any(f.name.startswith("ablation_1agent_no_rag_") and f.suffix == ".json" for f in d.iterdir())
-        if has_eval and has_3agent and has_1rag and has_1norag:
-            results[query_name] = d
+
+    # New layout: results/QueryN/
+    results_dir = PROJECT_ROOT / "results"
+    if results_dir.is_dir():
+        for d in sorted(results_dir.iterdir()):
+            if not d.is_dir() or d.name == "evaluation":
+                continue
+            query_name = d.name
+            has_mars = (d / "mars.json").exists() or any(
+                f.name.startswith("evaluation_") and f.suffix == ".json" for f in d.iterdir()
+            )
+            has_3agent = (d / "ablation_3agent.json").exists() or any(
+                f.name.startswith("ablation_3agent_") and f.suffix == ".json" for f in d.iterdir()
+            )
+            has_1rag = (d / "ablation_1agent_rag.json").exists() or any(
+                f.name.startswith("ablation_1agent_rag_") and f.suffix == ".json" for f in d.iterdir()
+            )
+            has_1norag = (d / "ablation_1agent_no_rag.json").exists() or any(
+                f.name.startswith("ablation_1agent_no_rag_") and f.suffix == ".json" for f in d.iterdir()
+            )
+            if has_mars and has_3agent and has_1rag and has_1norag:
+                results[query_name] = d
+
+    # Legacy layout: pipeline_logs_QueryN/ at repo root
+    if not results:
+        for d in sorted(PROJECT_ROOT.iterdir()):
+            if not d.is_dir() or not d.name.startswith("pipeline_logs_"):
+                continue
+            query_name = d.name.replace("pipeline_logs_", "")
+            has_eval = any(f.name.startswith("evaluation_") and f.suffix == ".json" for f in d.iterdir())
+            has_3agent = any(f.name.startswith("ablation_3agent_") and f.suffix == ".json" for f in d.iterdir())
+            has_1rag = any(f.name.startswith("ablation_1agent_rag_") and f.suffix == ".json" for f in d.iterdir())
+            has_1norag = any(f.name.startswith("ablation_1agent_no_rag_") and f.suffix == ".json" for f in d.iterdir())
+            if has_eval and has_3agent and has_1rag and has_1norag:
+                results[query_name] = d
+
     return results
+
+
+def _load_json_file(path: Path) -> Dict[str, Any]:
+    with open(path, "r", encoding="utf-8") as f:
+        return json.load(f)
+
+
+def _find_condition_file(query_dir: Path, exact_name: str, prefix: str) -> Path:
+    """Find a condition file by exact name first, then by prefix glob."""
+    exact = query_dir / exact_name
+    if exact.exists():
+        return exact
+    candidates = sorted(
+        [f for f in query_dir.iterdir() if f.name.startswith(prefix) and f.suffix == ".json"],
+        key=lambda f: f.stat().st_mtime,
+        reverse=True,
+    )
+    if not candidates:
+        raise FileNotFoundError(f"No {exact_name} or {prefix}*.json in {query_dir}")
+    return candidates[0]
 
 
 def load_condition_file(query_dir: Path, prefix: str) -> Dict[str, Any]:
@@ -73,16 +123,23 @@ def load_condition_file(query_dir: Path, prefix: str) -> Dict[str, Any]:
     )
     if not candidates:
         raise FileNotFoundError(f"No {prefix}*.json in {query_dir}")
-    with open(candidates[0], "r", encoding="utf-8") as f:
-        return json.load(f)
+    return _load_json_file(candidates[0])
 
 
 def load_all_conditions(query_dir: Path) -> Dict[str, Dict[str, Any]]:
     return {
-        "evaluation": load_condition_file(query_dir, "evaluation_"),
-        "ablation_3agent": load_condition_file(query_dir, "ablation_3agent_"),
-        "ablation_1agent_rag": load_condition_file(query_dir, "ablation_1agent_rag_"),
-        "ablation_1agent_no_rag": load_condition_file(query_dir, "ablation_1agent_no_rag_"),
+        "evaluation": _load_json_file(
+            _find_condition_file(query_dir, "mars.json", "evaluation_")
+        ),
+        "ablation_3agent": _load_json_file(
+            _find_condition_file(query_dir, "ablation_3agent.json", "ablation_3agent_")
+        ),
+        "ablation_1agent_rag": _load_json_file(
+            _find_condition_file(query_dir, "ablation_1agent_rag.json", "ablation_1agent_rag_")
+        ),
+        "ablation_1agent_no_rag": _load_json_file(
+            _find_condition_file(query_dir, "ablation_1agent_no_rag.json", "ablation_1agent_no_rag_")
+        ),
     }
 
 
@@ -375,7 +432,7 @@ def main():
     parser = argparse.ArgumentParser(description="MARS Ablation LLM-as-Judge Evaluation")
     parser.add_argument("--model", default=None, help="Judge model (default: from rubric or gpt-4o)")
     parser.add_argument("--queries", default=None, help="Comma-separated query names to evaluate (default: all)")
-    parser.add_argument("--output-dir", default="evaluation_results", help="Directory for results")
+    parser.add_argument("--output-dir", default="results/evaluation", help="Directory for results")
     parser.add_argument("--rubric", default=None, help="Path to evaluation rubric YAML")
     parser.add_argument("--seed", type=int, default=42, help="Random seed for blind label shuffling")
     parser.add_argument("--base-url", default=None, help="Override OpenAI base URL")
