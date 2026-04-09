@@ -457,7 +457,9 @@ def run_query(
 
     s1_cfg = config["pipelines"]["material_requirements"]
     s1_run_id = _generate_run_id(artifacts_dir, "system1")
-    chat_logger_s1 = ChatLogger(run_id=s1_run_id, pipeline="material_requirements")
+    chat_logger_s1 = ChatLogger(
+        run_id=s1_run_id, pipeline="material_requirements", log_dir=chats_dir
+    )
 
     analyst_s1 = ResearchAnalyst(
         collection=c.pfas_collection, embedding_function=c.embedding_function,
@@ -538,7 +540,9 @@ def run_query(
     max_iterations = config["pipelines"]["material_discovery"].get("max_iterations", 5)
     pipeline_run["system2_system3_loop"]["max_iterations"] = max_iterations
 
-    tracker = RejectedCandidateTracker()
+    tracker = RejectedCandidateTracker(
+        log_file=os.path.join(artifacts_dir, "rejected_candidates.json")
+    )
     constraints_U = list(extracted_constraints)
     cached_substitution_result = None
     s1_base = s1_run_id.split("_")[0] if "_" in s1_run_id else s1_run_id
@@ -554,7 +558,9 @@ def run_query(
 
         # -- System 2 --------------------------------------------------------
         s2_run_id = _next_counter(artifacts_dir, "system2", s1_base)
-        chat_logger_s2 = ChatLogger(run_id=s2_run_id, pipeline="material_discovery")
+        chat_logger_s2 = ChatLogger(
+            run_id=s2_run_id, pipeline="material_discovery", log_dir=chats_dir
+        )
 
         c.analyst_patents_s2.chat_logger = chat_logger_s2
         c.analyst_materialdb_s2.chat_logger = chat_logger_s2
@@ -582,6 +588,7 @@ def run_query(
             knowledge_graph_material=c.G_materialproperties,
             knowledge_graph_patents=c.G_patents,
             substitution_result=cached_substitution_result,
+            subgraphs_dir=subgraphs_dir,
         )
 
         s2_end = datetime.utcnow()
@@ -625,7 +632,11 @@ def run_query(
 
         # -- System 3 --------------------------------------------------------
         s3_run_id = _next_counter(artifacts_dir, "system3", s1_base)
-        chat_logger_s3 = ChatLogger(run_id=s3_run_id, pipeline="manufacturability_assessment")
+        chat_logger_s3 = ChatLogger(
+            run_id=s3_run_id,
+            pipeline="manufacturability_assessment",
+            log_dir=chats_dir,
+        )
         manager_s3 = ResearchManager(
             name="research_manager", system_message=None,
             generate_fn=c.generate, chat_logger=chat_logger_s3,

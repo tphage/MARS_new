@@ -23,7 +23,7 @@ def _load_json(path: str) -> Optional[Dict[str, Any]]:
 
 def _merge_rejected_candidates(
     iteration_history: List[Dict[str, Any]],
-    tracker_details: List[Dict[str, Any]],
+    tracker_details: List[Any],
 ) -> List[Dict[str, Any]]:
     """Merge rejection sources: iteration_history (System 2) + tracker (System 2 + System 3)."""
     # Build map from iteration_history for System 2 feasibility rejections (richer reasoning)
@@ -40,22 +40,31 @@ def _merge_rejected_candidates(
                 }
 
     # Use tracker as primary; enrich with iteration_history when available
+    # Tracker file may list plain strings (names only) or full dict entries.
     seen: set = set()
     merged: List[Dict[str, Any]] = []
     for entry in tracker_details or []:
-        c = str(entry.get("candidate", "")).strip()
+        if isinstance(entry, str):
+            c = entry.strip()
+            source = "feasibility"
+        elif isinstance(entry, dict):
+            c = str(entry.get("candidate", "")).strip()
+            source = entry.get("source", "feasibility")
+        else:
+            continue
         if not c or c.lower() in seen:
             continue
         seen.add(c.lower())
-        source = entry.get("source", "feasibility")
         hist = hist_by_candidate.get(c.lower())
         if hist and source != "manufacturability":
             merged.append(hist)
         else:
+            reason = entry.get("reason", "") if isinstance(entry, dict) else ""
+            constraints = entry.get("constraints", []) if isinstance(entry, dict) else []
             merged.append({
                 "candidate": c,
-                "reasoning": entry.get("reason", ""),
-                "constraints_violated": entry.get("constraints", []),
+                "reasoning": reason,
+                "constraints_violated": constraints,
                 "source": source or "feasibility",
             })
     return merged
@@ -70,7 +79,7 @@ def build_evaluation_payload(
 
     Args:
         pipeline_run: The pipeline_run dict (after completion).
-        output_dir: Directory containing system1/2/3 JSON files (typically pipeline_logs).
+        output_dir: Directory containing system1/2/3 JSON files (typically results/<Query>/artifacts).
 
     Returns:
         Evaluation-ready dict with query, required_material_properties,
@@ -133,13 +142,22 @@ def build_evaluation_payload(
         if system2_data:
             candidate = system2_data.get("candidate")
             if candidate:
-                candidate_selection["final_candidate"] = {
-                    "material_name": candidate.get("material_name"),
-                    "material_class": candidate.get("material_class"),
-                    "material_id": candidate.get("material_id"),
-                    "justification": candidate.get("justification"),
-                    "properties": candidate.get("properties"),
-                }
+                if isinstance(candidate, dict):
+                    candidate_selection["final_candidate"] = {
+                        "material_name": candidate.get("material_name"),
+                        "material_class": candidate.get("material_class"),
+                        "material_id": candidate.get("material_id"),
+                        "justification": candidate.get("justification"),
+                        "properties": candidate.get("properties"),
+                    }
+                else:
+                    candidate_selection["final_candidate"] = {
+                        "material_name": str(candidate),
+                        "material_class": None,
+                        "material_id": None,
+                        "justification": None,
+                        "properties": None,
+                    }
             # Merge rejected candidates from iteration_history + tracker
             iteration_history = system2_data.get("iteration_history", [])
             tracker_path = os.path.join(output_dir, "rejected_candidates.json")
@@ -182,7 +200,7 @@ def save_evaluation_export(
 
     Args:
         pipeline_run: The pipeline_run dict (after completion).
-        output_dir: Directory to save the file (typically pipeline_logs).
+        output_dir: Directory to save the file (typically results/<Query>/artifacts).
 
     Returns:
         Path to the saved file, or empty string on failure.

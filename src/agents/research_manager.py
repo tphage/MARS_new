@@ -7,6 +7,7 @@ import networkx as nx
 from typing import List, Dict, Any, Optional
 from ..config import load_prompts, load_config
 from ..utils.parsing import parse_to_list, clean_material_name
+from ..utils.ablation_utils import extract_json_from_response
 from GraphReasoning import find_best_fitting_node_list
 
 
@@ -2317,24 +2318,24 @@ class ResearchManager:
         process_recipe = []
         evidence = []
 
-        # Parse JSON - raise exception on failure instead of falling back
-        content_clean = content.strip()
-        json_start = content_clean.find("{")
-        json_end = content_clean.rfind("}") + 1
-        if json_start < 0 or json_end <= json_start:
+        # Parse JSON (LLMs often wrap output in ```json fences or add prose)
+        if isinstance(content, dict):
+            data = content
+        else:
+            if not isinstance(content, str):
+                content = str(content)
+            data = extract_json_from_response(content)
+            if data is None:
+                preview = content[:800] + ("…" if len(content) > 800 else "")
+                raise ValueError(
+                    "Failed to parse JSON from LLM response for synthesize_process_recipe "
+                    f"(no valid JSON object). Response preview:\n{preview}"
+                )
+        if not isinstance(data, dict):
             raise ValueError(
-                f"Failed to find JSON object in LLM response for synthesize_process_recipe. "
-                f"Response: {content_clean[:500]}"
+                f"Expected a JSON object for synthesize_process_recipe, got {type(data).__name__}: {data!r}"
             )
-        
-        try:
-            data = json.loads(content_clean[json_start:json_end])
-        except json.JSONDecodeError as e:
-            raise ValueError(
-                f"Failed to parse JSON from LLM response for synthesize_process_recipe: {e}. "
-                f"Response: {content_clean[:500]}"
-            ) from e
-        
+
         # Extract required fields - raise KeyError if missing (no defaults)
         try:
             evidence = data["evidence"]

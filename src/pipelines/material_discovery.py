@@ -212,7 +212,8 @@ def run_material_substitution_step(
     material_grounding_patents: MaterialGrounding,
     scientist: ResearchScientist,
     temperature: Optional[float] = None,
-    run_id: Optional[str] = None
+    run_id: Optional[str] = None,
+    subgraphs_dir: Optional[str] = None,
 ) -> Dict[str, Any]:
     """
     Run the material substitution step (dual-KG canonical path).
@@ -233,6 +234,7 @@ def run_material_substitution_step(
         scientist: ResearchScientist used for material-class extraction from the subgraph.
         temperature: LLM temperature (default: ``None``, uses config value).
         run_id: Pipeline run identifier used for subgraph persistence.
+        subgraphs_dir: Directory for persisted subgraph JSON (default: config pipeline_logs/subgraphs).
 
     Returns:
         Dict with ``ranked_candidates`` (empty), ``material_informed_subgraph``,
@@ -399,7 +401,11 @@ def run_material_substitution_step(
     # Save merged material-informed subgraph to persistent storage
     subgraph_storage_path = None
     if run_id:
-        subgraph_storage = SubgraphStorage()
+        subgraph_storage = (
+            SubgraphStorage(storage_dir=subgraphs_dir)
+            if subgraphs_dir
+            else SubgraphStorage()
+        )
         subgraph_storage_path = subgraph_storage.save_subgraph(
             subgraph=material_informed_subgraph,
             run_id=run_id,
@@ -478,6 +484,7 @@ def run_material_discovery_pipeline(
     chat_logger=None,
     run_id: Optional[str] = None,
     substitution_result: Optional[Dict[str, Any]] = None,
+    subgraphs_dir: Optional[str] = None,
 ) -> Dict[str, Any]:
     """
     Run the iterative, closed-loop material discovery pipeline.
@@ -512,6 +519,7 @@ def run_material_discovery_pipeline(
         chat_logger: Optional ChatLogger for interaction logging.
         run_id: Pipeline run identifier for subgraph persistence.
         substitution_result: Pre-computed Step 1 result; skips Step 1 if provided.
+        subgraphs_dir: Directory for persisted subgraph JSON (e.g. results/Query1/artifacts/subgraphs).
 
     Returns:
         Dict with ``success``, ``candidate``, ``iterations``,
@@ -602,6 +610,7 @@ def run_material_discovery_pipeline(
                 scientist=scientist,
                 temperature=temperature,
                 run_id=run_id,
+                subgraphs_dir=subgraphs_dir,
             )
         
         # Extract ranked candidates for Step 2 (will be empty in new flow)
