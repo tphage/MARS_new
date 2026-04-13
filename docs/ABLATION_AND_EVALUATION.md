@@ -112,14 +112,14 @@ The final object is assembled with [`build_ablation_evaluation`](../src/utils/ab
 
 - **SentenceTransformer** from `config["embeddings"]["model_name"]` and [`TransformerEmbeddingFunction`](../src/utils/__init__.py).
 - **Three KGs** from `config["data"]["graphs"]`: material_properties, pfas, patents — GraphML + pickled embeddings via `GraphReasoning.load_embeddings`; edge attribute `title` copied to `relation` (same normalization as main runner).
-- **Three Chroma collections:** `pfas`, `patents`, `materialdb` under `data.chromadb.base_path` + each entry’s `database_path`; collection name from config or the first collection in the persist directory.
-- **Three [`ResearchAnalyst`](../src/agents/research_analyst.py) instances** with `n_results` from **`config["agents"]["research_analyst"]["n_results"]`**.
+- **Four Chroma collections:** `pfas`, `patents`, `materialdb`, and **`manufacturing_textbooks`** (required, same as full MARS) under `data.chromadb.base_path` + each entry’s `database_path`; collection name from config or the first collection in the persist directory.
+- **Four [`ResearchAnalyst`](../src/agents/research_analyst.py) instances:** `pfas` / `patents` / `materialdb` use `n_results` from **`config["agents"]["research_analyst"]["n_results"]`**; **`manufacturing_textbooks`** uses **`config["pipelines"]["manufacturability_assessment"]["n_results_per_source"]`** (fallback: same as `research_analyst.n_results`), matching System 3’s process analyst.
 - **Three [`ResearchScientist`](../src/agents/research_scientist.py) instances**, one graph each, `algorithm="shortest"`.
 - **`MaterialDatabase`** from `config["data"]["material_database"]["path"]` with a [`PropertyMapper`](../src/utils/property_mapper.py) (embedding model as in script).
 
 **Pre-retrieval** [`_pre_retrieve_context`](../scripts/run_ablations.py) (fixed behavior):
 
-- For **each** RAG source (`pfas`, `patents`, `materialdb`): `analyst.analyze_question(query["sentence"])` — the **full benchmark sentence**, no keyword filter.
+- For **each** RAG source (`pfas`, `patents`, `materialdb`, `manufacturing_textbooks`): `analyst.analyze_question(query["sentence"])` — the **full benchmark sentence**, no keyword filter.
 - For **each** KG (`material_properties`, `pfas`, `patents`): `scientist.find_connections([material_X, application_Y])`.
 - Formats RAG with [`format_rag_results_for_prompt`](../src/utils/ablation_utils.py) (per-doc char cap default 3000) and KG with [`format_kg_results_for_prompt`](../src/utils/ablation_utils.py) (summary truncated at 5000 chars; path counts and matched node preview).
 - Appends a **full list** of materials from `material_db.materials` (`material_name` / `material_id` and `material_class`).
@@ -209,7 +209,7 @@ The script also **prints** a per-query score table and an **aggregate summary** 
 ## How This Differs from the Full MARS Pipeline
 
 - **Ablations** do not call [`run_query`](../src/runner.py) or the System 1/2/3 pipeline modules except indirectly through **shared prompts’ intent**; they are separate scripts with fixed control flow described above.
-- **`1agent_rag`** retrieval is a **single pass** over three RAG corpora and three independent KG `find_connections` calls plus a **full material list** — not the dual-KG shortest-path subgraph, merge, or `MultiAnalyst` per validation query used in [`material_discovery.py`](../src/pipelines/material_discovery.py).
+- **`1agent_rag`** retrieval is a **single pass** over four RAG corpora (including manufacturing textbooks) and three independent KG `find_connections` calls plus a **full material list** — not the dual-KG shortest-path subgraph, merge, or `MultiAnalyst` per validation query used in [`material_discovery.py`](../src/pipelines/material_discovery.py).
 - **No closed-loop iteration** in ablations: `metadata.total_iterations` is always **1** for ablation payloads; full MARS can loop System 2/3 until limits or success.
 - **Judge API** is **OpenAI-compatible** via `openai.OpenAI`; the pipeline LLM remains whatever **`config["llm"]`** configures for `run_mars.py` / `run_ablations.py`.
 

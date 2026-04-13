@@ -297,11 +297,24 @@ def _init_rag_resources(config):
     patents_col = _load_col(chroma_cfg["patents"], "Patents")
     matdb_col = _load_col(chroma_cfg["materialdb"], "MaterialDB")
 
+    mfg_cfg = chroma_cfg.get("manufacturing_textbooks")
+    if not mfg_cfg:
+        raise ValueError("config data.chromadb.manufacturing_textbooks is required for 1agent_rag")
+    mfg_col = _load_col(mfg_cfg, "MfgTextbooks")
+
     ra_cfg = config["agents"]["research_analyst"]
+    n_results_mfg = (
+        config.get("pipelines", {})
+        .get("manufacturability_assessment", {})
+        .get("n_results_per_source", ra_cfg["n_results"])
+    )
     rag_analysts = {
         "pfas": ResearchAnalyst(collection=pfas_col, embedding_function=emb_fn, n_results=ra_cfg["n_results"]),
         "patents": ResearchAnalyst(collection=patents_col, embedding_function=emb_fn, n_results=ra_cfg["n_results"]),
         "materialdb": ResearchAnalyst(collection=matdb_col, embedding_function=emb_fn, n_results=ra_cfg["n_results"]),
+        "manufacturing_textbooks": ResearchAnalyst(
+            collection=mfg_col, embedding_function=emb_fn, n_results=n_results_mfg,
+        ),
     }
 
     scientists = {
