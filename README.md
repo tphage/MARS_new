@@ -87,6 +87,8 @@ python scripts/run_evaluation.py
 
 Each script accepts `--queries Query1,Query2` to run a subset. Results are written to `results/<QueryName>/`.
 
+For a detailed description of how ablations and the LLM-as-judge evaluation work at runtime (artifacts, retrieval behavior, and rubric), see [`docs/ABLATION_AND_EVALUATION.md`](docs/ABLATION_AND_EVALUATION.md).
+
 ### Ablation Conditions
 
 | Condition | Description |
