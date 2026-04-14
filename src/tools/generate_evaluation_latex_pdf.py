@@ -21,8 +21,13 @@ import tempfile
 from dataclasses import dataclass, field
 import re
 from pathlib import Path
-from textwrap import indent
 from typing import Any, Dict, List, Optional
+
+from src.evaluation_rubric import (
+    load_evaluation_rubric,
+    ordinal_scale_lines,
+    subsystem_criterion_labels,
+)
 
 
 # ---------------------------
@@ -443,34 +448,43 @@ def _latex_itemize(items: List[str]) -> str:
     return "\\begin{itemize}\n" + body + "\n\\end{itemize}\n"
 
 
-def _scoring_scale_block() -> str:
+def _scoring_scale_block_from_rubric(rubric: Dict[str, Any]) -> str:
     lines = [
-        "Scoring scale (1--5):",
-        "1 -- Unacceptable or not provided",
-        "2 -- Poor, significant weaknesses",
-        "3 -- Adequate, workable starting point",
-        "4 -- Good, needs expert refinement",
-        "5 -- Great, only minor issues",
+        "Scoring scale (1--5), same as the LLM judge (config/evaluation\\_rubric.yaml):",
     ]
+    lines.extend(ordinal_scale_lines(rubric))
     return _latex_itemize(lines)
 
 
-def _system_evaluation_block(system_label: str, criteria: List[str]) -> str:
+def _subsystem_expert_evaluation_block(
+    system_label: str, criteria: List[str], rubric: Dict[str, Any]
+) -> str:
+    """Per-criterion 1--5 scores; criterion list comes from evaluation_rubric.yaml."""
     criteria_block = _latex_itemize(criteria)
-    scale_block = _scoring_scale_block()
+    scale_block = _scoring_scale_block_from_rubric(rubric)
+    score_lines: List[str] = []
+    for c in criteria:
+        score_lines.append(
+            "\\noindent\\textbf{"
+            + _latex_escape(c)
+            + "}\\\\[0.15cm]\n"
+            "\\noindent\\textcolor{blue}{SCORE (1--5):} "
+            "\\rule{2.2cm}{0.3mm}\\quad "
+            "\\textcolor{blue}{Comment:} "
+            "\\rule{10cm}{0.3mm}\\\\[0.55cm]\n"
+        )
+    scores_tex = "".join(score_lines)
     return (
         "\\vspace{0.6cm}\n"
         "\\noindent{\\Large\\bfseries\\textcolor{blue}{"
         + _latex_escape(system_label)
         + "}}\\\\[0.4cm]\n"
+        "\\textit{Rate each criterion independently using the shared ordinal scale.}\\\\[0.35cm]\n"
         "Assess:\n\n"
         f"{criteria_block}\n"
         f"{scale_block}\n"
-        "\\vspace{1.0cm}\n"
-        "% Emphasized fields for evaluator input\n"
-        "\\noindent{\\Large\\bfseries\\textcolor{blue}{SCORE (1--5):}} "
-        "\\rule{2.5cm}{0.3mm}\\\\[0.8cm]\n"
-        "\\noindent{\\Large\\bfseries\\textcolor{blue}{SHORT EXPERT COMMENT:}}\\\\[3cm]\n"
+        "\\vspace{0.5cm}\n"
+        f"{scores_tex}\n"
         "\\clearpage\n"
     )
 
@@ -486,8 +500,10 @@ def render_latex(
     blind: bool = False,
     skip_rejected: bool = False,
     skip_hard_constraints: bool = False,
+    rubric_path: Optional[Path] = None,
 ) -> str:
     """Render the full LaTeX document as a string."""
+    rubric = load_evaluation_rubric(rubric_path)
     title_label = label or "PFAS Replacement Evaluation"
 
     meta_parts: List[str] = []
@@ -662,27 +678,23 @@ def render_latex(
 
     if skip_rejected:
         rejected_section = ""
-        system2_criteria = [
-            "Alignment with required properties",
-            "Novelty",
-            "Realism",
-            "Reasoning",
-            "Internal consistency",
-        ]
     else:
         rejected_section = (
             "\\subsection*{Rejected candidates}\n" + rejected_block
         )
-        system2_criteria = [
-            "Alignment with required properties",
-            "Novelty",
-            "Realism",
-            "Reasoning",
-            "Internal consistency",
-        ]
 
-    system2_eval_block = _system_evaluation_block(
-        "System 2 -- Expert evaluation section", system2_criteria
+    s1_criteria = subsystem_criterion_labels(rubric, 1)
+    s2_criteria = subsystem_criterion_labels(rubric, 2)
+    s3_criteria = subsystem_criterion_labels(rubric, 3)
+
+    system1_eval_block = _subsystem_expert_evaluation_block(
+        "System 1 -- Expert evaluation section", s1_criteria, rubric
+    )
+    system2_eval_block = _subsystem_expert_evaluation_block(
+        "System 2 -- Expert evaluation section", s2_criteria, rubric
+    )
+    system3_eval_block = _subsystem_expert_evaluation_block(
+        "System 3 -- Expert evaluation section", s3_criteria, rubric
     )
 
     # Basic article class; user can post-process as needed
@@ -713,15 +725,7 @@ def render_latex(
 {props_block}
 {constraints_block}
 
-{_system_evaluation_block(
-    "System 1 -- Expert evaluation section",
-    [
-        "Completeness",
-        "Relevance to query",
-        "Scientific correctness",
-        "Clarity and structure",
-    ],
-)}
+{system1_eval_block}
 
 \\begin{{center}}
 \\Huge\\bfseries System 2\\\\[0.15cm]
@@ -745,15 +749,7 @@ def render_latex(
 \\section*{{System 3 -- Results}}
 {mfg_block}
 
-{_system_evaluation_block(
-    "System 3 -- Expert evaluation section",
-    [
-        "Plausibility of synthesis route",
-        "Processing practicality",
-        "Compatibility with candidate",
-        "Industrial relevance",
-    ],
-)}
+{system3_eval_block}
 
 \\end{{document}}
 """
@@ -767,6 +763,7 @@ def render_pdf_with_latex(
     blind: bool = False,
     skip_rejected: bool = False,
     skip_hard_constraints: bool = False,
+    rubric_path: Optional[Path] = None,
 ) -> None:
     """
     Render a PDF report at output_path by generating LaTeX and running pdflatex.
@@ -781,6 +778,7 @@ def render_pdf_with_latex(
         blind=blind,
         skip_rejected=skip_rejected,
         skip_hard_constraints=skip_hard_constraints,
+        rubric_path=rubric_path,
     )
 
     with tempfile.TemporaryDirectory() as tmpdir:
@@ -829,6 +827,7 @@ def generate_evaluation_pdf_latex(
     label: Optional[str] = None,
     blind: bool = False,
     skip_rejected: bool = False,
+    rubric_path: Optional[str | Path] = None,
 ) -> Path:
     """
     High-level helper to generate a LaTeX-based PDF from one evaluation JSON.
@@ -846,7 +845,15 @@ def generate_evaluation_pdf_latex(
     else:
         output_path = Path(output_path)
 
-    render_pdf_with_latex(evaluation, output_path, label=label, blind=blind, skip_rejected=skip_rejected)
+    rp = Path(rubric_path) if rubric_path else None
+    render_pdf_with_latex(
+        evaluation,
+        output_path,
+        label=label,
+        blind=blind,
+        skip_rejected=skip_rejected,
+        rubric_path=rp,
+    )
     return output_path
 
 
@@ -877,6 +884,12 @@ def _parse_args(argv: Optional[List[str]] = None) -> argparse.Namespace:
         action="store_true",
         help="Hide pipeline IDs and timestamps inside the PDF (for blind expert evaluation).",
     )
+    parser.add_argument(
+        "--rubric",
+        type=Path,
+        default=None,
+        help="Path to evaluation_rubric.yaml (default: config/evaluation_rubric.yaml).",
+    )
     return parser.parse_args(argv)
 
 
@@ -891,6 +904,7 @@ def main(argv: Optional[List[str]] = None) -> None:
         output_path=args.output,
         label=args.label,
         blind=bool(args.blind),
+        rubric_path=args.rubric,
     )
     print(f"Wrote LaTeX evaluation PDF to: {output_path}")
 

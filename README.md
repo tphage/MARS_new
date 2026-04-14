@@ -22,7 +22,7 @@ System 3 (Manufacturability) ─────┘
 │   ├── config.yaml              # LLM, embeddings, data paths, agent hyperparameters
 │   ├── prompts.yaml             # All LLM system/user prompts
 │   ├── queries.yaml             # Benchmark queries (Query1–3)
-│   └── evaluation_rubric.yaml   # LLM-judge dimensions and weights
+│   └── evaluation_rubric.yaml   # LLM judge + expert PDF: 12 subsystem criteria, 1–5 scale
 ├── src/
 │   ├── runner.py                # Pipeline orchestrator (initialize + run_query)
 │   ├── agents/                  # ResearchManager, ResearchScientist, …
@@ -100,7 +100,7 @@ For a detailed description of how ablations and the LLM-as-judge evaluation work
 
 ### LLM-Judge Evaluation
 
-`scripts/run_evaluation.py` randomizes system labels (A–D) for blind scoring across five dimensions: property extraction, constraint correctness, candidate validity, manufacturing realism, and hallucination risk. See `config/evaluation_rubric.yaml` for the full rubric.
+`scripts/run_evaluation.py` randomizes system labels (A–D) for blind scoring across **12 subsystem criteria** (four each for Systems 1–3, matching the paper table) on a **1–5** ordinal scale. See `config/evaluation_rubric.yaml` for the full rubric (shared with expert LaTeX PDF forms).
 
 ## Interactive Walkthrough
 

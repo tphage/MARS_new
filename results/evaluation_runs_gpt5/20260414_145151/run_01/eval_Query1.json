@@ -1,0 +1,238 @@
+{
+  "query_name": "Query1",
+  "query_sentence": "Find a substitute material for PFAS material THV (elastomeric terpolymer of tetrafluoroethylene, hexafluoropropylene, and vinylidene fluoride) that has broad chemical resistance, including acids, bases, protic and aprotic solvents, oils, and salt solutions. Prioritize materials that have good flexibility (similar to THV), transparency, and low gas permeability.",
+  "blind_mapping": {
+    "A": "ablation_1agent_rag",
+    "B": "ablation_3agent",
+    "C": "ablation_1agent_no_rag",
+    "D": "evaluation"
+  },
+  "scores": {
+    "evaluation": {
+      "system1_completeness": {
+        "score": 3,
+        "reasoning": "Broad list spanning chemicals, optics, barrier, mechanics, and process, but mixed with irrelevant constraints and headings; low‑temperature flexibility is not properly specified."
+      },
+      "system1_relevance": {
+        "score": 3,
+        "reasoning": "Touches the core asks but is diluted by unrelated items (recyclability, PET stream, food contact) that do not advance the substitution decision."
+      },
+      "system1_scientific": {
+        "score": 1,
+        "reasoning": "Includes contradictions (fluorinated backbone vs PFAS‑free; Tg >200°C vs elastomeric flexibility) and unclear/atypical barrier metrics."
+      },
+      "system1_clarity": {
+        "score": 2,
+        "reasoning": "Poor structure with embedded headings, inconsistent units, and ambiguous criteria reduce testability."
+      },
+      "system2_alignment": {
+        "score": 1,
+        "reasoning": "A PA11/POE blend will not be optically clear, is not resistant to strong acids/bases, and the asserted Tg/barrier claims are incorrect."
+      },
+      "system2_novelty": {
+        "score": 4,
+        "reasoning": "A compatibilized PA/POE blend is a more creative route than commodity picks for balancing flexibility and barrier."
+      },
+      "system2_realism": {
+        "score": 2,
+        "reasoning": "Materials are real brands, but the specific grades and many claimed properties (transparent blend, Tg ~210°C for PA11) are not believable."
+      },
+      "system2_reasoning": {
+        "score": 1,
+        "reasoning": "Relies on unsourced generalizations and multiple false statements (clarity, barrier), undermining credibility."
+      },
+      "system3_plausibility": {
+        "score": 3,
+        "reasoning": "Reactive melt compounding and pelletizing are plausible, but key steps like PA drying are omitted and some settings are questionable."
+      },
+      "system3_practicality": {
+        "score": 2,
+        "reasoning": "Critical parameters are mis-specified (very low screw rpm, QC at too low temperature) and moisture management is missing."
+      },
+      "system3_compatibility": {
+        "score": 2,
+        "reasoning": "MA‑g‑PP is not the ideal compatibilizer for PA/POE; temperatures near PA11 Tm risk poor mixing; transparency goal conflicts with immiscibility."
+      },
+      "system3_industrial": {
+        "score": 3,
+        "reasoning": "Includes basic QC (MFI, DSC/TGA) and handling, but lacks essential moisture control and robust process checks."
+      },
+      "weighted_total": 2.25,
+      "overall_comment": "Creative blend concept but riddled with scientific contradictions and unrealistic property claims; process misses critical moisture management."
+    },
+    "ablation_3agent": {
+      "system1_completeness": {
+        "score": 5,
+        "reasoning": "Thorough, quantitative criteria across mechanics, Tg, optics, permeability, thermal stability, processing, and explicit chemical exposure limits."
+      },
+      "system1_relevance": {
+        "score": 5,
+        "reasoning": "Directly maps to the substitution goals of flexibility, transparency, low gas transmission, and broad chemical resistance."
+      },
+      "system1_scientific": {
+        "score": 3,
+        "reasoning": "Several thresholds (e.g., ≤1 Barrer O2 permeability, ≤5% swelling in acetone/DMSO) are unrealistically strict for elastomers; minor MFI units issue."
+      },
+      "system1_clarity": {
+        "score": 5,
+        "reasoning": "Clear, testable requirements with conditions and limits enable procurement and verification."
+      },
+      "system2_alignment": {
+        "score": 1,
+        "reasoning": "Claimed TPU performance (sub‑1 Barrer permeability, minimal swelling in acetone/DMSO) is not credible for this class; alignment is not demonstrated."
+      },
+      "system2_novelty": {
+        "score": 2,
+        "reasoning": "TPU is a common default for flexible, transparent parts; no application-specific rationale beyond generic properties."
+      },
+      "system2_realism": {
+        "score": 1,
+        "reasoning": "The grade appears fabricated and several property claims (gas barrier, solvent swelling, TGA ~350°C, MFI units) are implausible."
+      },
+      "system2_reasoning": {
+        "score": 1,
+        "reasoning": "Presents precise numbers without sources and contrary to typical TPU behavior; justification is unsupported."
+      },
+      "system3_plausibility": {
+        "score": 1,
+        "reasoning": "Manufacturing is marked blocked with no route provided, so feasibility cannot be assessed."
+      },
+      "system3_practicality": {
+        "score": 1,
+        "reasoning": "Absence of process parameters prevents any practical execution."
+      },
+      "system3_compatibility": {
+        "score": 1,
+        "reasoning": "No process; additionally, the material chemistry would not yield the claimed barrier/chemical resistance."
+      },
+      "system3_industrial": {
+        "score": 1,
+        "reasoning": "No actionable process or QC; only notes on proprietary constraints and hazards."
+      },
+      "weighted_total": 2.25,
+      "overall_comment": "Excellent, testable spec, but the candidate appears fabricated with impossible properties and no manufacturing plan."
+    },
+    "ablation_1agent_rag": {
+      "system1_completeness": {
+        "score": 4,
+        "reasoning": "Covers flexibility, optics, gas permeability, broad chemical resistance, thermal stability, composition, and processing/thickness. It omits low-temperature flexibility and mechanical strength benchmarks, but overall breadth is usable."
+      },
+      "system1_relevance": {
+        "score": 4,
+        "reasoning": "Directly targets the query’s priorities (flexibility, transparency, low permeability, chemical resistance). Some added constraints (no C–F bonds, thickness) are ancillary but still pertinent to making a substitute article."
+      },
+      "system1_scientific": {
+        "score": 2,
+        "reasoning": "The gas-permeability threshold and units are unrealistic, and continuous use >200°C alongside elastomeric performance is atypical for non-fluorinated substitutes. The ‘no C–F bonds’ hard constraint exceeds the query."
+      },
+      "system1_clarity": {
+        "score": 3,
+        "reasoning": "Mostly quantitative and testable, but permeability units are inconsistent and several exposure conditions (e.g., for acids/bases) are undefined."
+      },
+      "system2_alignment": {
+        "score": 1,
+        "reasoning": "PEI is a rigid, glassy polymer (not elastomeric), is typically amber rather than high-clarity, and lacks broad resistance to strong bases/ketones; it fails multiple key requirements."
+      },
+      "system2_novelty": {
+        "score": 2,
+        "reasoning": "Selecting PEI is unconventional for an elastomeric, transparent, low-permeation target but not justified by application-specific advantages."
+      },
+      "system2_realism": {
+        "score": 1,
+        "reasoning": "“KAPTON PEI” is a misnomer (Kapton is PI; PEI is Ultem), and claimed properties (Shore A ~55–60, very low permeability) contradict known PEI data."
+      },
+      "system2_reasoning": {
+        "score": 1,
+        "reasoning": "Assertions about flexibility and optics are unsupported and conflict with established PEI behavior; no evidence or citations are provided."
+      },
+      "system3_plausibility": {
+        "score": 3,
+        "reasoning": "Solution casting PEI from NMP and thermal drying is chemically coherent, though achieving ~0.5 mm from a 10 wt% solution is optimistic without staged solvent removal."
+      },
+      "system3_practicality": {
+        "score": 3,
+        "reasoning": "Equipment and temperatures are realistic, but solvent removal and thickness control lack critical details for repeatability."
+      },
+      "system3_compatibility": {
+        "score": 3,
+        "reasoning": "Processing is compatible with PEI chemistry; however, the produced film would be stiff, misaligned with the elastomeric end-use."
+      },
+      "system3_industrial": {
+        "score": 3,
+        "reasoning": "Basic unit operations are present, but no discussion of residual solvent, drying control, or QC checks."
+      },
+      "weighted_total": 2.5,
+      "overall_comment": "Specification is fairly complete, but the PEI choice is technically misaligned and some property targets are unrealistic."
+    },
+    "ablation_1agent_no_rag": {
+      "system1_completeness": {
+        "score": 3,
+        "reasoning": "Addresses chemistry, flexibility, optics, permeability, and thermal range, but lacks concrete mechanical metrics (elongation/hardness) and detailed exposure conditions."
+      },
+      "system1_relevance": {
+        "score": 3,
+        "reasoning": "Covers the main priorities, though some constraints (e.g., ‘no hazardous crosslinkers’) are peripheral to the substitution decision."
+      },
+      "system1_scientific": {
+        "score": 2,
+        "reasoning": "Specifies an overly soft modulus (<1 MPa) vs THV and a ‘low’ permeability limit that in SI corresponds to very high permeability; both are inconsistent."
+      },
+      "system1_clarity": {
+        "score": 3,
+        "reasoning": "Quantitative in places but missing test methods and with permeability unit ambiguity."
+      },
+      "system2_alignment": {
+        "score": 1,
+        "reasoning": "PDMS exhibits very high gas permeability and swells in many organic solvents/oils; it does not meet the low-permeation or broad solvent-resistance requirements."
+      },
+      "system2_novelty": {
+        "score": 2,
+        "reasoning": "Silicone elastomer is a generic, well-known choice for flexible transparent parts and not tailored to barrier needs."
+      },
+      "system2_realism": {
+        "score": 2,
+        "reasoning": "PDMS is real and obtainable, but the cited ‘Dow Corning 3‑2‑1’ designation is dubious and key property assertions are incorrect."
+      },
+      "system2_reasoning": {
+        "score": 1,
+        "reasoning": "Claims low gas permeability and broad solvent resistance without evidence, contradicting established PDMS behavior."
+      },
+      "system3_plausibility": {
+        "score": 4,
+        "reasoning": "Hydrosilylation cure (mix, degas, cast, oven cure) is standard and chemically coherent."
+      },
+      "system3_practicality": {
+        "score": 4,
+        "reasoning": "Equipment and conditions are realistic and sufficiently specified for lab execution."
+      },
+      "system3_compatibility": {
+        "score": 4,
+        "reasoning": "Process matches PDMS chemistry; minor omissions (inhibitor contaminants) aside, steps are appropriate."
+      },
+      "system3_industrial": {
+        "score": 3,
+        "reasoning": "Covers basic steps and inspection, but lacks QC metrics and controls for contaminants/moisture that impact cure."
+      },
+      "weighted_total": 2.67,
+      "overall_comment": "Manufacturing plan is solid, but PDMS is fundamentally misaligned with the low-permeation and solvent-resistance needs."
+    }
+  },
+  "ranking": [
+    "ablation_1agent_no_rag",
+    "ablation_1agent_rag",
+    "evaluation",
+    "ablation_3agent"
+  ],
+  "ranking_reasoning": "System C, despite a poor candidate match, provides the most coherent and practical manufacturing route. System A has a reasonably complete spec but an ill-suited, unrealistic candidate. System D offers a creative concept but suffers major scientific errors. System B’s excellent spec is undermined by a fabricated candidate and no process.",
+  "judge_model": "gpt-5",
+  "timestamp": "2026-04-14T18:53:43.767263Z",
+  "judge_elapsed_seconds": 111.3,
+  "judge_completion": {
+    "finish_reason": "stop",
+    "usage": {
+      "prompt_tokens": 10923,
+      "completion_tokens": 9466,
+      "total_tokens": 20389
+    }
+  }
+}

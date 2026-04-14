@@ -183,15 +183,7 @@ For each qualifying query folder:
 
 ### Rubric dimensions (weights)
 
-Defined in [`config/evaluation_rubric.yaml`](../config/evaluation_rubric.yaml):
-
-| Key | Default weight | Topic |
-|-----|----------------|--------|
-| `property_extraction` | 1.0 | Property extraction quality |
-| `constraint_correctness` | 1.0 | Constraint correctness |
-| `candidate_validity` | 1.5 | Candidate validity |
-| `manufacturing_realism` | 1.0 | Manufacturing / recipe realism |
-| `hallucination_risk` | 1.0 | Hallucination risk (higher = less risk) |
+Defined in [`config/evaluation_rubric.yaml`](../config/evaluation_rubric.yaml): **12** subsystem criteria (Systems 1–3), each scored **1–5** using the shared ordinal scale in that file. Keys follow `system{1,2,3}_…` (e.g. `system1_completeness`, `system2_realism`, `system3_compatibility`). Criteria labels match the paper’s three-column table (required material-property specification; proposed candidate and justification; manufacturing process route). Hallucination / fabrication checks are folded into **System 2** rubrics (Realism, Reasoning quality).
 
 [`evaluate_query`](../scripts/run_evaluation.py) **unblinds** scores: for each real condition key, it maps A–D back, computes **weighted average score** per condition (`weighted_total`), and maps the **ranking** list from anonymous labels to condition keys.
 

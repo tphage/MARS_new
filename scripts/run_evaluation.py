@@ -4,7 +4,8 @@ MARS Ablation Study -- Automated LLM-as-Judge Evaluation
 
 Performs blind pairwise evaluation of MARS baseline vs three ablation conditions
 using an OpenAI-compatible API. Randomizes system labels to prevent position bias,
-evaluates across 5 dimensions, and produces summary tables.
+evaluates across 12 subsystem criteria (Systems 1–3, paper table) on a 1–5 scale,
+and produces summary tables.
 
 Usage:
     export OPENAI_API_KEY="sk-..."
@@ -21,15 +22,20 @@ import os
 import random
 import sys
 import time
-import yaml
 from datetime import datetime
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
 from openai import OpenAI
 
-
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
+if str(PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(PROJECT_ROOT))
+
+from src.evaluation_rubric import (  # noqa: E402
+    load_evaluation_rubric,
+    rubric_column_header,
+)
 
 SYSTEM_LABELS = {
     "evaluation": "MARS (Full Pipeline)",
@@ -45,10 +51,9 @@ JUDGE_API_META_KEY = "_judge_api_metadata"
 
 
 def load_rubric(path: Optional[str] = None) -> Dict[str, Any]:
-    if path is None:
-        path = PROJECT_ROOT / "config" / "evaluation_rubric.yaml"
-    with open(path, "r", encoding="utf-8") as f:
-        return yaml.safe_load(f)
+    """Load ``config/evaluation_rubric.yaml`` (shared with expert LaTeX PDFs)."""
+    p = Path(path) if path else None
+    return load_evaluation_rubric(p)
 
 
 def discover_query_dirs() -> Dict[str, Path]:
@@ -173,18 +178,23 @@ def build_judge_prompt(
         "You are an expert materials scientist acting as a blind evaluator. "
         "You will receive outputs from four anonymized systems (labeled A, B, C, D) "
         "that each attempted to solve the same material substitution task. "
-        "You must evaluate each system across multiple dimensions using the provided rubric.\n\n"
+        "You must evaluate each system on every subsystem criterion in the rubric "
+        "(Systems 1–3 intermediate outputs), using integer scores 1–5 only.\n\n"
         "IMPORTANT:\n"
         "- Evaluate each system independently on its merits.\n"
         "- Do NOT try to guess which system is which.\n"
         "- Be critical and specific in your reasoning.\n"
         "- Use your materials science expertise to assess technical correctness.\n"
-        "- A fabricated/hallucinated material should receive low candidate and hallucination scores "
-        "even if the fabricated properties sound plausible.\n\n"
+        "- Fabricated or hallucinated materials should receive low scores on System 2 criteria "
+        "(especially Realism and Reasoning quality), even if the text sounds plausible.\n\n"
         "You MUST respond with a valid JSON object and nothing else."
     )
 
+    scale_lines = rubric.get("ordinal_scale_lines") or []
+    scale_block = "\n".join(f"- {line}" for line in scale_lines)
     rubric_text = ""
+    if scale_block.strip():
+        rubric_text += f"### Shared ordinal scale (1–5)\n{scale_block}\n"
     for dim_key, dim in dimensions.items():
         rubric_text += f"\n### {dim['name']} (weight: {dim['weight']})\n{dim['rubric']}\n"
 
@@ -193,7 +203,7 @@ def build_judge_prompt(
         condition_key = blind_mapping[label]
         data = strip_raw_responses(systems[condition_key])
         system_blocks += f"\n{'='*60}\nSYSTEM {label}\n{'='*60}\n"
-        system_blocks += json.dumps(data, indent=2, ensure_ascii=False, default=str)
+        system_blocks += json.dumps(data, indent=2, ensure_ascii=True, default=str)
         system_blocks += "\n"
 
     dim_keys_list = list(dimensions.keys())
@@ -201,7 +211,7 @@ def build_judge_prompt(
     for label in ["A", "B", "C", "D"]:
         json_schema += f'  "{label}": {{\n'
         for dk in dim_keys_list:
-            json_schema += f'    "{dk}": {{"score": <int 1-10>, "reasoning": "<1-3 sentences>"}},\n'
+            json_schema += f'    "{dk}": {{"score": <int 1-5>, "reasoning": "<1-3 sentences>"}},\n'
         json_schema += f'    "overall_comment": "<1-2 sentences>"\n'
         json_schema += "  },\n"
     json_schema += '  "ranking": ["<best label>", "<2nd>", "<3rd>", "<worst>"],\n'
@@ -214,7 +224,7 @@ def build_judge_prompt(
         f"## System Outputs (Anonymized)\n{system_blocks}\n\n"
         f"## Required Output Format\n\nRespond with ONLY a JSON object in this exact structure:\n\n"
         f"```\n{json_schema}\n```\n\n"
-        "Provide integer scores (1-10) for each dimension and brief reasoning for each. "
+        "Provide integer scores (1–5) for each subsystem criterion and brief reasoning for each. "
         "Then provide an overall ranking from best to worst."
     )
 
@@ -260,6 +270,32 @@ def _chat_completion_judge(
         raise
 
 
+def _clamp_parsed_scores(parsed: Dict[str, Any], rubric: Dict[str, Any]) -> None:
+    """Clamp dimension scores to score_min/score_max from the rubric."""
+    smin = int(rubric.get("score_min", 1))
+    smax = int(rubric.get("score_max", 5))
+    dim_keys = list(rubric["dimensions"].keys())
+    for label in ("A", "B", "C", "D"):
+        block = parsed.get(label)
+        if not isinstance(block, dict):
+            continue
+        for dk in dim_keys:
+            entry = block.get(dk)
+            if not isinstance(entry, dict):
+                continue
+            s = entry.get("score")
+            try:
+                si = int(s)
+            except (TypeError, ValueError):
+                continue
+            if si < smin or si > smax:
+                print(
+                    f"  WARNING: score out of range for {label}/{dk}: {s!r} "
+                    f"(clamped to {smin}–{smax})"
+                )
+                entry["score"] = max(smin, min(smax, si))
+
+
 def call_judge(
     client: OpenAI,
     system_prompt: str,
@@ -268,6 +304,7 @@ def call_judge(
     temperature: float,
     max_tokens: int,
     max_retries: int = 3,
+    rubric: Optional[Dict[str, Any]] = None,
 ) -> Dict[str, Any]:
     """Call the judge LLM and parse the JSON response."""
     messages = [
@@ -294,6 +331,8 @@ def call_judge(
 
             parsed: Dict[str, Any] = json.loads(text)
             if isinstance(parsed, dict):
+                if rubric:
+                    _clamp_parsed_scores(parsed, rubric)
                 choice = response.choices[0]
                 meta: Dict[str, Any] = {
                     "finish_reason": getattr(choice, "finish_reason", None),
@@ -356,9 +395,13 @@ def evaluate_query(
 
     start = time.time()
     judge_result = call_judge(
-        client, system_prompt, user_prompt, model,
+        client,
+        system_prompt,
+        user_prompt,
+        model,
         temperature=rubric.get("temperature", 0),
         max_tokens=rubric.get("max_tokens", 8000),
+        rubric=rubric,
     )
     elapsed = time.time() - start
     print(f"  Judge responded in {elapsed:.1f}s")
@@ -421,7 +464,7 @@ def evaluate_query(
     # Print per-query summary
     print(f"\n  {'System':<35} ", end="")
     for dim in dimensions:
-        short = rubric["dimensions"][dim]["name"][:12]
+        short = rubric_column_header(rubric["dimensions"][dim])
         print(f"{short:<14}", end="")
     print(f"{'Weighted':>10}")
     print(f"  {'-'*35} ", end="")
@@ -470,7 +513,7 @@ def print_aggregate_summary(all_results: List[Dict[str, Any]], rubric: Dict[str,
     # Average scores table
     print(f"\n{'System':<35} ", end="")
     for dim in dimensions:
-        short = rubric["dimensions"][dim]["name"][:12]
+        short = rubric_column_header(rubric["dimensions"][dim])
         print(f"{short:<14}", end="")
     print(f"{'Avg Rank':>10}")
     print(f"{'-'*35} ", end="")

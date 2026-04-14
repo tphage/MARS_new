@@ -111,7 +111,7 @@ Messages passed to the API:
    - **Four blocks `SYSTEM A` … `SYSTEM D`** — for each label, the JSON for the **randomly mapped** condition, pretty-printed. Content is passed through [`strip_raw_responses`](../scripts/run_evaluation.py):
      - Removes top-level `raw_responses`.
      - In `metadata`, drops `ablation_condition` and `pipeline_run_id`.
-   - **Required output format** — illustrative JSON schema: per-label scores (1–10) and reasoning per dimension, `overall_comment`, global `ranking` and `ranking_reasoning`.
+   - **Required output format** — illustrative JSON schema: per-label scores (**1–5**) and reasoning per subsystem criterion (12 keys from `evaluation_rubric.yaml`), `overall_comment`, global `ranking` and `ranking_reasoning`.
 
 **What the judge does not see:** which real pipeline corresponds to A–D (shuffle is random per query); `raw_responses`; the stripped metadata fields above.
 

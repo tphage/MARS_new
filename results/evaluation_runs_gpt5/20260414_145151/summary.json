@@ -1,0 +1,755 @@
+{
+  "num_runs": 5,
+  "conditions": {
+    "evaluation": {
+      "label": "MARS (Full Pipeline)",
+      "system1_clarity": {
+        "mean": 2.2,
+        "std": 0.4472135954999579,
+        "min": 2.0,
+        "max": 3.0,
+        "values": [
+          2.0,
+          2.0,
+          2.0,
+          3.0,
+          2.0
+        ]
+      },
+      "system1_completeness": {
+        "mean": 3.0,
+        "std": 0.0,
+        "min": 3.0,
+        "max": 3.0,
+        "values": [
+          3.0,
+          3.0,
+          3.0,
+          3.0,
+          3.0
+        ]
+      },
+      "system1_relevance": {
+        "mean": 2.2,
+        "std": 0.4472135954999579,
+        "min": 2.0,
+        "max": 3.0,
+        "values": [
+          3.0,
+          2.0,
+          2.0,
+          2.0,
+          2.0
+        ]
+      },
+      "system1_scientific": {
+        "mean": 1.0,
+        "std": 0.0,
+        "min": 1.0,
+        "max": 1.0,
+        "values": [
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ]
+      },
+      "system2_alignment": {
+        "mean": 1.0,
+        "std": 0.0,
+        "min": 1.0,
+        "max": 1.0,
+        "values": [
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ]
+      },
+      "system2_novelty": {
+        "mean": 3.0,
+        "std": 0.7071067811865476,
+        "min": 2.0,
+        "max": 4.0,
+        "values": [
+          4.0,
+          3.0,
+          2.0,
+          3.0,
+          3.0
+        ]
+      },
+      "system2_realism": {
+        "mean": 2.2,
+        "std": 0.4472135954999579,
+        "min": 2.0,
+        "max": 3.0,
+        "values": [
+          2.0,
+          2.0,
+          3.0,
+          2.0,
+          2.0
+        ]
+      },
+      "system2_reasoning": {
+        "mean": 1.4,
+        "std": 0.5477225575051661,
+        "min": 1.0,
+        "max": 2.0,
+        "values": [
+          1.0,
+          2.0,
+          1.0,
+          2.0,
+          1.0
+        ]
+      },
+      "system3_compatibility": {
+        "mean": 2.8,
+        "std": 0.8366600265340756,
+        "min": 2.0,
+        "max": 4.0,
+        "values": [
+          2.0,
+          3.0,
+          3.0,
+          4.0,
+          2.0
+        ]
+      },
+      "system3_industrial": {
+        "mean": 3.2,
+        "std": 0.4472135954999579,
+        "min": 3.0,
+        "max": 4.0,
+        "values": [
+          3.0,
+          4.0,
+          3.0,
+          3.0,
+          3.0
+        ]
+      },
+      "system3_plausibility": {
+        "mean": 3.0,
+        "std": 0.7071067811865476,
+        "min": 2.0,
+        "max": 4.0,
+        "values": [
+          3.0,
+          4.0,
+          3.0,
+          3.0,
+          2.0
+        ]
+      },
+      "system3_practicality": {
+        "mean": 2.6,
+        "std": 0.5477225575051661,
+        "min": 2.0,
+        "max": 3.0,
+        "values": [
+          2.0,
+          3.0,
+          3.0,
+          3.0,
+          2.0
+        ]
+      },
+      "weighted_avg": {
+        "mean": 2.3,
+        "std": 0.2091650066335189,
+        "min": 2.0,
+        "max": 2.5,
+        "values": [
+          2.25,
+          2.5,
+          2.25,
+          2.5,
+          2.0
+        ]
+      }
+    },
+    "ablation_3agent": {
+      "label": "3-Agent Sequential (No RAG/KG)",
+      "system1_clarity": {
+        "mean": 4.8,
+        "std": 0.4472135954999579,
+        "min": 4.0,
+        "max": 5.0,
+        "values": [
+          5.0,
+          5.0,
+          4.0,
+          5.0,
+          5.0
+        ]
+      },
+      "system1_completeness": {
+        "mean": 4.8,
+        "std": 0.4472135954999579,
+        "min": 4.0,
+        "max": 5.0,
+        "values": [
+          5.0,
+          5.0,
+          4.0,
+          5.0,
+          5.0
+        ]
+      },
+      "system1_relevance": {
+        "mean": 5.0,
+        "std": 0.0,
+        "min": 5.0,
+        "max": 5.0,
+        "values": [
+          5.0,
+          5.0,
+          5.0,
+          5.0,
+          5.0
+        ]
+      },
+      "system1_scientific": {
+        "mean": 3.4,
+        "std": 0.5477225575051661,
+        "min": 3.0,
+        "max": 4.0,
+        "values": [
+          3.0,
+          4.0,
+          3.0,
+          4.0,
+          3.0
+        ]
+      },
+      "system2_alignment": {
+        "mean": 1.2,
+        "std": 0.4472135954999579,
+        "min": 1.0,
+        "max": 2.0,
+        "values": [
+          1.0,
+          1.0,
+          2.0,
+          1.0,
+          1.0
+        ]
+      },
+      "system2_novelty": {
+        "mean": 2.0,
+        "std": 0.0,
+        "min": 2.0,
+        "max": 2.0,
+        "values": [
+          2.0,
+          2.0,
+          2.0,
+          2.0,
+          2.0
+        ]
+      },
+      "system2_realism": {
+        "mean": 1.0,
+        "std": 0.0,
+        "min": 1.0,
+        "max": 1.0,
+        "values": [
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ]
+      },
+      "system2_reasoning": {
+        "mean": 1.4,
+        "std": 0.5477225575051661,
+        "min": 1.0,
+        "max": 2.0,
+        "values": [
+          1.0,
+          1.0,
+          2.0,
+          1.0,
+          2.0
+        ]
+      },
+      "system3_compatibility": {
+        "mean": 1.0,
+        "std": 0.0,
+        "min": 1.0,
+        "max": 1.0,
+        "values": [
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ]
+      },
+      "system3_industrial": {
+        "mean": 1.4,
+        "std": 0.5477225575051661,
+        "min": 1.0,
+        "max": 2.0,
+        "values": [
+          1.0,
+          2.0,
+          2.0,
+          1.0,
+          1.0
+        ]
+      },
+      "system3_plausibility": {
+        "mean": 1.0,
+        "std": 0.0,
+        "min": 1.0,
+        "max": 1.0,
+        "values": [
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ]
+      },
+      "system3_practicality": {
+        "mean": 1.0,
+        "std": 0.0,
+        "min": 1.0,
+        "max": 1.0,
+        "values": [
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ]
+      },
+      "weighted_avg": {
+        "mean": 2.332,
+        "std": 0.060166435825965266,
+        "min": 2.25,
+        "max": 2.42,
+        "values": [
+          2.25,
+          2.42,
+          2.33,
+          2.33,
+          2.33
+        ]
+      }
+    },
+    "ablation_1agent_rag": {
+      "label": "1-Agent + RAG/KG",
+      "system1_clarity": {
+        "mean": 3.2,
+        "std": 0.4472135954999579,
+        "min": 3.0,
+        "max": 4.0,
+        "values": [
+          3.0,
+          3.0,
+          3.0,
+          4.0,
+          3.0
+        ]
+      },
+      "system1_completeness": {
+        "mean": 3.4,
+        "std": 0.5477225575051661,
+        "min": 3.0,
+        "max": 4.0,
+        "values": [
+          4.0,
+          3.0,
+          3.0,
+          3.0,
+          4.0
+        ]
+      },
+      "system1_relevance": {
+        "mean": 3.8,
+        "std": 0.4472135954999579,
+        "min": 3.0,
+        "max": 4.0,
+        "values": [
+          4.0,
+          3.0,
+          4.0,
+          4.0,
+          4.0
+        ]
+      },
+      "system1_scientific": {
+        "mean": 2.4,
+        "std": 0.5477225575051661,
+        "min": 2.0,
+        "max": 3.0,
+        "values": [
+          2.0,
+          2.0,
+          2.0,
+          3.0,
+          3.0
+        ]
+      },
+      "system2_alignment": {
+        "mean": 1.0,
+        "std": 0.0,
+        "min": 1.0,
+        "max": 1.0,
+        "values": [
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ]
+      },
+      "system2_novelty": {
+        "mean": 2.0,
+        "std": 0.0,
+        "min": 2.0,
+        "max": 2.0,
+        "values": [
+          2.0,
+          2.0,
+          2.0,
+          2.0,
+          2.0
+        ]
+      },
+      "system2_realism": {
+        "mean": 1.2,
+        "std": 0.4472135954999579,
+        "min": 1.0,
+        "max": 2.0,
+        "values": [
+          1.0,
+          1.0,
+          1.0,
+          2.0,
+          1.0
+        ]
+      },
+      "system2_reasoning": {
+        "mean": 1.0,
+        "std": 0.0,
+        "min": 1.0,
+        "max": 1.0,
+        "values": [
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ]
+      },
+      "system3_compatibility": {
+        "mean": 3.6,
+        "std": 0.5477225575051661,
+        "min": 3.0,
+        "max": 4.0,
+        "values": [
+          3.0,
+          3.0,
+          4.0,
+          4.0,
+          4.0
+        ]
+      },
+      "system3_industrial": {
+        "mean": 2.8,
+        "std": 0.4472135954999579,
+        "min": 2.0,
+        "max": 3.0,
+        "values": [
+          3.0,
+          3.0,
+          2.0,
+          3.0,
+          3.0
+        ]
+      },
+      "system3_plausibility": {
+        "mean": 3.2,
+        "std": 0.4472135954999579,
+        "min": 3.0,
+        "max": 4.0,
+        "values": [
+          3.0,
+          3.0,
+          3.0,
+          4.0,
+          3.0
+        ]
+      },
+      "system3_practicality": {
+        "mean": 2.8,
+        "std": 0.8366600265340756,
+        "min": 2.0,
+        "max": 4.0,
+        "values": [
+          3.0,
+          2.0,
+          2.0,
+          4.0,
+          3.0
+        ]
+      },
+      "weighted_avg": {
+        "mean": 2.534,
+        "std": 0.26968500143686147,
+        "min": 2.25,
+        "max": 2.92,
+        "values": [
+          2.5,
+          2.25,
+          2.33,
+          2.92,
+          2.67
+        ]
+      }
+    },
+    "ablation_1agent_no_rag": {
+      "label": "1-Agent (No RAG/KG)",
+      "system1_clarity": {
+        "mean": 3.6,
+        "std": 0.5477225575051661,
+        "min": 3.0,
+        "max": 4.0,
+        "values": [
+          3.0,
+          4.0,
+          3.0,
+          4.0,
+          4.0
+        ]
+      },
+      "system1_completeness": {
+        "mean": 3.2,
+        "std": 0.4472135954999579,
+        "min": 3.0,
+        "max": 4.0,
+        "values": [
+          3.0,
+          4.0,
+          3.0,
+          3.0,
+          3.0
+        ]
+      },
+      "system1_relevance": {
+        "mean": 3.8,
+        "std": 0.4472135954999579,
+        "min": 3.0,
+        "max": 4.0,
+        "values": [
+          3.0,
+          4.0,
+          4.0,
+          4.0,
+          4.0
+        ]
+      },
+      "system1_scientific": {
+        "mean": 2.6,
+        "std": 0.5477225575051661,
+        "min": 2.0,
+        "max": 3.0,
+        "values": [
+          2.0,
+          3.0,
+          3.0,
+          3.0,
+          2.0
+        ]
+      },
+      "system2_alignment": {
+        "mean": 1.0,
+        "std": 0.0,
+        "min": 1.0,
+        "max": 1.0,
+        "values": [
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ]
+      },
+      "system2_novelty": {
+        "mean": 2.0,
+        "std": 0.0,
+        "min": 2.0,
+        "max": 2.0,
+        "values": [
+          2.0,
+          2.0,
+          2.0,
+          2.0,
+          2.0
+        ]
+      },
+      "system2_realism": {
+        "mean": 1.6,
+        "std": 0.5477225575051661,
+        "min": 1.0,
+        "max": 2.0,
+        "values": [
+          2.0,
+          1.0,
+          2.0,
+          2.0,
+          1.0
+        ]
+      },
+      "system2_reasoning": {
+        "mean": 1.2,
+        "std": 0.4472135954999579,
+        "min": 1.0,
+        "max": 2.0,
+        "values": [
+          1.0,
+          1.0,
+          1.0,
+          2.0,
+          1.0
+        ]
+      },
+      "system3_compatibility": {
+        "mean": 4.0,
+        "std": 0.0,
+        "min": 4.0,
+        "max": 4.0,
+        "values": [
+          4.0,
+          4.0,
+          4.0,
+          4.0,
+          4.0
+        ]
+      },
+      "system3_industrial": {
+        "mean": 3.2,
+        "std": 0.4472135954999579,
+        "min": 3.0,
+        "max": 4.0,
+        "values": [
+          3.0,
+          3.0,
+          3.0,
+          4.0,
+          3.0
+        ]
+      },
+      "system3_plausibility": {
+        "mean": 4.0,
+        "std": 0.0,
+        "min": 4.0,
+        "max": 4.0,
+        "values": [
+          4.0,
+          4.0,
+          4.0,
+          4.0,
+          4.0
+        ]
+      },
+      "system3_practicality": {
+        "mean": 4.0,
+        "std": 0.0,
+        "min": 4.0,
+        "max": 4.0,
+        "values": [
+          4.0,
+          4.0,
+          4.0,
+          4.0,
+          4.0
+        ]
+      },
+      "weighted_avg": {
+        "mean": 2.85,
+        "std": 0.15858751527153708,
+        "min": 2.67,
+        "max": 3.08,
+        "values": [
+          2.67,
+          2.92,
+          2.83,
+          3.08,
+          2.75
+        ]
+      }
+    }
+  },
+  "avg_ranks": {
+    "ablation_1agent_no_rag": {
+      "mean": 2.0,
+      "std": 1.0,
+      "min": 1.0,
+      "max": 3.0,
+      "values": [
+        1.0,
+        3.0,
+        2.0,
+        3.0,
+        1.0
+      ]
+    },
+    "ablation_1agent_rag": {
+      "mean": 2.6,
+      "std": 0.8944271909999159,
+      "min": 2.0,
+      "max": 4.0,
+      "values": [
+        2.0,
+        4.0,
+        3.0,
+        2.0,
+        2.0
+      ]
+    },
+    "ablation_3agent": {
+      "mean": 2.4,
+      "std": 1.51657508881031,
+      "min": 1.0,
+      "max": 4.0,
+      "values": [
+        4.0,
+        2.0,
+        1.0,
+        1.0,
+        4.0
+      ]
+    },
+    "evaluation": {
+      "mean": 3.0,
+      "std": 1.224744871391589,
+      "min": 1.0,
+      "max": 4.0,
+      "values": [
+        3.0,
+        1.0,
+        4.0,
+        4.0,
+        3.0
+      ]
+    }
+  },
+  "run_names": [
+    "run_01",
+    "run_02",
+    "run_03",
+    "run_04",
+    "run_05"
+  ],
+  "runs_directory": "/Users/tarjeihage/Downloads/MARS_ablation3_cursorMoveGraphGeneration/results/evaluation_runs/20260414_145151"
+}

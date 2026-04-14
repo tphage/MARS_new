@@ -46,6 +46,10 @@ Arguments are **folder names** under `results/`, not full paths.
 
    Blind PDFs omit rejected-candidate detail and the hard-constraints block (same options as the blind generator uses internally).
 
+### Expert evaluation sections (subsystem rubric)
+
+After each of Systems 1–3, the PDF includes an **Expert evaluation** block. Criterion labels and the **1–5** ordinal scale are loaded from [`config/evaluation_rubric.yaml`](../config/evaluation_rubric.yaml) (same source as [`scripts/run_evaluation.py`](../scripts/run_evaluation.py)), with **one score line per criterion** (four per system). Override the file path with `python -m src.tools.generate_evaluation_latex_pdf --rubric /path/to/rubric.yaml …` if needed.
+
 ---
 
 ## Running the pieces manually

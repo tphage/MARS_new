@@ -1,97 +1,153 @@
-judge_model: "gpt-5.4"
+# Subsystem-aligned rubric: same 12 criteria and 1–5 scale for LLM judge and expert PDFs.
+judge_model: "gpt-4.1"
 temperature: 0
-max_tokens: 80000
+max_tokens: 16384
+
+score_min: 1
+score_max: 5
+
+ordinal_scale_lines:
+  - "1 — Unacceptable, incorrect, or effectively missing"
+  - "2 — Poor result with major gaps, errors, or unreliable content"
+  - "3 — Mixed quality: usable as a draft but with important omissions or weaknesses"
+  - "4 — Solid overall; remaining issues are limited but would still need expert review"
+  - "5 — Excellent: well-supported and credible; at most minor caveats"
 
 dimensions:
-  property_extraction:
-    name: "Property Extraction Quality"
+  system1_completeness:
+    criterion_label: "Completeness"
+    short_name: "S1-Compl"
+    name: "System 1 — Completeness"
     weight: 1.0
     rubric: |
-      Evaluate how comprehensively and precisely the system identified required material properties.
-      Consider:
-      - Number of properties identified
-      - Quantitative specificity (thresholds, units, test standards like ASTM/IEC)
-      - Coverage breadth (mechanical, thermal, chemical, electrical, optical, processing, regulatory, cost, environmental)
-      - Whether the properties are testable by a lab technician
+      Assess the required material-property specification (`required_material_properties.properties` and constraints relative to the query).
+      Judge breadth, specificity, and whether major requirement categories are covered.
+      Penalize vague placeholders, missing categories, and hand-wavy ranges without justification.
+      Reserve 4–5 only when coverage is thorough and operational (someone could procure/test against it).
+      Use the shared 1–5 ordinal scale above.
 
-      Scoring:
-      1-2: Fewer than 5 properties, mostly qualitative, missing major categories
-      3-4: 5-10 properties with some quantitative values, several important categories missing
-      5-6: 10-15 properties with reasonable quantitative detail, covers most categories
-      7-8: 15-25 properties with specific quantitative thresholds and test standards, comprehensive coverage
-      9-10: 25+ properties with precise quantitative thresholds, test standards, and exhaustive coverage across all relevant dimensions
-
-  constraint_correctness:
-    name: "Constraint Correctness"
+  system1_relevance:
+    criterion_label: "Relevance to query"
+    short_name: "S1-Rel"
+    name: "System 1 — Relevance to query"
     weight: 1.0
     rubric: |
-      Evaluate whether the constraints correctly capture the non-negotiable requirements implied by the query.
-      Consider:
-      - Does the system correctly interpret the query's intent? (e.g., if replacing a PFAS material, does it correctly identify that the substitute should be PFAS-free?)
-      - Are constraints specific and testable (with pass/fail thresholds)?
-      - Are there any self-contradictory constraints?
-      - Are critical application-specific constraints captured?
+      Assess how well the stated properties and constraints address the actual substitution task in `query` (sentence, material_X, application_Y).
+      Penalize irrelevant, generic, or off-topic requirements that do not move the substitution decision forward.
+      Downgrade if critical aspects of the stated application or substitution are ignored.
+      Reserve 4–5 only when the requirements are tightly coupled to the query’s substitution task, application context, and implied failure modes.
+      Use the shared 1–5 ordinal scale above.
 
-      Scoring:
-      1-2: Constraints fundamentally misinterpret the query intent (e.g., requiring the wrong material class)
-      3-4: Correct direction but vague or missing key constraints
-      5-6: Mostly correct, reasonable specificity, captures main constraints
-      7-8: Correct with good specificity, testable thresholds, covers regulatory and application needs
-      9-10: Comprehensive, precise, testable constraints with specific test protocols and regulatory references
-
-  candidate_validity:
-    name: "Candidate Validity"
-    weight: 1.5
-    rubric: |
-      Evaluate whether the proposed candidate material is valid and suitable.
-      Consider:
-      - Is the material real and commercially available, or is it fabricated/hallucinated?
-      - Does the material actually satisfy the stated requirements?
-      - Does the material violate any constraints (especially critical ones like PFAS-free)?
-      - Is the justification well-reasoned and does it address the key requirements?
-      - Are property claims sourced or verifiable, or do they appear fabricated?
-
-      Scoring:
-      1-2: Candidate is fabricated, violates critical constraints, or fundamentally wrong for the application
-      3-4: Real material class but specific product may be fabricated, or material has significant gaps vs requirements
-      5-6: Real material, mostly suitable, but some property claims are unverifiable or the justification has gaps
-      7-8: Real, commercially available material with strong justification addressing most requirements; minor gaps
-      9-10: Verified commercial material with comprehensive justification grounded in real data, addresses all requirements
-
-  manufacturing_realism:
-    name: "Manufacturing Realism"
+  system1_scientific:
+    criterion_label: "Scientific correctness"
+    short_name: "S1-Sci"
+    name: "System 1 — Scientific correctness"
     weight: 1.0
     rubric: |
-      Evaluate whether the manufacturing/process recipe is realistic and actionable at lab scale.
-      Consider:
-      - Are the process steps complete? (Does the recipe actually produce the claimed end product?)
-      - Are conditions (temperature, pressure, time) specific and realistic?
-      - Is the required equipment available at lab scale?
-      - Are there safety concerns that would prevent execution?
-      - For specialty products (e.g., heat shrink tubing), does the recipe include the critical process steps that create the product's key functionality?
+      Assess whether property and constraint statements are technically sound, consistent with materials science, and free of contradictions.
+      Penalize impossible combinations, and claims that conflict with known behavior for the class of materials.
+      Reserve 4–5 only when the property/constraint set is internally coherent, technically credible for the material class, and free of substantive contradictions.
+      Use the shared 1–5 ordinal scale above.
 
-      Scoring:
-      1-2: Recipe is incomplete, requires unavailable equipment, or has serious safety issues
-      3-4: Partially complete recipe but missing critical steps or has impractical conditions
-      5-6: Reasonable recipe that would produce something, but may miss specialty steps or have some impractical elements
-      7-8: Complete, practical recipe with specific conditions achievable at lab scale
-      9-10: Detailed, fully actionable recipe with specific conditions, equipment classes, QC steps, and all critical process steps included
-
-  hallucination_risk:
-    name: "Hallucination Risk"
+  system1_clarity:
+    criterion_label: "Clarity and structure"
+    short_name: "S1-Clar"
+    name: "System 1 — Clarity and structure"
     weight: 1.0
     rubric: |
-      Evaluate the risk that the system fabricated materials, product names, property values, or other factual claims.
-      Consider:
-      - Is the candidate material name a real, verifiable product?
-      - Are specific numerical property claims sourced or plausible?
-      - Does the system claim commercial availability for a product that doesn't appear to exist?
-      - Are there self-contradictions (e.g., claiming "no PFAS" while describing a fluorinated backbone)?
-      - Does the system fabricate supplier names or product grades?
+      Assess organization, readability, and testability of the specification (clear lists, unambiguous wording).
+      Penalize ambiguous terms, missing units, and structure that would block verification or comparison.
+      Reserve 4–5 only when requirements map to unambiguous, testable acceptance criteria with minimal interpretation.
+      Use the shared 1–5 ordinal scale above.
 
-      Scoring (INVERTED - higher score = LESS hallucination):
-      1-2: Major fabrications -- fake product names, fake suppliers, invented specific numerical data, self-contradictions
-      3-4: Likely fabrications -- product grade or supplier unverifiable, specific numbers lack any attribution
-      5-6: Some unverifiable claims but core material and approach are real
-      7-8: Material and approach are real; minor unverifiable property extrapolations
-      9-10: All claims are verifiable or clearly labeled as estimates; no fabricated products or suppliers
+  system2_alignment:
+    criterion_label: "Alignment with properties"
+    short_name: "S2-Algn"
+    name: "System 2 — Alignment with properties"
+    weight: 1.0
+    rubric: |
+      Assess how well the chosen candidate (`candidate_selection.final_candidate`) matches the System 1 requirements and constraints.
+      Penalize partial matches, silent tradeoffs, and “close enough” selections without explicit acknowledgment.
+      Reserve 4–5 only when the candidate demonstrably satisfies the System 1 requirements and constraints, including any tradeoffs explicitly justified.
+      Use the shared 1–5 ordinal scale above.
+
+  system2_novelty:
+    criterion_label: "Novelty"
+    short_name: "S2-Nov"
+    name: "System 2 — Novelty"
+    weight: 1.0
+    rubric: |
+      Assess whether the proposal is a substantive selection vs a trivial, default, or generic pick for the application (appropriate novelty, not randomness).
+      Downgrade obvious commodity choices offered without application-specific rationale.
+      Reserve 4–5 only when the selection is substantively justified for this application (not a generic default) and the rationale explains why it fits beyond obvious choices.
+      Use the shared 1–5 ordinal scale above.
+
+  system2_realism:
+    criterion_label: "Realism"
+    short_name: "S2-Real"
+    name: "System 2 — Realism"
+    weight: 1.0
+    rubric: |
+      Assess whether the material is plausibly real, commercially or practically obtainable, and consistent with claimed properties.
+      Penalize fabricated products, impossible property claims, undocumented “hero” numbers, or violations of hard constraints (e.g. regulatory).
+      Reserve 4–5 only when material identity, sourcing plausibility, and claimed properties form a consistent, verifiable picture for the stated context.
+      Use the shared 1–5 ordinal scale above.
+
+  system2_reasoning:
+    criterion_label: "Reasoning quality"
+    short_name: "S2-Reas"
+    name: "System 2 — Reasoning quality"
+    weight: 1.0
+    rubric: |
+      Assess the quality of justification: logical argument, coverage of key requirements, and attribution (vs vague or hallucinated detail).
+      Penalize hand-waving, missing links between requirements and the chosen candidate, and unsupported specifics.
+      Reserve 4–5 only when justification explicitly links requirements to evidence about the candidate, with limited unsupported or hallucinated detail.
+      Use the shared 1–5 ordinal scale above.
+
+  system3_plausibility:
+    criterion_label: "Plausibility of synthesis route"
+    short_name: "S3-Route"
+    name: "System 3 — Plausibility of synthesis route"
+    weight: 1.0
+    rubric: |
+      Assess whether the manufacturing/process description (`manufacturing_process`) could plausibly yield the intended product, including critical steps for the application.
+      Penalize missing critical operations, chemically incoherent sequences, undeclared major assumptions, or “then obtain the product” gaps where causality is unstated.
+      Default down when the narrative is high-level brochure text without enough mechanistic detail to check feasibility.
+      Reserve 4–5 only when the route is causally coherent end-to-end (inputs → intermediates → product) at the level of detail provided.
+      Use the shared 1–5 ordinal scale above.
+
+  system3_practicality:
+    criterion_label: "Processing practicality"
+    short_name: "S3-Prac"
+    name: "System 3 — Processing practicality"
+    weight: 1.0
+    rubric: |
+      Assess whether conditions (temperature, time, pressure, scale) and equipment are realistic for lab or pilot execution.
+      Penalize unspecified critical parameters, infeasible extremes, equipment/process mismatches, or steps that assume unavailable tooling, fixtures, or environments without acknowledgement.
+      Downgrade sharply if decisive windows (thermal exposure, atmosphere, moisture, cooling rate, shear history) are vague despite governing microstructure or properties.
+      Reserve 4–5 only when a practitioner could schedule/run the sequence without inventing missing critical settings.
+      Use the shared 1–5 ordinal scale above.
+
+  system3_compatibility:
+    criterion_label: "Compatibility with material"
+    short_name: "S3-Comp"
+    name: "System 3 — Compatibility with material"
+    weight: 1.0
+    rubric: |
+      Assess whether the route is compatible with the selected candidate material and application (no impossible chemistry or processing mismatches).
+      Penalize steps that would destroy the material, wrong processing family for the grade, ignored contamination/sensitivity issues, or application-critical degradation/corrosion risks waved away.
+      Default down when known failure modes for the material/process pairing are not addressed at all.
+      Reserve 4–5 only when chemistry, thermal/mechanical exposure, and environment fit the stated material grade and end-use constraints.
+      Use the shared 1–5 ordinal scale above.
+
+  system3_industrial:
+    criterion_label: "Industrial relevance"
+    short_name: "S3-Ind"
+    name: "System 3 — Industrial relevance"
+    weight: 1.0
+    rubric: |
+      Assess practical/industrial relevance: safety, QC, scalability hints, and alignment with how such products are made.
+      Penalize routes that ignore basic safety/QC, omit obvious regulatory/siting constraints when they matter, or read as purely notional with no credible scale-up path.
+      Default down for “bench-only” narratives with no recognition of handling limits, waste streams, or repeatability.
+      Reserve 4–5 only when the description reflects how such processes are controlled in practice (even briefly: checkpoints, controls, key failure modes).
+      Use the shared 1–5 ordinal scale above.

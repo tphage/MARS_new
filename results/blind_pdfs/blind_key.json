@@ -1,8 +1,0 @@
-{
-  "Query1": {
-    "Response A": "1agent_no_rag",
-    "Response B": "1agent_rag",
-    "Response C": "3agent",
-    "Response D": "full_mars"
-  }
-}
