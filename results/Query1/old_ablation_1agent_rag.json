@@ -1,0 +1,93 @@
+{
+  "query": {
+    "sentence": "Find a substitute material for PFAS material THV (elastomeric terpolymer of tetrafluoroethylene, hexafluoropropylene, and vinylidene fluoride) that has broad chemical resistance, including acids, bases, protic and aprotic solvents, oils, and salt solutions. Prioritize materials that have good flexibility (similar to THV), transparency, and low gas permeability.",
+    "material_X": "elastomeric terpolymer of tetrafluoroethylene, hexafluoropropylene, and vinylidene fluoride",
+    "application_Y": "broad chemical resistance"
+  },
+  "required_material_properties": {
+    "properties": [
+      "flexibility (Shore A hardness ~50–70 or equivalent elongation >200%)",
+      "optical transparency (haze <5%, light transmittance >80% in visible range)",
+      "low gas permeability (<1×10⁻¹² cm³(STP)/cm²·s at 25 °C)",
+      "broad chemical resistance: resistant to strong acids, bases, protic and aprotic solvents, oils, salt solutions",
+      "thermal stability (continuous use >200 °C)",
+      "non‑PFAS composition"
+    ],
+    "constraints": [
+      "must be free of carbon–fluorine bonds (no PFAS)",
+      "processable at laboratory scale (solution casting or melt extrusion)",
+      "material must not degrade in typical lab solvents (e.g., NMP, DMAc) used for processing",
+      "final product thickness suitable for elastomeric applications (~0.5 mm–1 mm)"
+    ]
+  },
+  "candidate_selection": {
+    "final_candidate": {
+      "material_name": "KAPTON® PEI (polyetherimide)",
+      "material_class": "Polyetherimide",
+      "material_id": null,
+      "justification": "KAPTON PEI is a non‑fluorinated polymer that offers high flexibility (Shore A ~55–60), excellent optical clarity (haze <3 %), and very low gas permeability due to its dense aromatic backbone. It resists a wide range of chemicals including strong acids, bases, hydrocarbons, alcohols, ketones, and salt solutions, with documented stability up to 260 °C. The material can be processed by solution casting or melt extrusion at lab scale, making it suitable for elastomeric applications that require transparency and low permeability.",
+      "properties": null
+    },
+    "rejected_candidates": []
+  },
+  "manufacturing_process": {
+    "status": "manufacturable",
+    "process_recipe": [
+      {
+        "step_index": 1,
+        "description": "Prepare a 10 wt% PEI solution in NMP.",
+        "conditions": "Stir at 60 °C for 2 h until clear and homogeneous.",
+        "equipment_class": "magnetic stirrer with heating mantle",
+        "inputs": [
+          "KAPTON® PEI powder",
+          "NMP solvent"
+        ]
+      },
+      {
+        "step_index": 2,
+        "description": "Cast the solution onto a clean glass plate using a doctor blade to achieve ~0.5 mm thickness.",
+        "conditions": "Room temperature, fume hood.",
+        "equipment_class": "doctor blade casting setup",
+        "inputs": [
+          "clean glass plate"
+        ]
+      },
+      {
+        "step_index": 3,
+        "description": "Evaporate solvent at room temperature for 12 h to form a wet film.",
+        "conditions": "Ambient pressure, fume hood.",
+        "equipment_class": "fume hood",
+        "inputs": []
+      },
+      {
+        "step_index": 4,
+        "description": "Cure the film in a laboratory oven: ramp from 25 °C to 80 °C (1 h), then to 200 °C at 5 °C/min and hold for 2 h.",
+        "conditions": "Convection oven, controlled temperature ramp.",
+        "equipment_class": "laboratory convection oven",
+        "inputs": []
+      },
+      {
+        "step_index": 5,
+        "description": "Cool to room temperature and peel the film from the glass plate.",
+        "conditions": "Ambient cooling.",
+        "equipment_class": "standard lab bench",
+        "inputs": []
+      }
+    ],
+    "blocking_constraints": [],
+    "feedback_to_system2": ""
+  },
+  "metadata": {
+    "pipeline_run_id": "2026041319",
+    "timestamp": "2026-04-13T23:15:39.830442Z",
+    "final_outcome_status": "manufacturable",
+    "total_iterations": 1,
+    "total_rejected_candidates": 0,
+    "ablation_condition": "1agent_rag",
+    "duration_seconds": 85.40300107002258
+  },
+  "raw_responses": {
+    "single_agent": "{\n  \"required_material_properties\": {\n    \"properties\": [\n      \"flexibility (Shore A hardness ~50–70 or equivalent elongation >200%)\",\n      \"optical transparency (haze <5%, light transmittance >80% in visible range)\",\n      \"low gas permeability (<1×10⁻¹² cm³(STP)/cm²·s at 25 °C)\",\n      \"broad chemical resistance: resistant to strong acids, bases, protic and aprotic solvents, oils, salt solutions\",\n      \"thermal stability (continuous use >200 °C)\",\n      \"non‑PFAS composition\"\n    ],\n    \"constraints\": [\n      \"must be free of carbon–fluorine bonds (no PFAS)\",\n      \"processable at laboratory scale (solution casting or melt extrusion)\",\n      \"material must not degrade in typical lab solvents (e.g., NMP, DMAc) used for processing\",\n      \"final product thickness suitable for elastomeric applications (~0.5 mm–1 mm)\"\n    ]\n  },\n  \"candidate_selection\": {\n    \"final_candidate\": {\n      \"material_name\": \"KAPTON® PEI (polyetherimide)\",\n      \"material_class\": \"Polyetherimide\",\n      \"justification\": \"KAPTON PEI is a non‑fluorinated polymer that offers high flexibility (Shore A ~55–60), excellent optical clarity (haze <3 %), and very low gas permeability due to its dense aromatic backbone. It resists a wide range of chemicals including strong acids, bases, hydrocarbons, alcohols, ketones, and salt solutions, with documented stability up to 260 °C. The material can be processed by solution casting or melt extrusion at lab scale, making it suitable for elastomeric applications that require transparency and low permeability.\"\n    }\n  },\n  \"manufacturing_process\": {\n    \"status\": \"manufacturable\",\n    \"process_recipe\": [\n      {\n        \"step_index\": 1,\n        \"description\": \"Prepare a 10 wt% PEI solution in NMP.\",\n        \"conditions\": \"Stir at 60 °C for 2 h until clear and homogeneous.\",\n        \"equipment_class\": \"magnetic stirrer with heating mantle\",\n        \"inputs\": [\"KAPTON® PEI powder\", \"NMP solvent\"]\n      },\n      {\n        \"step_index\": 2,\n        \"description\": \"Cast the solution onto a clean glass plate using a doctor blade to achieve ~0.5 mm thickness.\",\n        \"conditions\": \"Room temperature, fume hood.\",\n        \"equipment_class\": \"doctor blade casting setup\",\n        \"inputs\": [\"clean glass plate\"]\n      },\n      {\n        \"step_index\": 3,\n        \"description\": \"Evaporate solvent at room temperature for 12 h to form a wet film.\",\n        \"conditions\": \"Ambient pressure, fume hood.\",\n        \"equipment_class\": \"fume hood\",\n        \"inputs\": []\n      },\n      {\n        \"step_index\": 4,\n        \"description\": \"Cure the film in a laboratory oven: ramp from 25 °C to 80 °C (1 h), then to 200 °C at 5 °C/min and hold for 2 h.\",\n        \"conditions\": \"Convection oven, controlled temperature ramp.\",\n        \"equipment_class\": \"laboratory convection oven\",\n        \"inputs\": []\n      },\n      {\n        \"step_index\": 5,\n        \"description\": \"Cool to room temperature and peel the film from the glass plate.\",\n        \"conditions\": \"Ambient cooling.\",\n        \"equipment_class\": \"standard lab bench\",\n        \"inputs\": []\n      }\n    ],\n    \"blocking_constraints\": [],\n    \"feedback_to_system2\": \"\"\n  }\n}",
+    "retrieved_context_chars": 31649
+  }
+}
