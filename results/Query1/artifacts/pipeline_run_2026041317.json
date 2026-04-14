@@ -1,0 +1,50 @@
+{
+  "pipeline_run_id": "2026041317",
+  "start_time": "2026-04-13T21:13:33.684767Z",
+  "end_time": "2026-04-13T22:20:33.231138Z",
+  "total_duration_seconds": 4019.546371,
+  "system1": {
+    "run_id": "2026041317_0",
+    "start_time": "2026-04-13T21:13:33.779210Z",
+    "end_time": "2026-04-13T21:29:37.935754Z",
+    "duration_seconds": 964.156544,
+    "result_path": "/orcd/pool/004/tphage/SG_april/MARS_new/results/Query1/artifacts/system1_2026041317_0.json",
+    "chat_log_path": "/orcd/pool/004/tphage/SG_april/MARS_new/results/Query1/artifacts/chats/system1_chat_log_material_requirements_2026041317_0.json",
+    "properties_extracted": 31
+  },
+  "system2_system3_loop": {
+    "max_iterations": 5,
+    "total_iterations": 1,
+    "iterations": [
+      {
+        "iteration": 1,
+        "system2": {
+          "run_id": "2026041317_0",
+          "start_time": "2026-04-13T21:29:37.953036Z",
+          "end_time": "2026-04-13T22:02:52.907067Z",
+          "duration_seconds": 1994.954031,
+          "result_path": "/orcd/pool/004/tphage/SG_april/MARS_new/results/Query1/artifacts/system2_2026041317_0.json",
+          "chat_log_path": "/orcd/pool/004/tphage/SG_april/MARS_new/results/Query1/artifacts/chats/system2_chat_log_material_discovery_2026041317_0.json",
+          "candidate": "RILSAN® BMNO + ENGAGE™ 030902 HEALTH+ Polyolefin Elastomer (70/30) Blend with MA‑g‑PP Compatibilizer",
+          "internal_iterations": []
+        },
+        "system3": {
+          "run_id": "2026041317_0",
+          "start_time": "2026-04-13T22:02:52.964603Z",
+          "end_time": "2026-04-13T22:20:33.033297Z",
+          "duration_seconds": 1060.068694,
+          "result_path": "/orcd/pool/004/tphage/SG_april/MARS_new/results/Query1/artifacts/system3_2026041317_0.json",
+          "chat_log_path": "/orcd/pool/004/tphage/SG_april/MARS_new/results/Query1/artifacts/chats/system3_chat_log_manufacturability_assessment_2026041317_0.json",
+          "status": "manufacturable",
+          "blocking_constraints": [],
+          "feedback_to_system2": ""
+        }
+      }
+    ]
+  },
+  "final_outcome": {
+    "status": "manufacturable",
+    "final_candidate": "RILSAN® BMNO + ENGAGE™ 030902 HEALTH+ Polyolefin Elastomer (70/30) Blend with MA‑g‑PP Compatibilizer",
+    "total_rejected_candidates": 2
+  }
+}
