@@ -40,6 +40,9 @@ SYSTEM_LABELS = {
 
 CONDITION_KEYS = ["evaluation", "ablation_3agent", "ablation_1agent_rag", "ablation_1agent_no_rag"]
 
+# Injected into parsed judge JSON then popped before unblinding (not part of model output schema).
+JUDGE_API_META_KEY = "_judge_api_metadata"
+
 
 def load_rubric(path: Optional[str] = None) -> Dict[str, Any]:
     if path is None:
@@ -218,6 +221,45 @@ def build_judge_prompt(
     return system_prompt, user_prompt
 
 
+def _should_retry_completion_with_max_completion_tokens(exc: BaseException) -> bool:
+    """True when the API rejects max_tokens in favor of max_completion_tokens (e.g. GPT-5.x)."""
+    msg = str(exc).lower()
+    if "max_completion_tokens" in msg and "max_tokens" in msg:
+        return True
+    if "unsupported parameter" in msg and "max_tokens" in msg:
+        return True
+    return False
+
+
+def _chat_completion_judge(
+    client: OpenAI,
+    model: str,
+    messages: List[Dict[str, str]],
+    temperature: float,
+    max_tokens: int,
+):
+    """
+    Prefer max_tokens (works for GPT-4 class models). Newer models may require
+    max_completion_tokens only; retry once with that parameter.
+    """
+    try:
+        return client.chat.completions.create(
+            model=model,
+            messages=messages,
+            temperature=temperature,
+            max_tokens=max_tokens,
+        )
+    except Exception as e:
+        if _should_retry_completion_with_max_completion_tokens(e):
+            return client.chat.completions.create(
+                model=model,
+                messages=messages,
+                temperature=temperature,
+                max_completion_tokens=max_tokens,
+            )
+        raise
+
+
 def call_judge(
     client: OpenAI,
     system_prompt: str,
@@ -228,16 +270,14 @@ def call_judge(
     max_retries: int = 3,
 ) -> Dict[str, Any]:
     """Call the judge LLM and parse the JSON response."""
+    messages = [
+        {"role": "system", "content": system_prompt},
+        {"role": "user", "content": user_prompt},
+    ]
     for attempt in range(max_retries):
         try:
-            response = client.chat.completions.create(
-                model=model,
-                messages=[
-                    {"role": "system", "content": system_prompt},
-                    {"role": "user", "content": user_prompt},
-                ],
-                temperature=temperature,
-                max_tokens=max_tokens,
+            response = _chat_completion_judge(
+                client, model, messages, temperature, max_tokens
             )
             text = response.choices[0].message.content.strip()
 
@@ -252,7 +292,24 @@ def call_judge(
             if first_brace != -1 and last_brace > first_brace:
                 text = text[first_brace:last_brace + 1]
 
-            return json.loads(text)
+            parsed: Dict[str, Any] = json.loads(text)
+            if isinstance(parsed, dict):
+                choice = response.choices[0]
+                meta: Dict[str, Any] = {
+                    "finish_reason": getattr(choice, "finish_reason", None),
+                }
+                msg = getattr(choice, "message", None)
+                if msg is not None and getattr(msg, "refusal", None):
+                    meta["refusal"] = msg.refusal
+                u = getattr(response, "usage", None)
+                if u is not None:
+                    meta["usage"] = {
+                        "prompt_tokens": getattr(u, "prompt_tokens", None),
+                        "completion_tokens": getattr(u, "completion_tokens", None),
+                        "total_tokens": getattr(u, "total_tokens", None),
+                    }
+                parsed[JUDGE_API_META_KEY] = meta
+            return parsed
 
         except json.JSONDecodeError as e:
             print(f"  Attempt {attempt + 1}/{max_retries}: JSON parse error: {e}")
@@ -310,6 +367,18 @@ def evaluate_query(
         print(f"  ERROR: {judge_result['error']}")
         return {"query_name": query_name, "error": judge_result}
 
+    judge_completion_meta = judge_result.pop(JUDGE_API_META_KEY, None)
+    if judge_completion_meta:
+        fr = judge_completion_meta.get("finish_reason")
+        print(f"  Judge finish_reason: {fr}")
+        if fr == "length":
+            print("  WARNING: finish_reason is 'length' — completion may be truncated at max_tokens.")
+        usage = judge_completion_meta.get("usage") or {}
+        pt = usage.get("prompt_tokens")
+        ct = usage.get("completion_tokens")
+        if pt is not None or ct is not None:
+            print(f"  Token usage (prompt / completion): {pt} / {ct}")
+
     # Unblind: map labels back to condition names
     dimensions = list(rubric["dimensions"].keys())
     unblinded_scores = {}
@@ -346,6 +415,8 @@ def evaluate_query(
         "timestamp": datetime.utcnow().isoformat() + "Z",
         "judge_elapsed_seconds": round(elapsed, 1),
     }
+    if judge_completion_meta is not None:
+        result["judge_completion"] = judge_completion_meta
 
     # Print per-query summary
     print(f"\n  {'System':<35} ", end="")
