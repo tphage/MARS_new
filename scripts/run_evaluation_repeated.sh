@@ -16,7 +16,7 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
 cd "${PROJECT_ROOT}"
 
-N=5
+N=3
 OUTPUT_BASE=""
 BASE_SEED=42
 PYTHON_ARGS=()
@@ -26,7 +26,7 @@ usage() {
 Usage: $(basename "$0") [options] [-- EXTRA_ARGS_FOR_run_evaluation.py]
 
 Options:
-  -n, --runs N          Number of evaluation runs (default: 5)
+  -n, --runs N          Number of evaluation runs (default: 3)
   -o, --output-base DIR Directory for this batch (default: results/evaluation_runs/TIMESTAMP)
   -s, --base-seed S     Seed for run 1; run i uses S + i - 1 (default: 42)
   -h, --help            Show this help

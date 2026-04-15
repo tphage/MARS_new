@@ -1,0 +1,319 @@
+{
+  "judge_model": "gpt-4.1",
+  "timestamp": "2026-04-14T21:11:57.915306Z",
+  "seed": 44,
+  "num_queries": 1,
+  "num_successful": 1,
+  "per_query": [
+    {
+      "query_name": "Query1",
+      "query_sentence": "Find a substitute material for PFAS material THV (elastomeric terpolymer of tetrafluoroethylene, hexafluoropropylene, and vinylidene fluoride) that has broad chemical resistance, including acids, bases, protic and aprotic solvents, oils, and salt solutions. Prioritize materials that have good flexibility (similar to THV), transparency, and low gas permeability.",
+      "blind_mapping": {
+        "A": "ablation_3agent",
+        "B": "evaluation",
+        "C": "ablation_1agent_rag",
+        "D": "ablation_1agent_no_rag"
+      },
+      "scores": {
+        "evaluation": {
+          "system1_completeness": {
+            "score": 4,
+            "reasoning": "The requirements are broad and detailed, covering most relevant categories, but some are redundant or lack operational specificity (e.g., 'fluorinated elastomer backbone' despite PFAS-free constraint)."
+          },
+          "system1_relevance": {
+            "score": 4,
+            "reasoning": "Most requirements are relevant to the substitution task, but some (e.g., 'terpolymer composition', 'fluorine content') are not applicable for a PFAS-free search and could confuse the direction."
+          },
+          "system1_scientific": {
+            "score": 3,
+            "reasoning": "There are some scientific inconsistencies, such as requiring a 'fluorinated elastomer backbone' and 'fluorine content' while also mandating PFAS-free composition. Some property targets (e.g., Tg >200°C for an elastomer) are unrealistic."
+          },
+          "system1_clarity": {
+            "score": 3,
+            "reasoning": "The structure is cluttered with overlapping categories and some ambiguous terms; not all requirements are testable or clearly defined."
+          },
+          "system2_alignment": {
+            "score": 4,
+            "reasoning": "The candidate blend plausibly meets most requirements, with explicit discussion of chemical resistance, flexibility, and permeability. However, optical clarity (haze <5%) is not fully addressed, and the blend may not achieve true transparency."
+          },
+          "system2_novelty": {
+            "score": 5,
+            "reasoning": "The blend of RILSAN BMNO and ENGAGE elastomer with compatibilizer is a creative, non-obvious approach, justified with literature and application-specific rationale."
+          },
+          "system2_realism": {
+            "score": 4,
+            "reasoning": "All components are real, commercially available, and the blend is plausible, but the claim of achieving both high transparency and high flexibility in a PA/elastomer blend is optimistic and not fully substantiated."
+          },
+          "system2_reasoning": {
+            "score": 4,
+            "reasoning": "The justification is detailed and links requirements to evidence, but some claims (e.g., optical clarity, mechanical properties after blending) are not fully supported with data or caveats."
+          },
+          "system3_plausibility": {
+            "score": 5,
+            "reasoning": "The process is causally coherent, with all critical steps for compounding, extrusion, and QC described in detail."
+          },
+          "system3_practicality": {
+            "score": 5,
+            "reasoning": "Processing conditions, equipment, and parameters are realistic and appropriate for lab or pilot scale."
+          },
+          "system3_compatibility": {
+            "score": 4,
+            "reasoning": "The process is compatible with the materials, but achieving high optical clarity in a PA/elastomer blend is challenging and not fully addressed."
+          },
+          "system3_industrial": {
+            "score": 5,
+            "reasoning": "The process reflects industrial practice, including QC and optional characterization steps."
+          },
+          "weighted_total": 4.17,
+          "overall_comment": "System B offers a creative and well-justified blend solution with a realistic process, but some requirements are internally inconsistent and the optical clarity claim is not fully convincing."
+        },
+        "ablation_3agent": {
+          "system1_completeness": {
+            "score": 5,
+            "reasoning": "The property specification is thorough, quantitative, and covers all major requirement categories (mechanical, chemical, optical, permeability, processing, and environmental). All constraints are operational and testable."
+          },
+          "system1_relevance": {
+            "score": 5,
+            "reasoning": "Requirements are tightly coupled to the substitution task, with explicit mapping to THV's properties and the application's chemical/physical demands."
+          },
+          "system1_scientific": {
+            "score": 5,
+            "reasoning": "All property and constraint statements are technically sound, realistic, and internally consistent for the class of materials considered."
+          },
+          "system1_clarity": {
+            "score": 5,
+            "reasoning": "The requirements are clearly structured, use unambiguous language, and provide testable acceptance criteria with units and thresholds."
+          },
+          "system2_alignment": {
+            "score": 4,
+            "reasoning": "The candidate matches nearly all requirements, but the gas permeability value cited (~8×10⁻¹¹) is higher than the stated constraint (≤1×10⁻¹²), which is not explicitly addressed as a tradeoff."
+          },
+          "system2_novelty": {
+            "score": 4,
+            "reasoning": "The selection of a high-performance TPU is thoughtful and justified, but TPUs are a relatively common PFAS alternative; the rationale is strong but not highly novel."
+          },
+          "system2_realism": {
+            "score": 5,
+            "reasoning": "SustainFlex 1000 appears plausible as a commercial TPU with the described properties, and all claims are consistent with known TPU performance."
+          },
+          "system2_reasoning": {
+            "score": 5,
+            "reasoning": "The justification is detailed, links requirements to evidence, and addresses all key constraints with specific data."
+          },
+          "system3_plausibility": {
+            "score": 5,
+            "reasoning": "The process steps are causally coherent and standard for TPU processing, with all critical operations described."
+          },
+          "system3_practicality": {
+            "score": 5,
+            "reasoning": "All processing conditions are realistic, with specified temperatures, times, and equipment suitable for lab or pilot scale."
+          },
+          "system3_compatibility": {
+            "score": 5,
+            "reasoning": "The process is fully compatible with TPU chemistry and the application, with no mismatches or overlooked degradation risks."
+          },
+          "system3_industrial": {
+            "score": 5,
+            "reasoning": "The process reflects industrial practice, including drying, extrusion, molding, and QC-relevant parameters."
+          },
+          "weighted_total": 4.83,
+          "overall_comment": "System A provides a highly complete, relevant, and technically sound solution with a realistic and industrially plausible process. The only minor gap is the gas permeability tradeoff, which is not explicitly discussed."
+        },
+        "ablation_1agent_rag": {
+          "system1_completeness": {
+            "score": 3,
+            "reasoning": "The requirements cover the main categories but are high-level and lack quantitative detail for several properties (e.g., flexibility, chemical resistance, thermal range)."
+          },
+          "system1_relevance": {
+            "score": 4,
+            "reasoning": "The requirements are relevant to the substitution task and focus on the key application needs, though some important specifics (e.g., service temperature range, mechanical strength) are missing."
+          },
+          "system1_scientific": {
+            "score": 4,
+            "reasoning": "The requirements are scientifically reasonable and consistent, with no major contradictions."
+          },
+          "system1_clarity": {
+            "score": 4,
+            "reasoning": "The requirements are clearly stated and mostly testable, but some lack units or precise thresholds."
+          },
+          "system2_alignment": {
+            "score": 3,
+            "reasoning": "Cross-linked PPS is highly chemically resistant and can be processed into films, but it is not truly elastomeric or flexible like THV; the claim of elastomeric flexibility is not well supported."
+          },
+          "system2_novelty": {
+            "score": 4,
+            "reasoning": "The use of cross-linked PPS as a transparent, chemically resistant alternative is a novel approach, though its suitability as an elastomer is questionable."
+          },
+          "system2_realism": {
+            "score": 3,
+            "reasoning": "DIC.PPS is real and available, but cross-linked PPS is not known for elastomeric flexibility; the claim of matching THV's flexibility is not realistic."
+          },
+          "system2_reasoning": {
+            "score": 3,
+            "reasoning": "The justification links some requirements to PPS properties, but the key issue of flexibility is not addressed with evidence, and the elastomeric claim is unsupported."
+          },
+          "system3_plausibility": {
+            "score": 4,
+            "reasoning": "The process steps are plausible for PPS processing, with appropriate drying, extrusion, and molding steps."
+          },
+          "system3_practicality": {
+            "score": 4,
+            "reasoning": "Processing conditions are realistic for PPS, though the high extrusion temperatures may limit some lab setups."
+          },
+          "system3_compatibility": {
+            "score": 3,
+            "reasoning": "The process is compatible with PPS, but not with the claimed elastomeric application; PPS is not a true elastomer and may not meet flexibility needs."
+          },
+          "system3_industrial": {
+            "score": 4,
+            "reasoning": "The process reflects industrial PPS processing, with attention to drying, extrusion, and annealing."
+          },
+          "weighted_total": 3.58,
+          "overall_comment": "System C proposes a real and chemically robust material, but its flexibility is overstated and it is not a true elastomeric substitute for THV."
+        },
+        "ablation_1agent_no_rag": {
+          "system1_completeness": {
+            "score": 4,
+            "reasoning": "The requirements cover all major categories and are mostly quantitative, but some (e.g., 'cost acceptable') are vague and the mechanical property targets are not fully specified."
+          },
+          "system1_relevance": {
+            "score": 4,
+            "reasoning": "The requirements are relevant to the substitution task and address the application's key needs, though some constraints are generic."
+          },
+          "system1_scientific": {
+            "score": 5,
+            "reasoning": "All property and constraint statements are technically sound and consistent with known silicone elastomer behavior."
+          },
+          "system1_clarity": {
+            "score": 4,
+            "reasoning": "The requirements are clear and mostly testable, but a few terms (e.g., 'cost acceptable') are ambiguous."
+          },
+          "system2_alignment": {
+            "score": 3,
+            "reasoning": "PDMS matches flexibility, transparency, and thermal stability, but its chemical resistance to strong acids/bases and low gas permeability are inferior to THV; these tradeoffs are not acknowledged."
+          },
+          "system2_novelty": {
+            "score": 3,
+            "reasoning": "PDMS is a standard, well-known alternative for flexible transparent elastomers; the selection is not novel for this application."
+          },
+          "system2_realism": {
+            "score": 5,
+            "reasoning": "Dow Corning 3-2-1 is a real, commercially available silicone elastomer with the described properties."
+          },
+          "system2_reasoning": {
+            "score": 3,
+            "reasoning": "The justification covers most requirements but does not address the known limitations of PDMS in chemical resistance and gas permeability compared to THV."
+          },
+          "system3_plausibility": {
+            "score": 5,
+            "reasoning": "The process is standard for silicone elastomer preparation and is causally coherent."
+          },
+          "system3_practicality": {
+            "score": 5,
+            "reasoning": "All processing conditions and equipment are realistic and suitable for lab or pilot scale."
+          },
+          "system3_compatibility": {
+            "score": 4,
+            "reasoning": "The process is compatible with PDMS, but the material's limitations for the intended application are not addressed."
+          },
+          "system3_industrial": {
+            "score": 5,
+            "reasoning": "The process reflects industrial silicone elastomer manufacturing, including QC and safety considerations."
+          },
+          "weighted_total": 4.17,
+          "overall_comment": "System D proposes a real and processable material, but PDMS does not fully meet the chemical resistance and gas barrier requirements of the query."
+        }
+      },
+      "ranking": [
+        "ablation_3agent",
+        "evaluation",
+        "ablation_1agent_no_rag",
+        "ablation_1agent_rag"
+      ],
+      "ranking_reasoning": "System A is the most complete, relevant, and technically sound, with a realistic and well-justified candidate and process. System B is creative and industrially plausible but has some internal inconsistencies and overstates optical clarity. System D is realistic and processable but does not fully meet the chemical resistance and gas barrier needs. System C proposes a real material but overstates its flexibility and is not a true elastomeric substitute.",
+      "judge_model": "gpt-4.1",
+      "timestamp": "2026-04-14T21:11:57.896391Z",
+      "judge_elapsed_seconds": 24.7,
+      "judge_completion": {
+        "finish_reason": "stop",
+        "usage": {
+          "prompt_tokens": 11229,
+          "completion_tokens": 2515,
+          "total_tokens": 13744
+        }
+      }
+    }
+  ],
+  "aggregate_scores": {
+    "evaluation": {
+      "label": "MARS (Full Pipeline)",
+      "system1_completeness": 4.0,
+      "system1_relevance": 4.0,
+      "system1_scientific": 3.0,
+      "system1_clarity": 3.0,
+      "system2_alignment": 4.0,
+      "system2_novelty": 5.0,
+      "system2_realism": 4.0,
+      "system2_reasoning": 4.0,
+      "system3_plausibility": 5.0,
+      "system3_practicality": 5.0,
+      "system3_compatibility": 4.0,
+      "system3_industrial": 5.0,
+      "weighted_avg": 4.17
+    },
+    "ablation_3agent": {
+      "label": "3-Agent Sequential (No RAG/KG)",
+      "system1_completeness": 5.0,
+      "system1_relevance": 5.0,
+      "system1_scientific": 5.0,
+      "system1_clarity": 5.0,
+      "system2_alignment": 4.0,
+      "system2_novelty": 4.0,
+      "system2_realism": 5.0,
+      "system2_reasoning": 5.0,
+      "system3_plausibility": 5.0,
+      "system3_practicality": 5.0,
+      "system3_compatibility": 5.0,
+      "system3_industrial": 5.0,
+      "weighted_avg": 4.83
+    },
+    "ablation_1agent_rag": {
+      "label": "1-Agent + RAG/KG",
+      "system1_completeness": 3.0,
+      "system1_relevance": 4.0,
+      "system1_scientific": 4.0,
+      "system1_clarity": 4.0,
+      "system2_alignment": 3.0,
+      "system2_novelty": 4.0,
+      "system2_realism": 3.0,
+      "system2_reasoning": 3.0,
+      "system3_plausibility": 4.0,
+      "system3_practicality": 4.0,
+      "system3_compatibility": 3.0,
+      "system3_industrial": 4.0,
+      "weighted_avg": 3.58
+    },
+    "ablation_1agent_no_rag": {
+      "label": "1-Agent (No RAG/KG)",
+      "system1_completeness": 4.0,
+      "system1_relevance": 4.0,
+      "system1_scientific": 5.0,
+      "system1_clarity": 4.0,
+      "system2_alignment": 3.0,
+      "system2_novelty": 3.0,
+      "system2_realism": 5.0,
+      "system2_reasoning": 3.0,
+      "system3_plausibility": 5.0,
+      "system3_practicality": 5.0,
+      "system3_compatibility": 4.0,
+      "system3_industrial": 5.0,
+      "weighted_avg": 4.17
+    }
+  },
+  "avg_ranks": {
+    "evaluation": 2.0,
+    "ablation_3agent": 1.0,
+    "ablation_1agent_rag": 4.0,
+    "ablation_1agent_no_rag": 3.0
+  }
+}

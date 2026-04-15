@@ -1,0 +1,319 @@
+{
+  "judge_model": "gpt-4.1",
+  "timestamp": "2026-04-14T21:55:17.671834Z",
+  "seed": 44,
+  "num_queries": 1,
+  "num_successful": 1,
+  "per_query": [
+    {
+      "query_name": "Query1",
+      "query_sentence": "Find a substitute material for PFAS material THV (elastomeric terpolymer of tetrafluoroethylene, hexafluoropropylene, and vinylidene fluoride) that has broad chemical resistance, including acids, bases, protic and aprotic solvents, oils, and salt solutions. Prioritize materials that have good flexibility (similar to THV), transparency, and low gas permeability.",
+      "blind_mapping": {
+        "A": "ablation_3agent",
+        "B": "evaluation",
+        "C": "ablation_1agent_rag",
+        "D": "ablation_1agent_no_rag"
+      },
+      "scores": {
+        "evaluation": {
+          "system1_completeness": {
+            "score": 4,
+            "reasoning": "Covers most relevant categories, but some requirements are vague or redundant (e.g., 'fluorinated elastomer backbone' conflicts with PFAS-free constraint)."
+          },
+          "system1_relevance": {
+            "score": 4,
+            "reasoning": "Most requirements are relevant, but some (e.g., recyclability, PET stream contamination) are tangential to the core substitution task."
+          },
+          "system1_scientific": {
+            "score": 3,
+            "reasoning": "There are scientific inconsistencies: 'fluorinated elastomer backbone' is incompatible with PFAS-free, and some property targets (e.g., Tg >200°C for an elastomer) are unrealistic."
+          },
+          "system1_clarity": {
+            "score": 3,
+            "reasoning": "The list is long but mixes properties, constraints, and process notes; some terms are ambiguous or lack units, making testability difficult."
+          },
+          "system2_alignment": {
+            "score": 3,
+            "reasoning": "The PA/POE blend meets some requirements (chemical resistance, flexibility), but polyamides are not truly transparent and may not meet the strictest gas barrier or optical criteria."
+          },
+          "system2_novelty": {
+            "score": 4,
+            "reasoning": "The blend is a creative, non-obvious approach leveraging compatibilization, not a default commodity pick."
+          },
+          "system2_realism": {
+            "score": 4,
+            "reasoning": "All components are real and commercially available, and the blend is plausible, though some property claims (optical clarity, high Tg with flexibility) are optimistic."
+          },
+          "system2_reasoning": {
+            "score": 3,
+            "reasoning": "Justification is detailed but overstates the blend's ability to meet all requirements, especially transparency and high flexibility at high Tg."
+          },
+          "system3_plausibility": {
+            "score": 5,
+            "reasoning": "The compounding and extrusion process is standard and causally coherent for such blends."
+          },
+          "system3_practicality": {
+            "score": 5,
+            "reasoning": "Processing parameters are realistic and well-specified for lab or pilot scale."
+          },
+          "system3_compatibility": {
+            "score": 4,
+            "reasoning": "Process is compatible with the materials, but the blend's ability to achieve both high clarity and flexibility is questionable."
+          },
+          "system3_industrial": {
+            "score": 5,
+            "reasoning": "Process includes QC steps and reflects industrial practice for polymer blends."
+          },
+          "weighted_total": 3.92,
+          "overall_comment": "System B proposes a creative blend with a solid process, but scientific inconsistencies and over-optimistic property claims limit its credibility for this demanding substitution."
+        },
+        "ablation_3agent": {
+          "system1_completeness": {
+            "score": 5,
+            "reasoning": "All major property categories are covered with specific, testable metrics (mechanical, chemical, optical, permeability, processing, regulatory). No significant omissions."
+          },
+          "system1_relevance": {
+            "score": 5,
+            "reasoning": "Requirements are tightly coupled to the substitution task, directly addressing THV's key properties and the application's chemical and physical demands."
+          },
+          "system1_scientific": {
+            "score": 5,
+            "reasoning": "All property and constraint statements are technically sound, realistic, and internally consistent for the intended class of materials."
+          },
+          "system1_clarity": {
+            "score": 5,
+            "reasoning": "Specification is well-structured, with clear units and unambiguous, testable criteria throughout."
+          },
+          "system2_alignment": {
+            "score": 4,
+            "reasoning": "Dow Corning 732 matches most requirements, but its gas permeability is slightly above the strictest threshold stated. This tradeoff is acknowledged, but not deeply discussed."
+          },
+          "system2_novelty": {
+            "score": 4,
+            "reasoning": "Silicone elastomers are a logical, non-trivial alternative to THV for chemical resistance and flexibility, though not highly novel. The choice is justified beyond default selection."
+          },
+          "system2_realism": {
+            "score": 5,
+            "reasoning": "Dow Corning 732 is a real, commercially available material with well-documented properties and regulatory compliance."
+          },
+          "system2_reasoning": {
+            "score": 5,
+            "reasoning": "Justification is detailed, explicitly linking requirements to material properties with supporting data and clear rationale."
+          },
+          "system3_plausibility": {
+            "score": 5,
+            "reasoning": "The process steps are causally coherent and reflect standard silicone elastomer manufacturing, with all critical operations included."
+          },
+          "system3_practicality": {
+            "score": 5,
+            "reasoning": "All processing parameters (temperature, time, equipment) are realistic and specified for lab or pilot scale."
+          },
+          "system3_compatibility": {
+            "score": 5,
+            "reasoning": "The process is fully compatible with the selected silicone elastomer and the application, with no mismatches or overlooked degradation risks."
+          },
+          "system3_industrial": {
+            "score": 5,
+            "reasoning": "Process reflects industrial practice, including QC steps (degas, post-cure), safety, and scalability hints."
+          },
+          "weighted_total": 4.83,
+          "overall_comment": "System A provides a thorough, technically sound, and operationally detailed solution with only minor tradeoffs in gas permeability. The process and justification are exemplary."
+        },
+        "ablation_1agent_rag": {
+          "system1_completeness": {
+            "score": 3,
+            "reasoning": "Covers key categories (flexibility, transparency, permeability, chemical resistance), but lacks detail on mechanical strength, processing, and regulatory compliance."
+          },
+          "system1_relevance": {
+            "score": 4,
+            "reasoning": "Most requirements are relevant to the substitution task, though some (e.g., thickness) are more about process than end-use."
+          },
+          "system1_scientific": {
+            "score": 3,
+            "reasoning": "Some property targets are plausible, but PEI (KAPTON) is not an elastomer and does not have the flexibility or low modulus required."
+          },
+          "system1_clarity": {
+            "score": 4,
+            "reasoning": "Requirements are mostly clear and testable, with units and specific targets, though some ambiguity remains (e.g., 'broad chemical resistance')."
+          },
+          "system2_alignment": {
+            "score": 2,
+            "reasoning": "KAPTON PEI is not an elastomer and cannot match THV's flexibility or low modulus, despite claims. It does meet chemical and thermal requirements."
+          },
+          "system2_novelty": {
+            "score": 3,
+            "reasoning": "PEI is a high-performance polymer, but its use as a THV elastomer substitute is not well-justified given the mismatch in flexibility."
+          },
+          "system2_realism": {
+            "score": 3,
+            "reasoning": "KAPTON PEI is real and available, but the claim of elastomeric flexibility is not supported by literature or datasheets."
+          },
+          "system2_reasoning": {
+            "score": 2,
+            "reasoning": "Justification overstates PEI's flexibility and does not address the mismatch with the required elastomeric properties."
+          },
+          "system3_plausibility": {
+            "score": 4,
+            "reasoning": "The solution casting process is plausible for PEI films, though not for elastomeric products."
+          },
+          "system3_practicality": {
+            "score": 4,
+            "reasoning": "Processing parameters are realistic for PEI film casting at lab scale."
+          },
+          "system3_compatibility": {
+            "score": 2,
+            "reasoning": "The process is compatible with PEI, but not with the intended elastomeric application; the product will be a rigid film, not an elastomer."
+          },
+          "system3_industrial": {
+            "score": 3,
+            "reasoning": "Process is standard for lab-scale PEI films, but lacks industrial context for elastomeric applications."
+          },
+          "weighted_total": 3.08,
+          "overall_comment": "System C misidentifies PEI as an elastomer, leading to a fundamental mismatch with the application's flexibility requirements, despite a plausible process for film casting."
+        },
+        "ablation_1agent_no_rag": {
+          "system1_completeness": {
+            "score": 4,
+            "reasoning": "Covers most key categories (chemical, mechanical, optical, permeability, thermal, PFAS-free), but lacks detail on processing and regulatory compliance."
+          },
+          "system1_relevance": {
+            "score": 5,
+            "reasoning": "Requirements are tightly focused on the substitution task and the application's critical needs."
+          },
+          "system1_scientific": {
+            "score": 5,
+            "reasoning": "All property and constraint statements are technically sound and consistent with the material class."
+          },
+          "system1_clarity": {
+            "score": 4,
+            "reasoning": "Requirements are mostly clear and testable, though some terms (e.g., 'cost acceptable') are subjective."
+          },
+          "system2_alignment": {
+            "score": 4,
+            "reasoning": "Dow Corning 3-2-1 PDMS matches most requirements, though its gas permeability is at the upper limit and true chemical resistance to all solvents is not fully addressed."
+          },
+          "system2_novelty": {
+            "score": 3,
+            "reasoning": "Silicone elastomers are a standard alternative for chemical resistance and flexibility; the choice is logical but not highly novel."
+          },
+          "system2_realism": {
+            "score": 5,
+            "reasoning": "Dow Corning 3-2-1 is a real, commercially available material with well-documented properties."
+          },
+          "system2_reasoning": {
+            "score": 4,
+            "reasoning": "Justification is clear and links requirements to material properties, though some claims (e.g., low gas permeability) could be more nuanced."
+          },
+          "system3_plausibility": {
+            "score": 5,
+            "reasoning": "The process is causally coherent and reflects standard silicone elastomer manufacturing."
+          },
+          "system3_practicality": {
+            "score": 5,
+            "reasoning": "Processing parameters are realistic and well-specified for lab or pilot scale."
+          },
+          "system3_compatibility": {
+            "score": 5,
+            "reasoning": "Process is fully compatible with PDMS and the intended application."
+          },
+          "system3_industrial": {
+            "score": 4,
+            "reasoning": "Process reflects industrial practice, but lacks explicit mention of QC or safety beyond basic steps."
+          },
+          "weighted_total": 4.42,
+          "overall_comment": "System D provides a technically sound and realistic silicone elastomer solution, with a plausible process and strong alignment to the application's needs."
+        }
+      },
+      "ranking": [
+        "ablation_3agent",
+        "ablation_1agent_no_rag",
+        "evaluation",
+        "ablation_1agent_rag"
+      ],
+      "ranking_reasoning": "System A is the most thorough, technically sound, and operationally detailed, with only minor tradeoffs. System D is also strong, but slightly less detailed and novel. System B is creative but suffers from scientific inconsistencies and over-optimistic property claims. System C fundamentally misidentifies PEI as an elastomer, leading to a critical mismatch with the application's flexibility requirements.",
+      "judge_model": "gpt-4.1",
+      "timestamp": "2026-04-14T21:55:17.669368Z",
+      "judge_elapsed_seconds": 22.0,
+      "judge_completion": {
+        "finish_reason": "stop",
+        "usage": {
+          "prompt_tokens": 11421,
+          "completion_tokens": 2346,
+          "total_tokens": 13767
+        }
+      }
+    }
+  ],
+  "aggregate_scores": {
+    "evaluation": {
+      "label": "MARS (Full Pipeline)",
+      "system1_completeness": 4.0,
+      "system1_relevance": 4.0,
+      "system1_scientific": 3.0,
+      "system1_clarity": 3.0,
+      "system2_alignment": 3.0,
+      "system2_novelty": 4.0,
+      "system2_realism": 4.0,
+      "system2_reasoning": 3.0,
+      "system3_plausibility": 5.0,
+      "system3_practicality": 5.0,
+      "system3_compatibility": 4.0,
+      "system3_industrial": 5.0,
+      "weighted_avg": 3.92
+    },
+    "ablation_3agent": {
+      "label": "3-Agent Sequential (No RAG/KG)",
+      "system1_completeness": 5.0,
+      "system1_relevance": 5.0,
+      "system1_scientific": 5.0,
+      "system1_clarity": 5.0,
+      "system2_alignment": 4.0,
+      "system2_novelty": 4.0,
+      "system2_realism": 5.0,
+      "system2_reasoning": 5.0,
+      "system3_plausibility": 5.0,
+      "system3_practicality": 5.0,
+      "system3_compatibility": 5.0,
+      "system3_industrial": 5.0,
+      "weighted_avg": 4.83
+    },
+    "ablation_1agent_rag": {
+      "label": "1-Agent + RAG/KG",
+      "system1_completeness": 3.0,
+      "system1_relevance": 4.0,
+      "system1_scientific": 3.0,
+      "system1_clarity": 4.0,
+      "system2_alignment": 2.0,
+      "system2_novelty": 3.0,
+      "system2_realism": 3.0,
+      "system2_reasoning": 2.0,
+      "system3_plausibility": 4.0,
+      "system3_practicality": 4.0,
+      "system3_compatibility": 2.0,
+      "system3_industrial": 3.0,
+      "weighted_avg": 3.08
+    },
+    "ablation_1agent_no_rag": {
+      "label": "1-Agent (No RAG/KG)",
+      "system1_completeness": 4.0,
+      "system1_relevance": 5.0,
+      "system1_scientific": 5.0,
+      "system1_clarity": 4.0,
+      "system2_alignment": 4.0,
+      "system2_novelty": 3.0,
+      "system2_realism": 5.0,
+      "system2_reasoning": 4.0,
+      "system3_plausibility": 5.0,
+      "system3_practicality": 5.0,
+      "system3_compatibility": 5.0,
+      "system3_industrial": 4.0,
+      "weighted_avg": 4.42
+    }
+  },
+  "avg_ranks": {
+    "evaluation": 3.0,
+    "ablation_3agent": 1.0,
+    "ablation_1agent_rag": 4.0,
+    "ablation_1agent_no_rag": 2.0
+  }
+}
