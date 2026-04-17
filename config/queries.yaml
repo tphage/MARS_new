@@ -5,7 +5,7 @@ queries:
     application_Y: "broad chemical resistance"
 
   - name: "Query2"
-    sentence: "Identify PFAS free thermoplastic material for heat shrink tubing with a 2:1 shrink ratio that could replace FEP heat shrink tubing that has an application / service temperature of up to ~200°C and a shrink temperature under 250°C."
+    sentence: "Identify a PFAS free thermoplastic material for heat shrink tubing with a 2:1 shrink ratio that could replace FEP heat shrink tubing that has an application / service temperature of up to ~200°C and a shrink temperature under 250°C."
     material_X: "FEP"
     application_Y: "heat shrink tubing"
 
