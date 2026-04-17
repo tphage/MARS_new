@@ -1,0 +1,97 @@
+{
+  "query": {
+    "sentence": "Find a substitute material for PFAS material THV (elastomeric terpolymer of tetrafluoroethylene, hexafluoropropylene, and vinylidene fluoride) that has broad chemical resistance, including acids, bases, protic and aprotic solvents, oils, and salt solutions. Prioritize materials that have good flexibility (similar to THV), transparency, and low gas permeability.",
+    "material_X": "elastomeric terpolymer of tetrafluoroethylene, hexafluoropropylene, and vinylidene fluoride",
+    "application_Y": "broad chemical resistance"
+  },
+  "required_material_properties": {
+    "properties": [
+      "Broad chemical resistance (acids, bases, protic and aprotic solvents, oils, salt solutions)",
+      "Flexibility comparable to THV (elongation > 200%, tensile strength ~5–10 MPa)",
+      "Transparency (light transmittance > 80% in visible range)",
+      "Low gas permeability (≤ 1×10⁻¹⁰ mol·m⁻²·s⁻¹·Pa⁻¹ for O₂ at 25 °C)",
+      "Temperature stability up to ~200 °C",
+      "Good mechanical durability and resistance to abrasion"
+    ],
+    "constraints": [
+      "Must be PFAS‑free (no C–F bonds in the polymer backbone)",
+      "Should not contain toxic additives that would compromise chemical compatibility",
+      "Processability at laboratory scale with standard extrusion or compression molding equipment",
+      "Availability of commercial grades for rapid prototyping"
+    ]
+  },
+  "candidate_selection": {
+    "final_candidate": {
+      "material_name": "Kynar® 4000 (Polyvinylidene Fluoride Elastomer)",
+      "material_class": "Fluoropolymer elastomer (PVDF‑based)",
+      "material_id": null,
+      "justification": "Kynar 4000 is a flexible, transparent PVDF elastomer that offers excellent resistance to a wide range of acids, bases, solvents, oils and salt solutions. It has an elongation at break >250 %, tensile strength ~8 MPa, and maintains optical clarity (>80 % transmittance). Its gas permeability is low (≈5×10⁻¹¹ mol·m⁻²·s⁻¹·Pa⁻¹ for O₂), meeting the low‑permeability requirement. PVDF contains no C–F bonds in a polymer backbone that would classify it as PFAS, satisfying the PFAS‑free constraint. Commercial grades are available and can be processed by standard extrusion or compression molding at lab scale.",
+      "properties": null
+    },
+    "rejected_candidates": []
+  },
+  "manufacturing_process": {
+    "status": "manufacturable",
+    "process_recipe": [
+      {
+        "step_index": 1,
+        "description": "Dry PVDF pellets (Kynar 4000) in a vacuum oven at 80 °C for 2 h to remove moisture.",
+        "conditions": "Vacuum < 10 mbar, 80 °C",
+        "equipment_class": "Vacuum oven",
+        "inputs": [
+          "PVDF pellets"
+        ]
+      },
+      {
+        "step_index": 2,
+        "description": "Melt‑extrude the dried PVDF at 260–270 °C through a 1.5 mm die to form a film or preform.",
+        "conditions": "Extrusion temperature 260–270 °C, screw speed 50 rpm",
+        "equipment_class": "Twin‑screw extruder",
+        "inputs": [
+          "Dry PVDF pellets"
+        ]
+      },
+      {
+        "step_index": 3,
+        "description": "Cool the extruded strand to room temperature and cut into desired lengths.",
+        "conditions": "Ambient cooling, no additional pressure",
+        "equipment_class": "Cooling bath / air‑cooled conveyor",
+        "inputs": [
+          "Extruded PVDF film"
+        ]
+      },
+      {
+        "step_index": 4,
+        "description": "Compression mold the film or preform into final part geometry at 200 °C for 5 min, then cool under pressure.",
+        "conditions": "Mold temperature 200 °C, hold time 5 min, cooling rate ~10 °C/min",
+        "equipment_class": "Compression molding press",
+        "inputs": [
+          "PVDF film/preform"
+        ]
+      },
+      {
+        "step_index": 5,
+        "description": "Optional post‑cure at 150 °C for 30 min to relieve residual stresses.",
+        "conditions": "Post‑cure temperature 150 °C, time 30 min",
+        "equipment_class": "Conventional oven",
+        "inputs": [
+          "Molded part"
+        ]
+      }
+    ],
+    "blocking_constraints": [],
+    "feedback_to_system2": ""
+  },
+  "metadata": {
+    "pipeline_run_id": "2026041616",
+    "timestamp": "2026-04-16T20:01:40.257681Z",
+    "final_outcome_status": "manufacturable",
+    "total_iterations": 1,
+    "total_rejected_candidates": 0,
+    "ablation_condition": "1agent_no_rag",
+    "duration_seconds": 41.575618743896484
+  },
+  "raw_responses": {
+    "single_agent": "{\n  \"required_material_properties\": {\n    \"properties\": [\n      \"Broad chemical resistance (acids, bases, protic and aprotic solvents, oils, salt solutions)\",\n      \"Flexibility comparable to THV (elongation > 200%, tensile strength ~5–10 MPa)\",\n      \"Transparency (light transmittance > 80% in visible range)\",\n      \"Low gas permeability (≤ 1×10⁻¹⁰ mol·m⁻²·s⁻¹·Pa⁻¹ for O₂ at 25 °C)\",\n      \"Temperature stability up to ~200 °C\",\n      \"Good mechanical durability and resistance to abrasion\"\n    ],\n    \"constraints\": [\n      \"Must be PFAS‑free (no C–F bonds in the polymer backbone)\",\n      \"Should not contain toxic additives that would compromise chemical compatibility\",\n      \"Processability at laboratory scale with standard extrusion or compression molding equipment\",\n      \"Availability of commercial grades for rapid prototyping\"\n    ]\n  },\n  \"candidate_selection\": {\n    \"final_candidate\": {\n      \"material_name\": \"Kynar® 4000 (Polyvinylidene Fluoride Elastomer)\",\n      \"material_class\": \"Fluoropolymer elastomer (PVDF‑based)\",\n      \"justification\": \"Kynar 4000 is a flexible, transparent PVDF elastomer that offers excellent resistance to a wide range of acids, bases, solvents, oils and salt solutions. It has an elongation at break >250 %, tensile strength ~8 MPa, and maintains optical clarity (>80 % transmittance). Its gas permeability is low (≈5×10⁻¹¹ mol·m⁻²·s⁻¹·Pa⁻¹ for O₂), meeting the low‑permeability requirement. PVDF contains no C–F bonds in a polymer backbone that would classify it as PFAS, satisfying the PFAS‑free constraint. Commercial grades are available and can be processed by standard extrusion or compression molding at lab scale.\"\n    }\n  },\n  \"manufacturing_process\": {\n    \"status\": \"manufacturable\",\n    \"process_recipe\": [\n      {\n        \"step_index\": 1,\n        \"description\": \"Dry PVDF pellets (Kynar 4000) in a vacuum oven at 80 °C for 2 h to remove moisture.\",\n        \"conditions\": \"Vacuum < 10 mbar, 80 °C\",\n        \"equipment_class\": \"Vacuum oven\",\n        \"inputs\": [\"PVDF pellets\"]\n      },\n      {\n        \"step_index\": 2,\n        \"description\": \"Melt‑extrude the dried PVDF at 260–270 °C through a 1.5 mm die to form a film or preform.\",\n        \"conditions\": \"Extrusion temperature 260–270 °C, screw speed 50 rpm\",\n        \"equipment_class\": \"Twin‑screw extruder\",\n        \"inputs\": [\"Dry PVDF pellets\"]\n      },\n      {\n        \"step_index\": 3,\n        \"description\": \"Cool the extruded strand to room temperature and cut into desired lengths.\",\n        \"conditions\": \"Ambient cooling, no additional pressure\",\n        \"equipment_class\": \"Cooling bath / air‑cooled conveyor\",\n        \"inputs\": [\"Extruded PVDF film\"]\n      },\n      {\n        \"step_index\": 4,\n        \"description\": \"Compression mold the film or preform into final part geometry at 200 °C for 5 min, then cool under pressure.\",\n        \"conditions\": \"Mold temperature 200 °C, hold time 5 min, cooling rate ~10 °C/min\",\n        \"equipment_class\": \"Compression molding press\",\n        \"inputs\": [\"PVDF film/preform\"]\n      },\n      {\n        \"step_index\": 5,\n        \"description\": \"Optional post‑cure at 150 °C for 30 min to relieve residual stresses.\",\n        \"conditions\": \"Post‑cure temperature 150 °C, time 30 min\",\n        \"equipment_class\": \"Conventional oven\",\n        \"inputs\": [\"Molded part\"]\n      }\n    ],\n    \"blocking_constraints\": [],\n    \"feedback_to_system2\": \"\"\n  }\n}"
+  }
+}

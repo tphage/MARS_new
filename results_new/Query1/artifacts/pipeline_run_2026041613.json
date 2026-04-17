@@ -1,0 +1,50 @@
+{
+  "pipeline_run_id": "2026041613",
+  "start_time": "2026-04-16T17:43:54.785803Z",
+  "end_time": "2026-04-16T18:30:08.866856Z",
+  "total_duration_seconds": 2774.081053,
+  "system1": {
+    "run_id": "2026041613_0",
+    "start_time": "2026-04-16T17:43:54.880021Z",
+    "end_time": "2026-04-16T17:55:38.451341Z",
+    "duration_seconds": 703.57132,
+    "result_path": "/orcd/pool/004/tphage/SG_april/MARS_new/results/Query1/artifacts/system1_2026041613_0.json",
+    "chat_log_path": "/orcd/pool/004/tphage/SG_april/MARS_new/results/Query1/artifacts/chats/system1_chat_log_material_requirements_2026041613_0.json",
+    "properties_extracted": 40
+  },
+  "system2_system3_loop": {
+    "max_iterations": 5,
+    "total_iterations": 1,
+    "iterations": [
+      {
+        "iteration": 1,
+        "system2": {
+          "run_id": "2026041613_0",
+          "start_time": "2026-04-16T17:55:38.471605Z",
+          "end_time": "2026-04-16T18:20:21.224932Z",
+          "duration_seconds": 1482.753327,
+          "result_path": "/orcd/pool/004/tphage/SG_april/MARS_new/results/Query1/artifacts/system2_2026041613_0.json",
+          "chat_log_path": "/orcd/pool/004/tphage/SG_april/MARS_new/results/Query1/artifacts/chats/system2_chat_log_material_discovery_2026041613_0.json",
+          "candidate": "ENGAGE™ 030902 HEALTH+™ Polyolefin Elastomer with Vapor‑Deposited Parylene C Coating",
+          "internal_iterations": []
+        },
+        "system3": {
+          "run_id": "2026041613_0",
+          "start_time": "2026-04-16T18:20:21.280234Z",
+          "end_time": "2026-04-16T18:30:08.708604Z",
+          "duration_seconds": 587.42837,
+          "result_path": "/orcd/pool/004/tphage/SG_april/MARS_new/results/Query1/artifacts/system3_2026041613_0.json",
+          "chat_log_path": "/orcd/pool/004/tphage/SG_april/MARS_new/results/Query1/artifacts/chats/system3_chat_log_manufacturability_assessment_2026041613_0.json",
+          "status": "manufacturable",
+          "blocking_constraints": [],
+          "feedback_to_system2": ""
+        }
+      }
+    ]
+  },
+  "final_outcome": {
+    "status": "manufacturable",
+    "final_candidate": "ENGAGE™ 030902 HEALTH+™ Polyolefin Elastomer with Vapor‑Deposited Parylene C Coating",
+    "total_rejected_candidates": 0
+  }
+}

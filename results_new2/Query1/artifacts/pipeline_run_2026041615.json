@@ -1,0 +1,50 @@
+{
+  "pipeline_run_id": "2026041615",
+  "start_time": "2026-04-16T19:01:13.972968Z",
+  "end_time": "2026-04-16T19:55:20.280268Z",
+  "total_duration_seconds": 3246.3073,
+  "system1": {
+    "run_id": "2026041615_0",
+    "start_time": "2026-04-16T19:01:14.033722Z",
+    "end_time": "2026-04-16T19:09:05.805182Z",
+    "duration_seconds": 471.77146,
+    "result_path": "/orcd/pool/004/tphage/SG_april/MARS_new/results/Query1/artifacts/system1_2026041615_0.json",
+    "chat_log_path": "/orcd/pool/004/tphage/SG_april/MARS_new/results/Query1/artifacts/chats/system1_chat_log_material_requirements_2026041615_0.json",
+    "properties_extracted": 31
+  },
+  "system2_system3_loop": {
+    "max_iterations": 5,
+    "total_iterations": 1,
+    "iterations": [
+      {
+        "iteration": 1,
+        "system2": {
+          "run_id": "2026041615_0",
+          "start_time": "2026-04-16T19:09:05.826227Z",
+          "end_time": "2026-04-16T19:47:10.066077Z",
+          "duration_seconds": 2284.23985,
+          "result_path": "/orcd/pool/004/tphage/SG_april/MARS_new/results/Query1/artifacts/system2_2026041615_0.json",
+          "chat_log_path": "/orcd/pool/004/tphage/SG_april/MARS_new/results/Query1/artifacts/chats/system2_chat_log_material_discovery_2026041615_0.json",
+          "candidate": "Toray Torelina PPS Resin with Medical‑Grade Silicone Elastomer Coating",
+          "internal_iterations": []
+        },
+        "system3": {
+          "run_id": "2026041615_0",
+          "start_time": "2026-04-16T19:47:10.124196Z",
+          "end_time": "2026-04-16T19:55:20.096255Z",
+          "duration_seconds": 489.972059,
+          "result_path": "/orcd/pool/004/tphage/SG_april/MARS_new/results/Query1/artifacts/system3_2026041615_0.json",
+          "chat_log_path": "/orcd/pool/004/tphage/SG_april/MARS_new/results/Query1/artifacts/chats/system3_chat_log_manufacturability_assessment_2026041615_0.json",
+          "status": "manufacturable",
+          "blocking_constraints": [],
+          "feedback_to_system2": ""
+        }
+      }
+    ]
+  },
+  "final_outcome": {
+    "status": "manufacturable",
+    "final_candidate": "Toray Torelina PPS Resin with Medical‑Grade Silicone Elastomer Coating",
+    "total_rejected_candidates": 4
+  }
+}
