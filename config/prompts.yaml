@@ -502,28 +502,6 @@ pipelines:
 
       Generate targeted queries for constituent-level and combination-level manufacturability retrieval.
 
-    process_retrieval_queries: |
-      You are a manufacturing and materials search expert. Given a candidate material, its class, target application, and justification for why it was selected, generate exactly 4 concise search queries to find relevant process and manufacturing information in textbooks, patents, and spec sheets.
-
-      Candidate material: {candidate_name}
-      Material class: {material_class}
-      Application: {application_Y}
-      Justification: {justification}
-
-      {rag_context}
-
-      Use the justification context to understand why this material was selected and what properties/characteristics make it suitable. This will help you generate more targeted queries that focus on the specific aspects relevant to manufacturability.
-
-      Generate queries that will retrieve:
-      - Lab-scale or industrial synthesis routes for the material
-      - Manufacturing processes and equipment for the material class
-      - Process conditions and equipment for the application
-      - Precursors, reaction conditions, scale-up, or safety/regulatory aspects where relevant
-      - Specific manufacturing aspects mentioned in the justification (e.g., if justification mentions specific properties, consider queries about processes that achieve those properties)
-
-      IMPORTANT: Generate exactly 4 queries. Output a JSON object with exactly 4 query strings in the 'queries' array.
-      Example: {{ "queries": ["Lab-scale synthesis of X", "Manufacturing processes for Y class", "Process conditions for Z applications", "Precursors and equipment requirements for X"] }}
-
     generate_feasibility_questions: |
       You are a manufacturing feasibility expert. Generate specific questions to assess whether a candidate material can be manufactured or synthesized at lab scale.
 
@@ -563,7 +541,7 @@ pipelines:
       
       Provide a clear, evidence-based answer. If the evidence is insufficient to answer the question, state that clearly and explain what information is missing.
       
-      When detailed grade-specific data is missing but there is well-established, class-level processing knowledge
+      When detailed grade-specific data is missing but there is class-level processing knowledge
       (for example, generic melt-processing routes, or standard composite compounding flows), you should use this
       as moderate support for feasibility rather than treating the question as completely unanswered.
       
@@ -595,27 +573,35 @@ pipelines:
       Retrieved evidence:
       {rag_context}
 
-      Answer the question based on the evidence provided.
+      Answer the question using whatever the passages support. When nothing speaks to this exact grade or scenario,
+      you may still answer from adjacent or related information: closely related materials, the same material class,
+      analogous processes, or well-established generic processing knowledge that plausibly applies—then set confidence
+      to "medium" or "low" and say what is direct versus inferred. Reserve "insufficient_evidence" only when the
+      passages offer no usable hook even indirectly.
 
     assess_feasibility: |
-      You are a manufacturing and process feasibility expert. Your task is to assess whether a candidate material can be manufactured or synthesized at lab scale based on question-answer pairs from a detailed feasibility analysis.
+      You are a manufacturing and process feasibility expert. Your task is to assess whether a candidate material can plausibly be manufactured or synthesized at lab scale based on question-answer pairs from a detailed feasibility analysis.
 
       Each question-answer pair includes a confidence level. Weight your assessment accordingly:
       - "high" confidence answers are strong evidence
       - "medium" confidence answers are moderate evidence
-      - "low" confidence answers are weak evidence
-      - "insufficient_evidence" answers indicate gaps that may be blocking
+      - "low" confidence answers are weak
+      - "insufficient_evidence" on a few questions is not automatically disqualifying if other answers reasonably cover the same theme or class-level processing is well supported elsewhere
 
-      You must distinguish clearly between:
-      - "missing evidence": too many questions have insufficient evidence to conclude (treat as not feasible and use type "missing_critical_info").
-      - "hard infeasible": answers show the material cannot be manufactured at lab scale (e.g. precursor unavailability, equipment impossible, safety/regulatory block, scale infeasible).
+      Holistic judgment:
+      - Prefer feasibility when several medium or low-confidence answers point the same way and nothing contradicts lab-scale synthesis, even if documentation is patchy.
+      - Reserve "not feasible" for cases where the answers (or their gaps) genuinely imply a hard block, or where critical aspects are unknown in a way that would stop a reasonable lab effort—not merely because every sub-question lacked "high" confidence.
+
+      Distinguish:
+      - "missing evidence" / missing_critical_info: use when gaps are serious enough that you cannot responsibly say the route is viable (severity often soft unless the missing piece is safety-critical).
+      - "hard infeasible": answers show the material cannot reasonably be made at lab scale (e.g. precursor unavailability, impossible conditions, safety/regulatory block, scale infeasible).
 
       Output a single JSON object with exactly these keys:
-      - "feasible": boolean (true only if Q&A pairs support lab-scale manufacturability)
+      - "feasible": boolean (true when the overall Q&A pattern supports lab-scale manufacturability with acceptable residual risk; gaps may remain)
       - "blocking_constraints": array of objects, each with: "type", "severity", "description", optional "suggested_mitigation", optional "evidence_pointers"
         Types: precursor_availability | equipment | temperature_pressure | safety_regulatory | ip_proprietary | missing_critical_info | scale_infeasible
         Severity: hard | soft
-      - "feedback_to_system2": string, concise summary for the material discovery system to avoid similar infeasible candidates
+      - "feedback_to_system2": string, concise summary for the material discovery system to avoid similar infeasible candidates (or to narrow search if feasibility was marginal)
 
       Respond with only the JSON object, no other text.
 
@@ -633,16 +619,16 @@ pipelines:
       Evidence coverage summary:
       {evidence_coverage}
 
-      Based on the Q&A pairs above, assess lab-scale manufacturability and output the required JSON.
+      Based on the Q&A pairs and coverage above, judge overall lab-scale manufacturability (holistically, not by counting only "high" confidence answers) and output the required JSON.
 
     synthesize_recipe: |
-      You are a process design expert. Given that a candidate material has been judged manufacturable at lab scale, synthesize a high-level lab-scale process recipe from the retrieved evidence.
+      You are a process design expert. Given that a candidate material has been judged manufacturable, synthesize a high-level process recipe oriented toward scalable manufacturing (pilot-scale through production): repeatable unit operations, equipment classes suited to volume, and conditions that transfer beyond bench chemistry.
 
       Output a single JSON object with exactly these keys:
       - "process_recipe": array of step objects, each with: "step_index" (integer), "description" (string), optional "conditions", optional "equipment_class", optional "inputs" (array of strings)
       - "evidence": array of strings or IDs pointing to the retrieved chunks/sources used (e.g. document ID, source name)
 
-      Keep steps high-level (e.g. "Prepare precursors", "Reaction under inert atmosphere", "Purification"). Include conditions (temperature, pressure) and equipment class where evidence supports it.
+      Keep steps as ordered unit operations (e.g. "Raw material receipt and prep", "Compounding / reaction", "Isolation or shaping", "Finishing / QC sampling"). Prefer descriptions that imply scale-up (continuous or batch at meaningful throughput, standard industrial equipment classes) where the evidence allows; do not default to tiny glassware unless the sources only support that.
       Respond with only the JSON object, no other text.
 
     synthesize_recipe_user_prompt: |
@@ -653,7 +639,7 @@ pipelines:
       Retrieved evidence:
       {rag_context}
 
-      Output the required JSON with process_recipe (ordered steps) and evidence pointers.
+      Output the required JSON with process_recipe (ordered steps aimed at scalable manufacturing) and evidence pointers.
 
 # ============================================================================
 # Ablation Study Prompts
