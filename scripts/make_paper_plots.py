@@ -29,6 +29,7 @@ Point `AGGREGATE_PATH` at a specific file if you need to override this.
 """
 from __future__ import annotations
 
+import argparse
 import json
 from pathlib import Path
 
@@ -356,9 +357,20 @@ def plot_radar_chart(
 
 # ───────────────────────────────── MAIN ──
 def main() -> None:
+    parser = argparse.ArgumentParser(
+        description="Build paper figures from aggregate_results.json",
+    )
+    parser.add_argument(
+        "--aggregate",
+        "-a",
+        default=None,
+        help="Path to aggregate_results.json (default: auto-detect under results/)",
+    )
+    args = parser.parse_args()
+
     OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
 
-    aggregate_path = resolve_aggregate_path(AGGREGATE_PATH)
+    aggregate_path = resolve_aggregate_path(args.aggregate or AGGREGATE_PATH)
     print(f"[info] Using {aggregate_path}")
 
     with open(aggregate_path, encoding="utf-8") as f:

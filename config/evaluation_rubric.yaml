@@ -110,10 +110,12 @@ dimensions:
     name: "System 3 — Plausibility of synthesis route"
     weight: 1.0
     rubric: |
+      Apply a strict bar: treat vague or generic process text as weak unless the causal chain is checkable.
       Assess whether the manufacturing/process description (`manufacturing_process`) could plausibly yield the intended product, including critical steps for the application.
-      Penalize missing critical operations, chemically incoherent sequences, undeclared major assumptions, or “then obtain the product” gaps where causality is unstated.
-      Default down when the narrative is high-level brochure text without enough mechanistic detail to check feasibility.
-      Reserve 4–5 only when the route is causally coherent end-to-end (inputs → intermediates → product) at the level of detail provided.
+      Penalize missing critical operations, chemically incoherent sequences, undeclared major assumptions, magic steps (“formulate / process / obtain”), or any gap where inputs do not mechanistically explain the stated output.
+      Default to 2 or below when the route cannot be sanity-checked as a sequence (order-of-operations wrong, wrong phase field, or key transformation unstated).
+      Score 3 = plausible sketch with identifiable gaps; score 4 = end-to-end causal coherence with named stages/intermediates where they matter; score 5 = same as 4 plus no material hand-waving in the decisive transformations.
+      Reserve 4–5 only when the route is causally coherent end-to-end (inputs → intermediates → product) with enough specificity that a specialist could flag errors—not brochure narrative.
       Use the shared 1–5 ordinal scale above.
 
   system3_practicality:
@@ -122,10 +124,13 @@ dimensions:
     name: "System 3 — Processing practicality"
     weight: 1.0
     rubric: |
+      Apply a strict bar: “reasonable-sounding” without numbers where numbers govern outcome is not enough for high scores.
       Assess whether conditions (temperature, time, pressure, scale) and equipment are realistic for lab or pilot execution.
       Penalize unspecified critical parameters, infeasible extremes, equipment/process mismatches, or steps that assume unavailable tooling, fixtures, or environments without acknowledgement.
-      Downgrade sharply if decisive windows (thermal exposure, atmosphere, moisture, cooling rate, shear history) are vague despite governing microstructure or properties.
-      Reserve 4–5 only when a practitioner could schedule/run the sequence without inventing missing critical settings.
+      Downgrade sharply if decisive windows (thermal exposure, atmosphere, moisture, cooling rate, shear history, dwell time) are vague despite governing microstructure or properties—assume the practitioner must guess.
+      Default to 2 or below when multiple governing parameters are missing for steps that determine success (e.g. thermal processing without target range or rate).
+      Score 3 = runnable in principle but important settings left open; score 4 = critical windows stated or clearly bounded for each decisive step; score 5 = same as 4 with internal consistency across steps (no contradictory ranges).
+      Reserve 4–5 only when a practitioner could schedule/run the sequence with at most minor, explicitly labeled assumptions—not when they must invent temperatures, times, or atmospheres for core steps.
       Use the shared 1–5 ordinal scale above.
 
   system3_compatibility:
@@ -134,10 +139,12 @@ dimensions:
     name: "System 3 — Compatibility with material"
     weight: 1.0
     rubric: |
+      Apply a strict bar: generic “compatible with polymers/metals/ceramics” language is a downgrade unless tied to the stated candidate and application.
       Assess whether the route is compatible with the selected candidate material and application (no impossible chemistry or processing mismatches).
       Penalize steps that would destroy the material, wrong processing family for the grade, ignored contamination/sensitivity issues, or application-critical degradation/corrosion risks waved away.
-      Default down when known failure modes for the material/process pairing are not addressed at all.
-      Reserve 4–5 only when chemistry, thermal/mechanical exposure, and environment fit the stated material grade and end-use constraints.
+      Default down when known failure modes for the material/process pairing are not addressed at all; default to 2 or below when a serious incompatibility is implied or likely and unmentioned.
+      Score 3 = broadly workable but misses at least one important material–process interaction; score 4 = explicit fit to grade, sensitivities, and end-use environment; score 5 = same as 4 with explicit consideration of the highest-risk interaction for this pairing.
+      Reserve 4–5 only when chemistry, thermal/mechanical exposure, and environment are shown to fit the stated material grade and end-use constraints—not merely asserted.
       Use the shared 1–5 ordinal scale above.
 
   system3_industrial:
@@ -146,8 +153,10 @@ dimensions:
     name: "System 3 — Industrial relevance"
     weight: 1.0
     rubric: |
+      Apply a strict bar: academic vignettes without controls, hazards, or repeatability do not clear 4.
       Assess practical/industrial relevance: safety, QC, scalability hints, and alignment with how such products are made.
       Penalize routes that ignore basic safety/QC, omit obvious regulatory/siting constraints when they matter, or read as purely notional with no credible scale-up path.
-      Default down for “bench-only” narratives with no recognition of handling limits, waste streams, or repeatability.
-      Reserve 4–5 only when the description reflects how such processes are controlled in practice (even briefly: checkpoints, controls, key failure modes).
+      Default down for “bench-only” narratives with no recognition of handling limits, waste streams, or repeatability; default to 2 or below when hazardous operations or regulated inputs are glossed over.
+      Score 3 = mentions practicality superficially; score 4 = at least one concrete control/checkpoint (inspection, release criteria, key PPE/process safeguard, or waste note) aligned to the route; score 5 = multiple such elements plus realistic scale/transfer awareness.
+      Reserve 4–5 only when the description reflects how such processes are controlled in practice—checkpoints, controls, or key failure modes must be specific, not a generic “QC will be performed.”
       Use the shared 1–5 ordinal scale above.

@@ -1,5 +1,5 @@
 pipeline,total_average
-MARS (Full Pipeline),4.75
-3-Agent Sequential (No RAG/KG),4.666666666666667
-1-Agent + RAG/KG,4.5
-1-Agent (No RAG/KG),4.083333333333333
+MARS (Full Pipeline),3.75
+3-Agent Sequential (No RAG/KG),4.916666666666667
+1-Agent + RAG/KG,4.333333333333333
+1-Agent (No RAG/KG),3.25

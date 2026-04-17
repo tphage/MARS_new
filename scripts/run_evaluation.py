@@ -56,35 +56,55 @@ def load_rubric(path: Optional[str] = None) -> Dict[str, Any]:
     return load_evaluation_rubric(p)
 
 
-def discover_query_dirs() -> Dict[str, Path]:
-    """Find query directories under results/ that have all 4 condition files.
+def _resolve_results_root(path_str: str) -> Path:
+    """Resolve a results tree path; relative paths are under the project root."""
+    p = Path(path_str).expanduser()
+    if not p.is_absolute():
+        p = PROJECT_ROOT / p
+    return p.resolve()
 
-    Supports both the new layout (results/QueryN/) and the legacy layout
-    (pipeline_logs_QueryN/ at repo root).
+
+def _collect_query_dirs_under(results_dir: Path) -> Dict[str, Path]:
+    """Scan one directory for QueryN/ folders that contain all 4 condition files."""
+    results: Dict[str, Path] = {}
+    if not results_dir.is_dir():
+        return results
+    for d in sorted(results_dir.iterdir()):
+        if not d.is_dir() or d.name == "evaluation":
+            continue
+        query_name = d.name
+        has_mars = (d / "mars.json").exists() or any(
+            f.name.startswith("evaluation_") and f.suffix == ".json" for f in d.iterdir()
+        )
+        has_3agent = (d / "ablation_3agent.json").exists() or any(
+            f.name.startswith("ablation_3agent_") and f.suffix == ".json" for f in d.iterdir()
+        )
+        has_1rag = (d / "ablation_1agent_rag.json").exists() or any(
+            f.name.startswith("ablation_1agent_rag_") and f.suffix == ".json" for f in d.iterdir()
+        )
+        has_1norag = (d / "ablation_1agent_no_rag.json").exists() or any(
+            f.name.startswith("ablation_1agent_no_rag_") and f.suffix == ".json" for f in d.iterdir()
+        )
+        if has_mars and has_3agent and has_1rag and has_1norag:
+            results[query_name] = d
+    return results
+
+
+def discover_query_dirs(results_root: Optional[Path] = None) -> Dict[str, Path]:
+    """Find query directories that have all 4 condition files.
+
+    If ``results_root`` is set, only that directory is scanned (e.g. ``results_new/``).
+
+    Otherwise: new layout under ``results/QueryN/``, then legacy ``pipeline_logs_QueryN/``.
     """
-    results = {}
+    results: Dict[str, Path] = {}
+
+    if results_root is not None:
+        return _collect_query_dirs_under(results_root)
 
     # New layout: results/QueryN/
     results_dir = PROJECT_ROOT / "results"
-    if results_dir.is_dir():
-        for d in sorted(results_dir.iterdir()):
-            if not d.is_dir() or d.name == "evaluation":
-                continue
-            query_name = d.name
-            has_mars = (d / "mars.json").exists() or any(
-                f.name.startswith("evaluation_") and f.suffix == ".json" for f in d.iterdir()
-            )
-            has_3agent = (d / "ablation_3agent.json").exists() or any(
-                f.name.startswith("ablation_3agent_") and f.suffix == ".json" for f in d.iterdir()
-            )
-            has_1rag = (d / "ablation_1agent_rag.json").exists() or any(
-                f.name.startswith("ablation_1agent_rag_") and f.suffix == ".json" for f in d.iterdir()
-            )
-            has_1norag = (d / "ablation_1agent_no_rag.json").exists() or any(
-                f.name.startswith("ablation_1agent_no_rag_") and f.suffix == ".json" for f in d.iterdir()
-            )
-            if has_mars and has_3agent and has_1rag and has_1norag:
-                results[query_name] = d
+    results = _collect_query_dirs_under(results_dir)
 
     # Legacy layout: pipeline_logs_QueryN/ at repo root
     if not results:
@@ -547,6 +567,11 @@ def main():
     parser.add_argument("--model", default=None, help="Judge model (default: from rubric or gpt-4o)")
     parser.add_argument("--queries", default=None, help="Comma-separated query names to evaluate (default: all)")
     parser.add_argument("--output-dir", default="results/evaluation", help="Directory for results")
+    parser.add_argument(
+        "--results-root",
+        default=None,
+        help="Directory containing QueryN/ folders with run outputs (default: scan results/)",
+    )
     parser.add_argument("--rubric", default=None, help="Path to evaluation rubric YAML")
     parser.add_argument("--seed", type=int, default=42, help="Random seed for blind label shuffling")
     parser.add_argument("--base-url", default=None, help="Override OpenAI base URL")
@@ -569,9 +594,17 @@ def main():
 
     random.seed(args.seed)
 
-    query_dirs = discover_query_dirs()
+    results_root_path: Optional[Path] = None
+    if args.results_root:
+        results_root_path = _resolve_results_root(args.results_root)
+        if not results_root_path.is_dir():
+            print(f"ERROR: --results-root is not a directory: {results_root_path}")
+            sys.exit(1)
+
+    query_dirs = discover_query_dirs(results_root_path)
     if not query_dirs:
-        print("ERROR: No query directories found with all 4 condition files.")
+        hint = f" under {results_root_path}" if results_root_path else ""
+        print(f"ERROR: No query directories found with all 4 condition files{hint}.")
         sys.exit(1)
 
     if args.queries:
@@ -579,7 +612,8 @@ def main():
         query_dirs = {k: v for k, v in query_dirs.items() if k in selected}
         if not query_dirs:
             print(f"ERROR: None of the specified queries found: {args.queries}")
-            print(f"  Available: {', '.join(discover_query_dirs().keys())}")
+            available = discover_query_dirs(results_root_path)
+            print(f"  Available: {', '.join(available.keys())}")
             sys.exit(1)
 
     print(f"MARS Ablation Study -- LLM-as-Judge Evaluation")

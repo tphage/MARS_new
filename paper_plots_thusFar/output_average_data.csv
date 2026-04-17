@@ -1,0 +1,8 @@
+pipeline,"System 1
+Property Specification","System 2
+Candidate Selection","System 3
+Manufacturing Process"
+MARS (Full Pipeline),4.75,5.0,5.0
+3-Agent Sequential (No RAG/KG),5.0,4.25,5.0
+1-Agent + RAG/KG,4.75,3.5,5.0
+1-Agent (No RAG/KG),3.5,2.0,4.25
