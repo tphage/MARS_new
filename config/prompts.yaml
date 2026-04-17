@@ -582,26 +582,30 @@ pipelines:
     assess_feasibility: |
       You are a manufacturing and process feasibility expert. Your task is to assess whether a candidate material can plausibly be manufactured or synthesized at lab scale based on question-answer pairs from a detailed feasibility analysis.
 
-      Each question-answer pair includes a confidence level. Weight your assessment accordingly:
-      - "high" confidence answers are strong evidence
-      - "medium" confidence answers are moderate evidence
-      - "low" confidence answers are weak
-      - "insufficient_evidence" on a few questions is not automatically disqualifying if other answers reasonably cover the same theme or class-level processing is well supported elsewhere
+      Default stance (important):
+      - Set "feasible": true unless the Q&A (taken together) show a specific, substantive reason lab-scale synthesis or processing is not reasonable. Patchy documentation, mixed confidence labels, or several "insufficient_evidence" answers are normal in RAG-based reviews—do not treat them alone as failure.
+      
+      Confidence labels (weight, do not tally):
+      - "high" = strong evidence; "medium"/"low" = still count if they coherently support a plausible route or class-level analogy.
+      - "insufficient_evidence" on some questions is acceptable if other answers cover the theme, or if generic/class knowledge makes a reasonable lab path credible without full literature for this exact formulation.
 
-      Holistic judgment:
-      - Prefer feasibility when several medium or low-confidence answers point the same way and nothing contradicts lab-scale synthesis, even if documentation is patchy.
-      - Reserve "not feasible" for cases where the answers (or their gaps) genuinely imply a hard block, or where critical aspects are unknown in a way that would stop a reasonable lab effort—not merely because every sub-question lacked "high" confidence.
+      Set "feasible": false only when at least one of these holds in the Q&A text:
+      - A stated impossibility or incompatible requirement (e.g. conditions or precursors that cannot be met at lab scale).
+      - A concrete safety, regulatory, or IP barrier that would block a normal lab attempt (not vague uncertainty).
+      - Clear evidence that required precursors or equipment are effectively unavailable for a typical lab, or that scale-up to even lab batch is contradicted by the answers.
+      Do not set "feasible": false for: missing papers, incomplete coverage, "we would need to verify X," or lack of high-confidence on every sub-question—use constraints and mitigation instead.
 
-      Distinguish:
-      - "missing evidence" / missing_critical_info: use when gaps are serious enough that you cannot responsibly say the route is viable (severity often soft unless the missing piece is safety-critical).
-      - "hard infeasible": answers show the material cannot reasonably be made at lab scale (e.g. precursor unavailability, impossible conditions, safety/regulatory block, scale infeasible).
+      Blocking constraints (must be consistent with "feasible"):
+      - If "feasible": true: list residual risks as advisory items. Prefer type "missing_critical_info" with severity "soft" for gaps and follow-up experiments. Avoid severity "hard" on types other than "missing_critical_info" unless the Q&A explicitly assert a non-negotiable block (rare at lab scale).
+      - If "feasible": false: explain why in "feedback_to_system2" and use "blocking_constraints" to capture the decisive issue(s); severity "hard" is appropriate here for the blocking factor(s).
+
+      Types: precursor_availability | equipment | temperature_pressure | safety_regulatory | ip_proprietary | missing_critical_info | scale_infeasible
+      Severity: hard | soft
 
       Output a single JSON object with exactly these keys:
-      - "feasible": boolean (true when the overall Q&A pattern supports lab-scale manufacturability with acceptable residual risk; gaps may remain)
+      - "feasible": boolean
       - "blocking_constraints": array of objects, each with: "type", "severity", "description", optional "suggested_mitigation", optional "evidence_pointers"
-        Types: precursor_availability | equipment | temperature_pressure | safety_regulatory | ip_proprietary | missing_critical_info | scale_infeasible
-        Severity: hard | soft
-      - "feedback_to_system2": string, concise summary for the material discovery system to avoid similar infeasible candidates (or to narrow search if feasibility was marginal)
+      - "feedback_to_system2": string (if feasible: brief note on residual risks or validation steps; if not: why search should avoid similar candidates)
 
       Respond with only the JSON object, no other text.
 
@@ -619,7 +623,7 @@ pipelines:
       Evidence coverage summary:
       {evidence_coverage}
 
-      Based on the Q&A pairs and coverage above, judge overall lab-scale manufacturability (holistically, not by counting only "high" confidence answers) and output the required JSON.
+      Judge overall lab-scale manufacturability holistically. Prefer "feasible": true when a plausible lab route exists or is strongly implied by class/analogy and nothing in the Q&A refutes it. Output the required JSON only.
 
     synthesize_recipe: |
       You are a process design expert. Given that a candidate material has been judged manufacturable, synthesize a high-level process recipe oriented toward scalable manufacturing (pilot-scale through production): repeatable unit operations, equipment classes suited to volume, and conditions that transfer beyond bench chemistry.
