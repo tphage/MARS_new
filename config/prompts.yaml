@@ -49,7 +49,7 @@ agents:
       Your task: Based on property requirements and knowledge graph insights, propose a specific candidate material that can satisfy the requirements for the target application.
 
       Guidelines:
-      1. Propose concrete, specific materials (e.g., specific polymer grades, compound names) not just material classes. Prefer names that appear in the Available Materials Database or in retrieved evidence; do not invent fictitious product SKUs or trademarked names.
+      1. Propose concrete, specific materials, not just material classes. Prefer names that appear in the Available Materials Database or in retrieved evidence; do not invent fictitious product SKUs or trademarked names.
       2. Ensure the candidate satisfies the required properties
       3. Provide clear justification linking properties to the candidate. For every quantitative claim (Tg, permeability, tensile strength, transmission %, etc.), either cite supporting text from this prompt (database, RAG, or KG) or state that the value is an uncertain estimate—do not present guessed numbers as measured facts.
       4. Avoid previously rejected candidates
@@ -82,25 +82,22 @@ agents:
 
       Guidelines (apply in order):
 
-      1. HARD CONSTRAINTS CHECK (reject if any constraint is violated):
-         - If evidence shows the candidate violates ANY listed constraint → NOT FEASIBLE.
+      1. HARD CONSTRAINTS CHECK (reject if constraints are violated):
+         - If evidence shows the candidate violates listed constraints → NOT FEASIBLE.
          - Examples: contains PFAS when PFAS is prohibited; operating temperature below the required minimum.
-         - You may infer a constraint violation if the evidence strongly implies it (e.g., the material is a fluoropolymer
-           and "no PFAS" is a constraint), but state the inference clearly.
 
       2. CRITICAL PROPERTY CHECK (reject if critical properties are clearly unmet):
          - Identify the 2–3 most critical required properties for the application.
          - If there is CLEAR evidence that the candidate fails one of these critical properties → NOT FEASIBLE.
          - Missing evidence for a critical property is NOT grounds for rejection on its own, but note it as a risk.
 
-      3. POSITIVE EVIDENCE CHECK (require *some* supporting evidence):
+      3. POSITIVE EVIDENCE CHECK (require some supporting evidence):
          - At least one piece of retrieved evidence should positively support the candidate's suitability.
          - If there is NO positive evidence at all (every source is irrelevant or negative) → NOT FEASIBLE.
          - Partial or indirect evidence is acceptable (e.g., evidence about the material class rather than the exact grade).
 
       4. OVERALL ASSESSMENT:
-         - If hard constraints are satisfied, critical properties are not clearly violated,
-           and at least some positive evidence exists → FEASIBLE.
+         - If constraints are satisfied, critical properties are not clearly violated, and at least some positive evidence exists → FEASIBLE.
          - Missing evidence for non-critical properties does NOT disqualify the candidate.
          - Uncertainty alone is NOT grounds for rejection.
 
@@ -142,7 +139,7 @@ agents:
       {kg_context}
 
       Based on the retrieved information above (documents and knowledge graph insights), provide a clear and concise answer to the question.
-      Focus on extracting the most relevant information that directly addresses the question.
+      Focus on extracting the most relevant information that addresses the question.
       If the retrieved information does not fully answer the question, state what information is available and what is missing.
 
       IMPORTANT — Quantitative claims:
@@ -208,21 +205,18 @@ agents:
 
       {rejected_candidates_section}
 
-      Your task: Propose a specific material candidate that:
-      1. Satisfies the required properties
-      2. Is suitable for the target application
-      3. Is NOT in the rejected candidates list
-      4. Uses only real material identifiers when possible (trade names that you cannot verify from the provided context should be avoided; prefer database entries or generic material classes with a verifiable basis)
-      5. Follows ONE of the two strategies below:
-         - Strategy A: Select a single material directly from the Available Materials Database above.
-         - Strategy B: Propose a composite combining one material from the Available Materials Database with a complementary material identified from the Knowledge Graph insights, listed material properties, or other retrieved sources in this prompt.
-      6. If using Strategy B, clearly identify which component comes from the database and which comes from external sources.
+      Your task: Propose a composite material candidate that:
+      1. Satisfies the required properties as a combined system (e.g., matrix + reinforcement, coating + substrate pairing, or layered/stacked design) where the composite as a whole addresses the application.
+      2. Is suitable for the target application.
+      3. Is NOT in the rejected candidates list (treat the named composite as one candidate; do not repeat previously rejected combinations if listed).
+      4. Uses only real material identifiers when possible (trade names you cannot verify from the provided context should be avoided; prefer database entries or generic material classes with a verifiable basis).
+      5. Must combine at least one component explicitly drawn from the Available Materials Database above with at least one complementary component justified from Knowledge Graph insights, listed material properties, or other retrieved sources in this prompt. State clearly which part comes from the database and which from external/contextual reasoning.
       {rejection_lessons_task}
 
       Format your response EXACTLY as (use plain text, NO markdown formatting):
-      Material Name: [name]
-      Composition Type: [Single Material or Composite]
-      Justification: [detailed reasoning]
+      Material Name: [descriptive composite name, e.g. matrix/reinforcement or system label]
+      Composition Type: Composite
+      Justification: [detailed reasoning naming each constituent, its role, and how the composite meets requirements]
 
       IMPORTANT: Do NOT use markdown formatting (**, *, etc.) in the Material Name field.
       Example: Material Name: [material name]
