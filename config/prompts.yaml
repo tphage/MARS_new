@@ -715,7 +715,7 @@ ablation:
 
     Guidelines:
     - Propose a concrete, specific material (e.g., a specific polymer grade or compound name), not just a material class
-    - Ensure the candidate satisfies the required properties and does not violate any constraints
+    - The candidate should satisfy the required properties and not violate constraints
     - CRITICAL: Do NOT propose any PFAS (per- and polyfluoroalkyl substances) materials. PFAS are synthetic chemicals containing carbon-fluorine bonds, including fluoropolymers (PTFE, PFA, FEP, PVDF, ETFE, ECTFE, PCTFE) and fluoroelastomers (FKM, FFKM, Aflas). The proposed candidate must be PFAS-free.
     - Provide justification linking the candidate's known properties to the requirements
     - Respond with ONLY the JSON object, no other text

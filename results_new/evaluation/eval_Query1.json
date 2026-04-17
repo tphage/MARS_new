@@ -11,199 +11,199 @@
     "evaluation": {
       "system1_completeness": {
         "score": 3,
-        "reasoning": "The property list is exhaustive but unfocused, with many generic or redundant items and some vague placeholders; key operational details are buried among less relevant points."
+        "reasoning": "The property list is overly long, repetitive, and includes vague placeholders and regulatory/certification items not directly relevant to the substitution task; operational ranges are missing for many properties."
       },
       "system1_relevance": {
         "score": 3,
-        "reasoning": "Some requirements are relevant, but many are generic (e.g., 'cost of ownership', 'bioavailability negligible'), diluting focus on the substitution task."
+        "reasoning": "Some requirements are relevant, but many are generic, regulatory, or duplicative, diluting focus from the core substitution task."
       },
       "system1_scientific": {
         "score": 4,
-        "reasoning": "Most property and constraint statements are technically sound, but the inclusion of some regulatory and environmental items is not always justified for the application."
+        "reasoning": "Most property statements are technically sound, but the inclusion of both high-level and redundant requirements reduces scientific focus."
       },
       "system1_clarity": {
         "score": 2,
-        "reasoning": "The structure is cluttered, with ambiguous terms and overlapping categories; testability is hindered by lack of prioritization and specificity."
+        "reasoning": "The structure is cluttered with vague terms, missing units, and overlapping categories, making it difficult to map to testable criteria."
       },
       "system2_alignment": {
         "score": 4,
-        "reasoning": "The composite (polyolefin elastomer + Parylene C) plausibly meets most requirements, including chemical resistance, flexibility, and barrier properties, though some tradeoffs (e.g., transparency after coating) are not fully discussed."
+        "reasoning": "The composite (polyolefin elastomer + Parylene C) plausibly meets the requirements, including chemical resistance, flexibility, transparency, and barrier properties, with explicit discussion of tradeoffs."
       },
       "system2_novelty": {
         "score": 5,
-        "reasoning": "The use of a polyolefin elastomer with a vapor-deposited Parylene C barrier is a creative, non-obvious solution for achieving both flexibility and low permeability."
+        "reasoning": "The use of a polyolefin elastomer with a vapor-deposited Parylene C coating is a creative, non-obvious solution that addresses the low permeability and chemical resistance requirements."
       },
       "system2_realism": {
         "score": 5,
         "reasoning": "Both ENGAGE 030902 and Parylene C are real, commercially available materials, and the composite is plausible and consistent with claimed properties."
       },
       "system2_reasoning": {
-        "score": 4,
-        "reasoning": "The justification is detailed and links requirements to candidate properties, but some claims (e.g., long-term transparency retention) could use more explicit evidence."
+        "score": 5,
+        "reasoning": "The justification is detailed, logically links requirements to the candidate, and explicitly addresses regulatory, environmental, and performance tradeoffs."
       },
       "system3_plausibility": {
         "score": 5,
-        "reasoning": "The process is causally coherent, with all steps and critical parameters specified for both extrusion and CVD coating."
+        "reasoning": "The process is causally coherent, stepwise, and includes all critical operations for both the elastomer and the Parylene C coating."
       },
       "system3_practicality": {
         "score": 4,
-        "reasoning": "Most critical parameters are specified, but some steps (e.g., CVD coating thickness control) could use more detail for full reproducibility."
+        "reasoning": "Most parameters are specified, but some (e.g., Parylene C thickness control, coating uniformity) could use more detail for full reproducibility."
       },
       "system3_compatibility": {
         "score": 5,
-        "reasoning": "The process is compatible with both the polyolefin elastomer and Parylene C, and addresses surface activation for adhesion."
+        "reasoning": "The process is compatible with both the polyolefin elastomer and Parylene C, with explicit surface activation and no chemistry/process mismatches."
       },
       "system3_industrial": {
         "score": 4,
-        "reasoning": "The process is industrially relevant, but lacks explicit mention of QC, safety, or waste handling."
+        "reasoning": "The process is industrially relevant and includes some safety and environmental considerations, but lacks explicit QC or waste handling steps."
       },
-      "weighted_total": 4.0,
-      "overall_comment": "A creative and realistic composite solution with a plausible process, but the property specification is overly broad and the structure lacks clarity."
+      "weighted_total": 4.08,
+      "overall_comment": "A creative and realistic composite solution with a strong process and justification, but the property specification is cluttered and lacks clarity."
     },
     "ablation_3agent": {
       "system1_completeness": {
         "score": 5,
-        "reasoning": "The specification is thorough, with quantitative criteria for all relevant properties, including mechanical, chemical, optical, and processing requirements."
+        "reasoning": "The requirements are comprehensive, quantitative, and operational, covering all relevant property categories and constraints for the substitution task."
       },
       "system1_relevance": {
         "score": 5,
-        "reasoning": "All requirements are directly relevant to the THV substitution task and address the application's critical needs."
+        "reasoning": "All requirements are directly relevant to the THV substitution, with no extraneous or off-topic properties."
       },
       "system1_scientific": {
         "score": 5,
-        "reasoning": "All property and constraint statements are technically sound and consistent with materials science."
+        "reasoning": "All property statements are technically correct, with realistic and internally consistent values for elastomeric materials."
       },
       "system1_clarity": {
         "score": 5,
-        "reasoning": "The requirements are clearly organized, with unambiguous, testable acceptance criteria and units."
+        "reasoning": "Requirements are clearly structured, with precise, testable criteria and appropriate units throughout."
       },
       "system2_alignment": {
-        "score": 5,
-        "reasoning": "PEBA 3000 matches all specified requirements, with explicit data for each property and no silent tradeoffs."
+        "score": 4,
+        "reasoning": "PEBA 3000 matches most requirements, including flexibility, transparency, and chemical resistance, but its chemical resistance to aggressive solvents (e.g., DCM, DMF) and gas permeability may not fully match THV; these tradeoffs are not deeply discussed."
       },
       "system2_novelty": {
         "score": 4,
-        "reasoning": "PEBA is not a default choice for extreme chemical resistance, but the rationale justifies its selection for this application; however, it is not highly novel."
+        "reasoning": "PEBA is a less common, thoughtful choice for this application, with a rationale that goes beyond default elastomers, but it is still a known class for flexible, transparent, chemically resistant materials."
       },
       "system2_realism": {
         "score": 5,
-        "reasoning": "PEBA 3000 is a real, commercially available material with well-documented properties and processing routes."
+        "reasoning": "PEBA 3000 is a real, commercially available material with well-documented properties and processability."
       },
       "system2_reasoning": {
-        "score": 5,
-        "reasoning": "The justification is detailed, explicitly linking each requirement to evidence about the candidate."
+        "score": 4,
+        "reasoning": "The justification is detailed and links requirements to evidence, but does not explicitly address possible weaknesses (e.g., solvent resistance to DCM/DMF) or tradeoffs."
       },
       "system3_plausibility": {
         "score": 5,
-        "reasoning": "The process is causally coherent, with all steps and parameters specified for melt processing PEBA."
+        "reasoning": "The process is a standard, causally coherent melt-processing route for PEBA, with all steps and transitions clearly described."
       },
       "system3_practicality": {
         "score": 5,
-        "reasoning": "All critical processing parameters are provided, making the process directly executable at lab or pilot scale."
+        "reasoning": "All critical parameters (temperatures, pressures, times) are specified, and the process is fully practical at lab scale."
       },
       "system3_compatibility": {
         "score": 5,
-        "reasoning": "The process is fully compatible with PEBA's chemistry and processing requirements."
+        "reasoning": "The process is fully compatible with PEBA chemistry and the intended application, with no mismatches or overlooked sensitivities."
       },
       "system3_industrial": {
         "score": 4,
-        "reasoning": "The process is industrially relevant, but lacks explicit mention of QC or safety controls."
+        "reasoning": "The process is industrially relevant and safe, but lacks explicit mention of QC, safety, or waste handling."
       },
-      "weighted_total": 4.83,
-      "overall_comment": "An excellent, well-justified proposal with thorough property alignment and a realistic, detailed process. Minor novelty limitations, but overall the strongest technical match."
+      "weighted_total": 4.67,
+      "overall_comment": "An excellent, realistic proposal with a strong process and well-justified material choice, though some tradeoffs (solvent resistance) could be more explicit."
     },
     "ablation_1agent_rag": {
       "system1_completeness": {
         "score": 4,
-        "reasoning": "The property specification covers all major requirements: chemical resistance, flexibility, transparency, gas permeability, and PFAS-free composition. However, some properties (e.g., temperature range, mechanical durability) could be more detailed."
+        "reasoning": "The property list covers all major requirements: chemical resistance, flexibility, transparency, gas permeability, and PFAS-free composition, with operational ranges for most. However, some secondary aspects (e.g., temperature range, mechanical durability) are not explicitly stated."
       },
       "system1_relevance": {
         "score": 5,
-        "reasoning": "All requirements are tightly coupled to the substitution task and application context, directly addressing the critical aspects of THV replacement."
+        "reasoning": "All requirements are tightly coupled to the substitution task and the specific failure modes of THV, with no irrelevant or generic properties."
       },
       "system1_scientific": {
         "score": 5,
-        "reasoning": "The property set is technically sound and consistent with known material behaviors; no contradictions are present."
+        "reasoning": "All property statements are technically sound and consistent with known material behaviors; no contradictions are present."
       },
       "system1_clarity": {
         "score": 5,
-        "reasoning": "Requirements are clearly listed, with quantitative criteria and unambiguous wording, making them testable and operational."
+        "reasoning": "Requirements are clearly structured, with unambiguous, testable criteria and appropriate units."
       },
       "system2_alignment": {
         "score": 3,
-        "reasoning": "PDMS (Dow Corning 732) matches flexibility and transparency, but its chemical resistance to strong acids/bases and gas permeability are not as strong as THV; these tradeoffs are not explicitly acknowledged."
+        "reasoning": "PDMS (Dow Corning 732) matches flexibility and transparency, but its chemical resistance to strong acids/bases and especially its gas permeability are not as strong as THV; the justification overstates its barrier properties."
       },
       "system2_novelty": {
         "score": 3,
-        "reasoning": "Silicone elastomers are a common default for chemical resistance and flexibility, but the rationale does not explain why this is preferable to other advanced elastomers for this specific application."
+        "reasoning": "Silicone elastomers are a common default for chemical resistance and flexibility, but are not a novel or application-specific choice for low gas permeability or aggressive chemical environments."
       },
       "system2_realism": {
         "score": 5,
         "reasoning": "Dow Corning 732 is a real, commercially available material with well-documented properties and lab-scale availability."
       },
       "system2_reasoning": {
-        "score": 4,
-        "reasoning": "The justification links requirements to candidate properties, but omits explicit discussion of known weaknesses (e.g., silicone's permeability and acid/base resistance limits)."
+        "score": 3,
+        "reasoning": "The justification links requirements to the candidate but glosses over known weaknesses (e.g., permeability, acid/base resistance) and does not discuss tradeoffs."
       },
       "system3_plausibility": {
         "score": 5,
-        "reasoning": "The process is causally coherent, with all steps and inputs clearly described and no hand-waving in decisive transformations."
+        "reasoning": "The process is causally coherent, stepwise, and matches standard PDMS processing with all critical steps included."
       },
       "system3_practicality": {
         "score": 5,
-        "reasoning": "All critical parameters (temperatures, times, equipment) are specified, making the process directly runnable at lab scale."
+        "reasoning": "All key parameters (temperatures, times, pressures) are specified, and the process is fully runnable at lab scale."
       },
       "system3_compatibility": {
         "score": 5,
-        "reasoning": "The process is fully compatible with PDMS chemistry and the intended application, with no mismatches or ignored sensitivities."
+        "reasoning": "The process is fully compatible with PDMS chemistry and the intended application, with no mismatches or overlooked sensitivities."
       },
       "system3_industrial": {
         "score": 4,
-        "reasoning": "The process reflects standard industrial/lab practice, but lacks explicit mention of QC or safety controls."
+        "reasoning": "The process reflects standard industrial/lab practice, but lacks explicit mention of QC, safety, or waste handling."
       },
-      "weighted_total": 4.42,
-      "overall_comment": "A strong, realistic proposal with excellent process detail, but the candidate material's limitations for the full chemical resistance and barrier requirements are not fully addressed."
+      "weighted_total": 4.33,
+      "overall_comment": "A strong, realistic process for PDMS, but the material is not a close match for THV in gas barrier or aggressive chemical resistance, and the selection lacks novelty."
     },
     "ablation_1agent_no_rag": {
       "system1_completeness": {
         "score": 4,
-        "reasoning": "Most major requirements are covered, but some (e.g., moisture absorption, regulatory/environmental constraints) are missing or less specific."
+        "reasoning": "Most major requirements are covered, but some are less specific (e.g., temperature stability, mechanical durability) and lack operational ranges for all properties."
       },
       "system1_relevance": {
         "score": 4,
-        "reasoning": "Requirements are generally relevant, but lack some specificity for the application context (e.g., no explicit PFAS definition or regulatory focus)."
+        "reasoning": "Requirements are generally relevant to the substitution task, but some (e.g., abrasion resistance, temperature up to 200°C) are not tightly coupled to the original query."
       },
       "system1_scientific": {
-        "score": 2,
-        "reasoning": "PVDF is a fluoropolymer with C–F bonds and is classified as a PFAS under most regulatory definitions, contradicting the PFAS-free constraint."
+        "score": 3,
+        "reasoning": "The property set is mostly sound, but the claim that PVDF is PFAS-free is incorrect—PVDF is a fluoropolymer and is regulated as a PFAS in many jurisdictions."
       },
       "system1_clarity": {
         "score": 4,
-        "reasoning": "Requirements are mostly clear and testable, but some terms (e.g., 'good mechanical durability') are vague."
+        "reasoning": "Requirements are mostly clear and testable, but some lack units or precise thresholds (e.g., 'good mechanical durability')."
       },
       "system2_alignment": {
         "score": 2,
-        "reasoning": "Kynar 4000 (PVDF) does not meet the PFAS-free constraint, and this is incorrectly justified; otherwise, property alignment is reasonable."
+        "reasoning": "Kynar 4000 (PVDF elastomer) is not PFAS-free and thus violates a hard constraint; otherwise, it matches many requirements."
       },
       "system2_novelty": {
         "score": 2,
-        "reasoning": "PVDF is a standard fluoropolymer and not a novel choice; the rationale does not address why it is suitable given the explicit PFAS-free requirement."
+        "reasoning": "PVDF is a standard fluoropolymer and not a novel or creative choice for a PFAS-free application; the rationale does not address this mismatch."
       },
       "system2_realism": {
         "score": 2,
-        "reasoning": "Kynar 4000 is real, but its use as a PFAS-free substitute is not realistic due to regulatory definitions."
+        "reasoning": "Kynar 4000 is real, but the claim that it is PFAS-free is incorrect and would be a regulatory violation in many contexts."
       },
       "system2_reasoning": {
         "score": 2,
-        "reasoning": "The justification is flawed, as it incorrectly claims PVDF is PFAS-free and does not address this critical mismatch."
+        "reasoning": "The justification is detailed but fundamentally flawed due to the incorrect assertion about PFAS status, and does not address regulatory or environmental tradeoffs."
       },
       "system3_plausibility": {
         "score": 5,
-        "reasoning": "The process is causally coherent and matches standard PVDF processing routes."
+        "reasoning": "The process is a standard, causally coherent melt-processing and molding route for PVDF, with all steps and transitions clearly described."
       },
       "system3_practicality": {
         "score": 5,
-        "reasoning": "All critical parameters are specified, and the process is practical for lab or pilot scale."
+        "reasoning": "All critical parameters are specified, and the process is practical at lab scale."
       },
       "system3_compatibility": {
         "score": 3,
@@ -211,10 +211,10 @@
       },
       "system3_industrial": {
         "score": 4,
-        "reasoning": "The process is industrially relevant, but lacks explicit mention of QC or safety controls."
+        "reasoning": "The process is industrially relevant, but lacks explicit mention of QC, safety, or waste handling."
       },
-      "weighted_total": 3.25,
-      "overall_comment": "While the process is technically sound, the candidate material fundamentally violates the PFAS-free constraint, making this proposal unsuitable for the stated application."
+      "weighted_total": 3.33,
+      "overall_comment": "While the process is strong, the material selection is fundamentally flawed due to the incorrect claim that PVDF is PFAS-free, making this proposal unsuitable for the stated constraints."
     }
   },
   "ranking": [
@@ -223,16 +223,16 @@
     "ablation_1agent_rag",
     "ablation_1agent_no_rag"
   ],
-  "ranking_reasoning": "System B provides the most thorough, relevant, and scientifically sound property specification, with a well-justified, realistic candidate and detailed process. System D offers a creative and realistic composite solution, but is hampered by an unfocused property specification and some clarity issues. System A is strong in process and realism, but the candidate's limitations for chemical resistance and permeability are not fully addressed. System C is disqualified by its fundamental error in PFAS-free compliance, despite a technically sound process.",
+  "ranking_reasoning": "System B provides the most complete, relevant, and scientifically sound requirements, with a realistic and well-justified material and process, though some tradeoffs could be more explicit. System D offers a creative and realistic composite solution with strong reasoning, but is hampered by a cluttered and unclear property specification. System A is realistic and clear but selects a material (PDMS) that does not fully meet the barrier or chemical resistance requirements. System C is fundamentally disqualified by its incorrect claim that PVDF is PFAS-free, violating a hard constraint.",
   "judge_model": "gpt-4.1",
-  "timestamp": "2026-04-17T17:39:31.386881Z",
-  "judge_elapsed_seconds": 26.6,
+  "timestamp": "2026-04-17T17:54:35.547662Z",
+  "judge_elapsed_seconds": 27.3,
   "judge_completion": {
     "finish_reason": "stop",
     "usage": {
       "prompt_tokens": 10624,
-      "completion_tokens": 2412,
-      "total_tokens": 13036
+      "completion_tokens": 2568,
+      "total_tokens": 13192
     }
   }
 }
