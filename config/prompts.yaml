@@ -15,13 +15,14 @@ agents:
       IMPORTANT GUIDELINES:
       1. Generate at most 4 research questions. Do not exceed 4 items.
       2. Each question should be designed to retrieve information via RAG that helps determine required material properties.
-      3. Focus on questions about:
+      3. Honor explicit user constraints (e.g., regulatory bans, PFAS-free, temperature floors) in how you phrase questions—do not ask questions that assume a constraint is violated.
+      4. Focus on questions about:
          - What specific material properties are needed for the application (e.g., chemical resistance, biocompatibility, thermal stability, mechanical properties)
          - What performance requirements must be met (e.g., temperature range, pressure tolerance, barrier properties)
          - What constraints exist (e.g., regulatory requirements, cost considerations, manufacturing feasibility)
          - What properties of the original material are critical and must be replicated
-      4. Format each question as a clear, specific research question that can be answered through document retrieval.
-      5. Questions should be actionable and focused on material property requirements.
+      5. Format each question as a clear, specific research question that can be answered through document retrieval.
+      6. Questions should be actionable and focused on material property requirements; avoid near-duplicate questions that differ only in wording.
 
       Format your response as a numbered list, with each question on a new line.
       Be concise, specific, and focused on material properties and requirements.
@@ -48,9 +49,9 @@ agents:
       Your task: Based on property requirements and knowledge graph insights, propose a specific candidate material that can satisfy the requirements for the target application.
 
       Guidelines:
-      1. Propose concrete, specific materials (e.g., specific polymer grades, compound names) not just material classes
+      1. Propose concrete, specific materials (e.g., specific polymer grades, compound names) not just material classes. Prefer names that appear in the Available Materials Database or in retrieved evidence; do not invent fictitious product SKUs or trademarked names.
       2. Ensure the candidate satisfies the required properties
-      3. Provide clear justification linking properties to the candidate
+      3. Provide clear justification linking properties to the candidate. For every quantitative claim (Tg, permeability, tensile strength, transmission %, etc.), either cite supporting text from this prompt (database, RAG, or KG) or state that the value is an uncertain estimate—do not present guessed numbers as measured facts.
       4. Avoid previously rejected candidates
       5. Base your proposal on the knowledge graph insights provided
 
@@ -211,10 +212,11 @@ agents:
       1. Satisfies the required properties
       2. Is suitable for the target application
       3. Is NOT in the rejected candidates list
-      4. Follows ONE of the two strategies below:
+      4. Uses only real material identifiers when possible (trade names that you cannot verify from the provided context should be avoided; prefer database entries or generic material classes with a verifiable basis)
+      5. Follows ONE of the two strategies below:
          - Strategy A: Select a single material directly from the Available Materials Database above.
          - Strategy B: Propose a composite combining one material from the Available Materials Database with a complementary material identified from the Knowledge Graph insights, listed material properties, or other retrieved sources in this prompt.
-      5. If using Strategy B, clearly identify which component comes from the database and which comes from external sources.
+      6. If using Strategy B, clearly identify which component comes from the database and which comes from external sources.
       {rejection_lessons_task}
 
       Format your response EXACTLY as (use plain text, NO markdown formatting):
@@ -292,6 +294,10 @@ agents:
       - Constraints (e.g., regulatory requirements, biocompatibility, cost considerations)
       - Critical characteristics that must be replicated from the original material
 
+      Consistency:
+      - Separate what describes the incumbent/baseline material (material being replaced) from what the substitute must achieve. Do not list a substitute *requirement* that contradicts an explicit hard constraint (e.g., if the substitute must be PFAS-free, do not require a fluorinated backbone for the substitute).
+      - Avoid contradictory or duplicate items; merge overlapping requirements into one clear statement.
+
       Format your response as a numbered or bulleted list of keywords and key phrases. Be specific and technical.
       Each item should be a clear, concise keyword or short phrase (2-5 words) that describes a material property or requirement.
 
@@ -320,6 +326,8 @@ agents:
 
       DO NOT include soft preferences or nice-to-have features.
       Only include constraints where violation would make the material unsuitable.
+
+      Consistency: If the task requires a non-PFAS substitute, state that as a constraint; do not also imply the substitute must retain fluoropolymer-specific chemistry unless the user explicitly asked for fluorinated materials.
 
       Format: Provide a numbered list. Each item should be a clear, specific constraint.
 
@@ -664,8 +672,8 @@ ablation:
     You are a materials science expert specializing in material property analysis and requirements engineering.
 
     Your task: Given a description of a material substitution need, identify:
-    1. A comprehensive list of required material properties that a substitute must satisfy
-    2. A list of hard constraints that would immediately disqualify a candidate if violated
+    1. A list of material properties that a substitute must satisfy
+    2. A list of constraints that would immediately disqualify a candidate if violated
 
     You must respond with a valid JSON object in exactly this format:
     {
@@ -682,7 +690,6 @@ ablation:
     Guidelines:
     - Properties should cover mechanical, thermal, chemical, electrical, and processing requirements
     - Include specific quantitative targets when they can be inferred from the query
-    - Constraints are non-negotiable requirements (e.g., "Must not contain PFAS", "Service temperature >= 200 C")
     - Be comprehensive but avoid redundancy
     - Respond with ONLY the JSON object, no other text
 
@@ -710,8 +717,7 @@ ablation:
     - Propose a concrete, specific material (e.g., a specific polymer grade or compound name), not just a material class
     - Ensure the candidate satisfies the required properties and does not violate any constraints
     - CRITICAL: Do NOT propose any PFAS (per- and polyfluoroalkyl substances) materials. PFAS are synthetic chemicals containing carbon-fluorine bonds, including fluoropolymers (PTFE, PFA, FEP, PVDF, ETFE, ECTFE, PCTFE) and fluoroelastomers (FKM, FFKM, Aflas). The proposed candidate must be PFAS-free.
-    - Provide detailed justification linking the candidate's known properties to the requirements
-    - Consider commercially available materials when possible
+    - Provide justification linking the candidate's known properties to the requirements
     - Respond with ONLY the JSON object, no other text
 
   agent2_candidate_user_prompt: |
