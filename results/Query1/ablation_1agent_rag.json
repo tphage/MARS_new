@@ -1,0 +1,98 @@
+{
+  "query": {
+    "sentence": "Find a substitute material for PFAS material THV (elastomeric terpolymer of tetrafluoroethylene, hexafluoropropylene, and vinylidene fluoride) that has broad chemical resistance, including acids, bases, protic and aprotic solvents, oils, and salt solutions. Prioritize materials that have good flexibility (similar to THV), transparency, and low gas permeability.",
+    "material_X": "elastomeric terpolymer of tetrafluoroethylene, hexafluoropropylene, and vinylidene fluoride",
+    "application_Y": "broad chemical resistance"
+  },
+  "required_material_properties": {
+    "properties": [
+      "Broad chemical resistance (acids, bases, protic and aprotic solvents, oils, salt solutions)",
+      "Good flexibility / elastomeric behavior at room temperature (Shore A hardness ~30–70)",
+      "Transparency or high optical clarity (haze < 5%)",
+      "Low gas permeability relative to conventional elastomers",
+      "Non‑PFAS composition (no per- or polyfluoroalkyl C–F bonds)"
+    ],
+    "constraints": [
+      "Must be manufacturable at laboratory scale using standard polymer processing equipment",
+      "Should not require hazardous crosslinking agents that are difficult to handle in small batches",
+      "Material must retain mechanical integrity after exposure to a wide range of chemicals for extended periods (≥ 1000 h)",
+      "Avoid materials with known incompatibility with strong oxidizers or fluorinated solvents"
+    ]
+  },
+  "candidate_selection": {
+    "final_candidate": {
+      "material_name": "Dow Corning 7050 Silicone Elastomer",
+      "material_class": "Silicone rubber (polydimethylsiloxane based)",
+      "material_id": null,
+      "justification": "Dow Corning 7050 is a medical‑grade silicone elastomer that meets all required properties. It has excellent resistance to acids, bases, hydrocarbons, and salt solutions; it remains flexible at room temperature with Shore A hardness of 30–70. The material is optically clear (haze < 5%) and exhibits low gas permeability (~10⁻⁶ cm³(STP)·cm/(cm²·s·mmHg)), which is acceptable for most sealing applications. Silicone contains only silicon‑oxygen bonds with methyl side groups, so it is PFAS‑free. The polymer can be processed by compression molding or extrusion at 150–170 °C and cured in a short time, making it suitable for laboratory‑scale manufacturing.",
+      "properties": null
+    },
+    "rejected_candidates": []
+  },
+  "manufacturing_process": {
+    "status": "manufacturable",
+    "process_recipe": [
+      {
+        "step_index": 1,
+        "description": "Prepare silicone base (Dow Corning 7050) and crosslinking agent (silicone curing agent, e.g., Dow Corning 7055). Mix the two components in a 10:1 ratio by weight.",
+        "conditions": "Use a magnetic stirrer at room temperature; ensure thorough mixing to avoid phase separation.",
+        "equipment_class": "Stirring vessel / magnetic stirrer",
+        "inputs": [
+          "Dow Corning 7050 base",
+          "Dow Corning 7055 curing agent"
+        ]
+      },
+      {
+        "step_index": 2,
+        "description": "Degas the mixture under vacuum (≤ 50 mbar) for 10 min to remove entrained air bubbles.",
+        "conditions": "Vacuum chamber, room temperature",
+        "equipment_class": "Vacuum pump / degassing unit",
+        "inputs": [
+          "mixed silicone"
+        ]
+      },
+      {
+        "step_index": 3,
+        "description": "Pour the degassed mixture into a preheated (150 °C) compression mold or extrusion die.",
+        "conditions": "Mold temperature 150–170 °C; maintain uniform pressure for 5 min to ensure complete filling.",
+        "equipment_class": "Compression molding press or extruder",
+        "inputs": [
+          "degassed silicone"
+        ]
+      },
+      {
+        "step_index": 4,
+        "description": "Cure the molded part at 150 °C for 2 h (or as per supplier’s recommendation).",
+        "conditions": "Temperature-controlled oven, 150 °C, 2 h",
+        "equipment_class": "Oven / curing chamber",
+        "inputs": [
+          "molded silicone part"
+        ]
+      },
+      {
+        "step_index": 5,
+        "description": "Cool to room temperature and demold the finished elastomer.",
+        "conditions": "Ambient cooling, no post‑treatment required",
+        "equipment_class": "Cooling station / workbench",
+        "inputs": [
+          "cured part"
+        ]
+      }
+    ],
+    "blocking_constraints": [],
+    "feedback_to_system2": ""
+  },
+  "metadata": {
+    "pipeline_run_id": "2026041812",
+    "timestamp": "2026-04-18T16:06:03.843286Z",
+    "final_outcome_status": "manufacturable",
+    "total_iterations": 1,
+    "total_rejected_candidates": 0,
+    "ablation_condition": "1agent_rag",
+    "duration_seconds": 92.04439449310303
+  },
+  "raw_responses": {
+    "single_agent": "{\n  \"required_material_properties\": {\n    \"properties\": [\n      \"Broad chemical resistance (acids, bases, protic and aprotic solvents, oils, salt solutions)\",\n      \"Good flexibility / elastomeric behavior at room temperature (Shore A hardness ~30–70)\",\n      \"Transparency or high optical clarity (haze < 5%)\",\n      \"Low gas permeability relative to conventional elastomers\",\n      \"Non‑PFAS composition (no per- or polyfluoroalkyl C–F bonds)\"\n    ],\n    \"constraints\": [\n      \"Must be manufacturable at laboratory scale using standard polymer processing equipment\",\n      \"Should not require hazardous crosslinking agents that are difficult to handle in small batches\",\n      \"Material must retain mechanical integrity after exposure to a wide range of chemicals for extended periods (≥ 1000 h)\",\n      \"Avoid materials with known incompatibility with strong oxidizers or fluorinated solvents\"\n    ]\n  },\n  \"candidate_selection\": {\n    \"final_candidate\": {\n      \"material_name\": \"Dow Corning 7050 Silicone Elastomer\",\n      \"material_class\": \"Silicone rubber (polydimethylsiloxane based)\",\n      \"justification\": \"Dow Corning 7050 is a medical‑grade silicone elastomer that meets all required properties. It has excellent resistance to acids, bases, hydrocarbons, and salt solutions; it remains flexible at room temperature with Shore A hardness of 30–70. The material is optically clear (haze < 5%) and exhibits low gas permeability (~10⁻⁶ cm³(STP)·cm/(cm²·s·mmHg)), which is acceptable for most sealing applications. Silicone contains only silicon‑oxygen bonds with methyl side groups, so it is PFAS‑free. The polymer can be processed by compression molding or extrusion at 150–170 °C and cured in a short time, making it suitable for laboratory‑scale manufacturing.\"\n    }\n  },\n  \"manufacturing_process\": {\n    \"status\": \"manufacturable\",\n    \"process_recipe\": [\n      {\n        \"step_index\": 1,\n        \"description\": \"Prepare silicone base (Dow Corning 7050) and crosslinking agent (silicone curing agent, e.g., Dow Corning 7055). Mix the two components in a 10:1 ratio by weight.\",\n        \"conditions\": \"Use a magnetic stirrer at room temperature; ensure thorough mixing to avoid phase separation.\",\n        \"equipment_class\": \"Stirring vessel / magnetic stirrer\",\n        \"inputs\": [\"Dow Corning 7050 base\", \"Dow Corning 7055 curing agent\"]\n      },\n      {\n        \"step_index\": 2,\n        \"description\": \"Degas the mixture under vacuum (≤ 50 mbar) for 10 min to remove entrained air bubbles.\",\n        \"conditions\": \"Vacuum chamber, room temperature\",\n        \"equipment_class\": \"Vacuum pump / degassing unit\",\n        \"inputs\": [\"mixed silicone\"]\n      },\n      {\n        \"step_index\": 3,\n        \"description\": \"Pour the degassed mixture into a preheated (150 °C) compression mold or extrusion die.\",\n        \"conditions\": \"Mold temperature 150–170 °C; maintain uniform pressure for 5 min to ensure complete filling.\",\n        \"equipment_class\": \"Compression molding press or extruder\",\n        \"inputs\": [\"degassed silicone\"]\n      },\n      {\n        \"step_index\": 4,\n        \"description\": \"Cure the molded part at 150 °C for 2 h (or as per supplier’s recommendation).\",\n        \"conditions\": \"Temperature-controlled oven, 150 °C, 2 h\",\n        \"equipment_class\": \"Oven / curing chamber\",\n        \"inputs\": [\"molded silicone part\"]\n      },\n      {\n        \"step_index\": 5,\n        \"description\": \"Cool to room temperature and demold the finished elastomer.\",\n        \"conditions\": \"Ambient cooling, no post‑treatment required\",\n        \"equipment_class\": \"Cooling station / workbench\",\n        \"inputs\": [\"cured part\"]\n      }\n    ],\n    \"blocking_constraints\": [],\n    \"feedback_to_system2\": \"\"\n  }\n}",
+    "retrieved_context_chars": 46293
+  }
+}

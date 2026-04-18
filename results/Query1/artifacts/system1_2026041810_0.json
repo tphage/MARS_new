@@ -1,0 +1,70 @@
+{
+  "run_id": "2026041810_0",
+  "timestamp": "2026-04-18T14:48:34.025988Z",
+  "sentence": "Find a substitute material for PFAS material THV (elastomeric terpolymer of tetrafluoroethylene, hexafluoropropylene, and vinylidene fluoride) that has broad chemical resistance, including acids, bases, protic and aprotic solvents, oils, and salt solutions. Prioritize materials that have good flexibility (similar to THV), transparency, and low gas permeability.",
+  "keywords": [
+    "elastomeric terpolymer of tetrafluoroethylene, hexafluoropropylene, and vinylidene fluoride",
+    "broad chemical resistance"
+  ],
+  "material_X": "elastomeric terpolymer of tetrafluoroethylene, hexafluoropropylene, and vinylidene fluoride",
+  "application_Y": "broad chemical resistance",
+  "properties_W": {
+    "required": [
+      "Key material properties & performance requirements for a non‑PFAS substitute to THV",
+      "PFAS‑free composition – no tetrafluoroethylene, hexafluoropropylene, or vinylidene fluoride units.",
+      "Elastomeric flexibility – room‑temperature modulus ≈ THV (≈ 0.5–1 MPa) with good elongation at break (> 200 %).",
+      "Optical clarity / transparency – light transmittance > 90 % in the visible range for films ≤ 0.2 mm thick.",
+      "Low gas permeability – O₂/H₂O vapor transmission rates < 10 cm³/m²·day (or equivalent).",
+      "Broad chemical resistance – withstand strong acids, bases, protic and aprotic solvents without degradation or swelling.",
+      "Oil repellency / oleophobicity – contact angle > 110° for common oils; minimal oil absorption over 24 h exposure.",
+      "Salt‑solution (high salinity) resistance – no loss of mechanical integrity or barrier performance after prolonged immersion in NaCl solutions up to 3 M.",
+      "Thermal stability – Tg ≥ 50 °C and degradation temperature > 200 °C for typical processing/usage conditions.",
+      "Mechanical toughness – impact strength comparable to THV (≈ 10–15 kJ/m²).",
+      "Durability / washability – retain optical clarity, flexibility, and barrier properties after ≥ 50 laundering cycles or equivalent abrasion tests.",
+      "Regulatory compliance – meet environmental, health, and safety standards for non‑PFAS polymers (e.g., REACH, RoHS).",
+      "Cost‑effective manufacturability – scalable extrusion/lamination processes with competitive material cost relative to THV.",
+      "Critical characteristics that must be replicated from the original THV",
+      "Elastomeric terpolymer backbone – flexible, low‑density network providing soft hand feel.",
+      "Transparent fluoropolymer architecture – high refractive index matching and minimal haze.",
+      "Low gas permeability inherent to fluorinated chains – must be matched by alternative chemistry (e.g., dense polyimide or cross‑linked EVOH/PE blends).",
+      "Chemical resistance profile of PFAS – resistance to aggressive chemicals that typically degrade conventional polymers."
+    ],
+    "target_values": {}
+  },
+  "extracted_keywords": [
+    "Key material properties & performance requirements for a non‑PFAS substitute to THV",
+    "PFAS‑free composition – no tetrafluoroethylene, hexafluoropropylene, or vinylidene fluoride units.",
+    "Elastomeric flexibility – room‑temperature modulus ≈ THV (≈ 0.5–1 MPa) with good elongation at break (> 200 %).",
+    "Optical clarity / transparency – light transmittance > 90 % in the visible range for films ≤ 0.2 mm thick.",
+    "Low gas permeability – O₂/H₂O vapor transmission rates < 10 cm³/m²·day (or equivalent).",
+    "Broad chemical resistance – withstand strong acids, bases, protic and aprotic solvents without degradation or swelling.",
+    "Oil repellency / oleophobicity – contact angle > 110° for common oils; minimal oil absorption over 24 h exposure.",
+    "Salt‑solution (high salinity) resistance – no loss of mechanical integrity or barrier performance after prolonged immersion in NaCl solutions up to 3 M.",
+    "Thermal stability – Tg ≥ 50 °C and degradation temperature > 200 °C for typical processing/usage conditions.",
+    "Mechanical toughness – impact strength comparable to THV (≈ 10–15 kJ/m²).",
+    "Durability / washability – retain optical clarity, flexibility, and barrier properties after ≥ 50 laundering cycles or equivalent abrasion tests.",
+    "Regulatory compliance – meet environmental, health, and safety standards for non‑PFAS polymers (e.g., REACH, RoHS).",
+    "Cost‑effective manufacturability – scalable extrusion/lamination processes with competitive material cost relative to THV.",
+    "Critical characteristics that must be replicated from the original THV",
+    "Elastomeric terpolymer backbone – flexible, low‑density network providing soft hand feel.",
+    "Transparent fluoropolymer architecture – high refractive index matching and minimal haze.",
+    "Low gas permeability inherent to fluorinated chains – must be matched by alternative chemistry (e.g., dense polyimide or cross‑linked EVOH/PE blends).",
+    "Chemical resistance profile of PFAS – resistance to aggressive chemicals that typically degrade conventional polymers."
+  ],
+  "extracted_constraints": [
+    "Hard constraints for the substitute material",
+    "Acid resistance: Must exhibit ≤ 5 % weight loss after 24 h immersion in 10 % HCl (pH ≈ 0) at 25 °C.",
+    "Base resistance: Must exhibit ≤ 5 % weight loss after 24 h immersion in 10 % NaOH (pH ≈ 14) at 25 °C.",
+    "Protic‑solvent compatibility: Must show ≤ 5 % swelling and ≤ 5 % mass change after 48 h exposure to 50 % ethanol (or equivalent protic solvent) at 25 °C.",
+    "Aprotic‑solvent compatibility: Must show ≤ 5 % swelling and ≤ 5 % mass change after 48 h exposure to acetone or dichloromethane at 25 °C.",
+    "Oil resistance: Must exhibit ≤ 5 % swelling and no measurable loss of mechanical properties after 7 days immersion in mineral oil (or vegetable oil) at 25 °C.",
+    "Salt‑solution resistance: Must retain ≥ 95 % of its original tensile strength after 30 days exposure to 10 % NaCl solution at 25 °C.",
+    "Flexibility (mechanical): Tensile modulus ≤ 200 MPa and elongation at break ≥ 300 % at room temperature, matching the flexibility range of THV elastomer.",
+    "Optical clarity: Transmittance ≥ 80 % at 550 nm for a film thickness ≤ 0.5 mm (ensuring transparency comparable to THV).",
+    "Gas barrier performance: Oxygen transmission rate < 10 cm³/m²·day and water‑vapor transmission < 1 g/m²·day for the same film thickness, matching or exceeding THV’s low permeability.",
+    "Hydrocarbon stability: No measurable loss of tensile strength or modulus after 30 days immersion in a hydrocarbon (e.g., n‑heptane) at 25 °C."
+  ],
+  "num_keywords": 18,
+  "num_constraints": 11,
+  "chat_log_path": "/orcd/pool/004/tphage/SG_april/MARS_new/results/Query1/artifacts/chats/system1_chat_log_material_requirements_2026041810_0.json"
+}
